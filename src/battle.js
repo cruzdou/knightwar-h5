@@ -12,6 +12,12 @@ const STOP_Y = 975;        // 推进到城墙前
 const ENEMY_H_NEAR = 118;  // 到墙时的高度
 const ENEMY_H_FAR = 64;    // 出生时的高度
 
+// 盟友（gameAllies.json 的 charID 1~9）对应的原包骨架名
+const ALLY_SKELETONS = {
+  1: 'Elf_Archer', 2: 'Monk', 3: 'Ice_Mage', 4: 'White Mage', 5: 'FireMage',
+  6: 'Ent', 7: 'Giant_Guardian', 8: 'GreenDragon', 9: 'Seraph'
+};
+
 class BattleScene {
   constructor(game) {
     this.g = game;
@@ -82,6 +88,17 @@ class BattleScene {
     this.bg = this.buildBackground();
     this.setHero(Player.charID);
     this.reset();
+  }
+
+  // 上阵盟友的骨架按需拉取（换阵容后第一次战斗前调用）
+  async ensureAllySprites() {
+    if (!this.ally_infos) this.ally_infos = {};
+    const ids = (Player.squad || []).slice(0, 3);
+    const miss = ids.filter(id => !this.ally_infos[id] && ALLY_SKELETONS[id]);
+    if (!miss.length) return;
+    await Promise.allSettled(miss.map(async id => {
+      try { this.ally_infos[id] = await loadSpine(ALLY_SKELETONS[id]); } catch (e) { /* 缺件不上场 */ }
+    }));
   }
 
   // 换主角骨架（按 charID）
@@ -220,6 +237,27 @@ class BattleScene {
       this.heroHP = this.heroMax;
       this.heroCrit = heroT.crit;
     }
+
+    // 上阵盟友（最多 3 名）：站在英雄两侧/后方，自动向最靠墙的敌人射击
+    // 数值取自 gameAllies.json 该阶该级的伤害；盟友不吃伤害（简化：不会被打死）
+    this.allies = [];
+    const allySlots = [{ x: 232, y: 1044 }, { x: 488, y: 1044 }, { x: 360, y: 976 }];
+    (Player.squad || []).slice(0, 3).forEach((id, i) => {
+      const info = this.ally_infos && this.ally_infos[id];
+      const st = this.g.allyStats ? this.g.allyStats(id) : null;
+      if (!info || !st) return;
+      const a = new Actor(info, { anim: info.anims.includes('Idle') ? 'Idle' : (info.anims[0] || 'Idle') });
+      a.allyID = id;
+      a.x = allySlots[i].x;
+      a.y = allySlots[i].y;
+      a.flip = false;
+      a.scale = (HERO_H * 0.78) / info.h;
+      a.dmg = Math.max(1, st.damage * (window.CONFIG ? CONFIG.balance.damageMult : 3) * 0.55);
+      a.rate = Math.max(0.6, st.atkRate || 1.5);
+      a.crit = st.critRate || 8;
+      a.timer = 0.35 * i;
+      this.allies.push(a);
+    });
   }
 
   // 按分区挑怪物（只用渲染完整的骨架）
@@ -270,11 +308,24 @@ class BattleScene {
     this.g.playSfx('sfx_shoot', 0.35);
   }
 
+  // 盟友射击：同样的箭矢，伤害取盟友自己的数值（箭上带 dmg/crit）
+  shootFrom(al, target) {
+    this.arrows.push({
+      x: al.x, y: al.y - al.scale * al.info.h * 0.72,
+      tx: target.x, ty: target.y - target.scale * target.info.h * 0.55,
+      target, speed: 480, rot: 0, dmg: al.dmg, crit: al.crit
+    });
+    const atk = al.info.anims.includes('Atk') ? 'Atk' : (al.info.anims.includes('Attack_01') ? 'Attack_01' : null);
+    if (atk) al.once(atk, 'Idle');
+    this.g.playSfx('sfx_shoot', 0.18);
+  }
+
   hitTarget(arrow) {
     const e = arrow.target;
     if (!e || e.dead || e.dying) return;
-    const crit = Math.random() < Math.min(0.5, (this.heroCrit || 12) / 100);
-    const dmg = this.g.heroDamage * (crit ? 1.5 : 1);
+    const critP = Math.min(0.6, ((arrow.dmg ? arrow.crit : this.heroCrit) || 12) / 100);
+    const crit = Math.random() < critP;
+    const dmg = (arrow.dmg || this.g.heroDamage) * (crit ? 1.5 : 1);
     e.hp -= dmg;
     this.floats.push({ x: e.x, y: e.y - e.info.h * e.scale - 10, v: Math.round(dmg), life: 0.7, crit });
     // 命中特效：小光斑（原包 fx_glow1）
@@ -395,6 +446,19 @@ class BattleScene {
       }
     }
 
+    // 盟友自动攻击（独立计时，目标同样取最靠墙的敌人）
+    if (this.allies) {
+      for (const al of this.allies) {
+        al.update(d);
+        if (al.timer > 0) { al.timer -= d; continue; }
+        const aliveList = this.enemies.filter(e => !e.dead && !e.dying);
+        if (!aliveList.length) continue;
+        const target = aliveList.sort((a, b) => b.y - a.y)[0];
+        this.shootFrom(al, target);
+        al.timer = 1 / al.rate;
+      }
+    }
+
     for (const a of this.arrows) {
       if (a.dead) continue;
       const dx = a.tx - a.x, dy = a.ty - a.y;
@@ -488,6 +552,8 @@ class BattleScene {
       if (!e.dying) this.drawEnemyHP(e);
     }
 
+    // 盟友画在英雄后面（先画，英雄压在最前）
+    if (this.allies) for (const al of this.allies) al.draw(ctx, this.renderer);
     this.hero.draw(ctx, this.renderer);
 
     for (const a of this.arrows) {

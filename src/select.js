@@ -109,14 +109,14 @@ class LevelSelectScene {
 
     // 礼包卡
     y = SEL.castle.y + 96;
-    this.packCard(x, y, w, 104, 'ALLIES PACK', '四位英雄', 'FREE');
+    this.packCard(x, y, w, 104, 'ALLIES PACK', '四位英雄', 'FREE', 'ally');
     y += 112;
     this.packCard(x, y, w, 104, 'BONUS PACK', '04:52', '50 宝石');
     y += 112;
     this.packCard(x, y, w, 104, 'STARTER PACK', '04:34:31', '限时');
   }
 
-  packCard(x, y, w, h, title, sub, tag) {
+  packCard(x, y, w, h, title, sub, tag, act) {
     const ctx = this.ctx;
     roundRect(ctx, x, y, w, h, 8, '#16202d', '#33475e', 2);
     const lg = ctx.createLinearGradient(x, y, x, y + 30);
@@ -133,6 +133,8 @@ class LevelSelectScene {
     text(ctx, sub, x + w / 2, y + 84, 13, '#a8bccf', 'center');
     roundRect(ctx, x + w - 32, y + 4, 26, 15, 4, '#3a2b10', '#ffcf5c', 1);
     text(ctx, tag.slice(0, 3), x + w - 19, y + 12, 9, '#ffcf5c', 'center');
+    // 可点的礼包卡（ALLIES PACK → 盟友页）
+    if (act) this.hot.push({ x, y, w, h, act });
   }
 
   // 中央城堡面板
@@ -388,6 +390,7 @@ class LevelSelectScene {
       if (b.act === 'pageNext') { this.page = Math.min(this.pageCount() - 1, this.page + 1); this.g.playSfx('sfx_click', 0.26); return; }
       if (b.act === 'stage' && b.stage) { this.g.playSfx('sfx_click', 0.3); this.g.startBattle(b.stage); return; }
       if (b.act === 'daily') { this.g.playSfx('sfx_tab', 0.3); this.g.showDaily(b.tab); return; }
+      if (b.act === 'ally') { this.g.playSfx('sfx_tab', 0.3); this.g.showAlly(); return; }
       if (b.act === 'nav') { this.g.showTab(b.kind); return; }
     }
   }

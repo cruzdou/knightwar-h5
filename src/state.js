@@ -25,6 +25,11 @@ class PlayerState {
     this.heroLv = {};
     // 技能等级：{ 'charID:skillID': level }（上限取 skillList 的 maxLevel）
     this.skillLv = {};
+    // 英雄进化阶段：{ charID: 1~8 }（取 gameCharacters.json 的 evolutionList）
+    this.heroEvo = {};
+    // 盟友：{ allyID: { lv, evo } }（取 gameAllies.json）；squad 为上场顺序（最多 3）
+    this.allies = {};
+    this.squad = [1];
     this.load();
     if (!Object.keys(this.mats).length) {
       // 新档给一套启动材料，够打第一件装备 + 一次材料合成
@@ -49,7 +54,13 @@ class PlayerState {
       if (s.owned && typeof s.owned === 'object') this.owned = s.owned;
       if (s.heroLv && typeof s.heroLv === 'object') this.heroLv = s.heroLv;
       if (s.skillLv && typeof s.skillLv === 'object') this.skillLv = s.skillLv;
+      if (s.heroEvo && typeof s.heroEvo === 'object') this.heroEvo = s.heroEvo;
+      if (s.allies && typeof s.allies === 'object') this.allies = s.allies;
+      if (Array.isArray(s.squad)) this.squad = s.squad;
     } catch (e) { /* 存档损坏就用默认值 */ }
+    // 新档默认送 1 号盟友（Elf Archer），否则战场上一个帮手都没有
+    if (!Object.keys(this.allies).length) this.allies = { 1: { lv: 1, evo: 1 } };
+    if (!Array.isArray(this.squad) || !this.squad.length) this.squad = [1];
   }
 
   save() {
@@ -59,7 +70,8 @@ class PlayerState {
         stars: this.stars, charID: this.charID, castleLevel: this.castleLevel,
         equipped: this.equipped, itemLv: this.itemLv,
         mats: this.mats, owned: this.owned,
-        heroLv: this.heroLv, skillLv: this.skillLv
+        heroLv: this.heroLv, skillLv: this.skillLv,
+        heroEvo: this.heroEvo, allies: this.allies, squad: this.squad
       }));
     } catch (e) { /* 隐私模式下忽略 */ }
   }
@@ -124,6 +136,37 @@ class PlayerState {
 
   skillLvOf(charID, skillID) { return this.skillLv[charID + ':' + skillID] || 1; }
   setSkillLv(charID, skillID, lv) { this.skillLv[charID + ':' + skillID] = lv; this.save(); }
+
+  // ---------- 英雄进化 ----------
+  heroEvoOf(charID) { return this.heroEvo[charID] || 1; }
+  setHeroEvo(charID, evo) { this.heroEvo[charID] = evo; this.save(); }
+
+  // ---------- 盟友 ----------
+  allyOf(allyID) { return this.allies[allyID] || null; }
+  hasAlly(allyID) { return !!this.allies[allyID]; }
+  setAlly(allyID, lv, evo) {
+    this.allies[allyID] = { lv: lv, evo: evo };
+    this.save();
+  }
+  recruitAlly(allyID) {
+    if (!this.allies[allyID]) this.allies[allyID] = { lv: 1, evo: 1 };
+    if (this.squad.indexOf(allyID) < 0 && this.squad.length < 3) this.squad.push(allyID);
+    this.save();
+  }
+  inSquad(allyID) { return this.squad.indexOf(allyID) >= 0; }
+  // 上阵/下阵；下阵后队伍不能为空（至少留 1 个）
+  toggleSquad(allyID) {
+    const i = this.squad.indexOf(allyID);
+    if (i >= 0) {
+      if (this.squad.length <= 1) return 'last';
+      this.squad.splice(i, 1);
+    } else {
+      if (this.squad.length >= 3) return 'full';
+      this.squad.push(allyID);
+    }
+    this.save();
+    return 'ok';
+  }
 }
 
 const Player = new PlayerState();

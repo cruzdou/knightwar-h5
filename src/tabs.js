@@ -464,18 +464,36 @@ class TabScene {
         text(ctx, r[3], rx, y, 14, '#8fa3b7', 'left');
         // 等级行：显示训练等级 + 「训练」按钮（花金币升级，战斗里真实生效）
         if (r[3] === '等级') {
-          const hLv = Player.heroLvOf(h.charID), lvMax = h.levelMax || 10;
-          text(ctx, 'Lv ' + hLv + '/' + lvMax, rx + 66, y, 19, '#ffe9a8', 'left');
+          // 等级上限取当前进化阶的 maxLevel（英雄进化会抬高上限）
+          const hLv = Player.heroLvOf(h.charID), lvMax = (t && t.levelMax) || h.levelMax || 10;
+          text(ctx, 'Lv ' + hLv + '/' + lvMax, rx + 48, y, 17, '#ffe9a8', 'left');
+          const evo = (t && t.evo) || 1, evoMax = (t && t.evoMax) || ((h.evolutionList || []).length || 1);
+          text(ctx, 'EVO ' + evo + '/' + evoMax, rx + 48, y + 20, 11, '#9fd0ff', 'left');
+          const bh = 30, by = y - 15;
+          // 训练
+          const bwt = 88, bxt = sx + sw - bwt - 14;
           const cost = 120 * hLv;
-          const bw = 132, bh = 30, bx = sx + sw - bw - 14, by = y - 15;
           if (hLv >= lvMax) {
-            roundRect(ctx, bx, by, bw, bh, 7, '#1a2431', '#2a3644', 1);
-            text(ctx, '已满级', bx + bw / 2, by + bh / 2, 13, '#6f8398', 'center');
+            roundRect(ctx, bxt, by, bwt, bh, 7, '#1a2431', '#2a3644', 1);
+            text(ctx, '已满级', bxt + bwt / 2, by + bh / 2, 12, '#6f8398', 'center');
           } else {
-            roundRect(ctx, bx, by, bw, bh, 7, Player.coins >= cost ? '#e0a52a' : '#3a4654',
+            roundRect(ctx, bxt, by, bwt, bh, 7, Player.coins >= cost ? '#e0a52a' : '#3a4654',
               Player.coins >= cost ? '#ffdf9a' : '#4a5a70', 1);
-            text(ctx, '训练 ' + cost + ' 金币', bx + bw / 2, by + bh / 2, 12, Player.coins >= cost ? '#fff' : '#9fb2c6', 'center', '#1a1206');
-            this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'heroUp', char: h });
+            text(ctx, '训练 ' + cost, bxt + bwt / 2, by + bh / 2, 12, Player.coins >= cost ? '#fff' : '#9fb2c6', 'center', '#1a1206');
+            this.hot.push({ x: bxt, y: by, w: bwt, h: bh, act: 'heroUp', char: h });
+          }
+          // 进化（花表里的 goldEvolution / gemEvolution，逐阶 8 阶）
+          const bxw = 76, bxx = bxt - bxw - 6;
+          if (evo >= evoMax) {
+            roundRect(ctx, bxx, by, bxw, bh, 7, '#1a2431', '#2a3644', 1);
+            text(ctx, '满进化', bxx + bxw / 2, by + bh / 2, 12, '#6f8398', 'center');
+          } else {
+            const ec = this.evoCostOf(h.charID);
+            const can = Player.coins >= ec.gold && Player.gems >= ec.gem;
+            roundRect(ctx, bxx, by, bxw, bh, 7, can ? '#2f6fb0' : '#1a2431', can ? '#7fc6ff' : '#2a3644', 1);
+            text(ctx, '进化', bxx + bxw / 2, by + 8, 12, can ? '#fff' : '#6f8398', 'center');
+            text(ctx, ec.gold + '+' + ec.gem + '宝', bxx + bxw / 2, by + 21, 9, can ? '#cfe8ff' : '#5f7488', 'center');
+            if (can) this.hot.push({ x: bxx, y: by, w: bxw, h: bh, act: 'heroEvo', char: h });
           }
         } else {
           text(ctx, String(r[4]), rx + 66, y, 19, '#ffe9a8', 'left');
@@ -553,8 +571,16 @@ class TabScene {
     return i < 0 ? 0 : i;
   }
 
-  fillHero(chars) {
-    if (!this.hero) this.hero = chars.find(c => c.charID === Player.charID) || chars[0];
+  // 英雄下一阶进化成本（取 gameCharacters.json 的 evolutionList[evo]）
+  evoCostOf(charID) {
+    const chars = this.items.chars || [];
+    const c = chars.find(x => x.charID === charID);
+    const evo = Player.heroEvoOf(charID);
+    const next = (c && c.evolutionList) ? c.evolutionList[evo] : null;
+    return { gold: (next && next.goldEvolution) || 1000, gem: (next && next.gemEvolution) || 50 };
+  }
+
+  fillHero(chars) {    if (!this.hero) this.hero = chars.find(c => c.charID === Player.charID) || chars[0];
     if (!this.hero) return;
     const skName = HERO_SKELETONS[this.hero.charID];
     if (!skName) { this.actor = null; return; }
@@ -866,6 +892,26 @@ class TabScene {
           if (window.Daily) Daily.count('heroUp', 1);
           this.g.playSfx('sfx_levelup', 0.4);
           this.say(h.name + ' 训练到 Lv ' + (lv + 1) + '（伤害 +12% / 血量 +10%）');
+          return;
+        }
+        case 'heroEvo': {
+          const h = b.char;
+          const evo = Player.heroEvoOf(h.charID), evoMax = (h.evolutionList || []).length || 1;
+          if (evo >= evoMax) { this.say(h.name + ' 已满进化'); return; }
+          const ec = this.evoCostOf(h.charID);
+          if (!Player.spendCoins(ec.gold)) { this.say('金币不足，进化需要 ' + ec.gold); this.g.playSfx('sfx_equipfail', 0.3); return; }
+          if (ec.gem && !Player.spendGems(ec.gem)) {
+            Player.addCoins(ec.gold);
+            this.say('宝石不足，进化需要 ' + ec.gem);
+            this.g.playSfx('sfx_equipfail', 0.3);
+            return;
+          }
+          Player.setHeroEvo(h.charID, evo + 1);
+          if (window.Daily) Daily.count('heroUp', 1);
+          const nl = (h.evolutionList || [])[evo];
+          this.g.playSfx('sfx_levelup', 0.44);
+          this.g.playSfx('sfx_star', 0.3);
+          this.say(h.name + ' 进化到 EVO ' + (evo + 1) + '，等级上限 ' + ((nl && nl.maxLevel) || '') );
           return;
         }
         case 'skillUp': {

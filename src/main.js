@@ -58,6 +58,12 @@ class Game {
       for (const it of this.itemTables[k]) this.itemByID[it.itemID] = it;
     }
 
+    // 盟友表（1~9 号援军，含 8 阶进化与每级成长）
+    try {
+      const d = await fetch('data/gameAllies.json').then(r => r.json());
+      this.allyList = d.listCharacters || [];
+    } catch (e) { this.allyList = []; }
+
     // 每日系统（签到 / 任务 / 事件）在读表阶段就初始化，选关页才能显示小红点
     try { await Daily.init(); } catch (e) { /* 表缺失时不影响主流程 */ }
 
@@ -72,10 +78,11 @@ class Game {
     const qs = new URLSearchParams(location.search);
     this.debug = qs.get('debug') === '1';
 
-    // ?tab=shop|craft|hero|castle|daily 直接进功能页（验收用）
+    // ?tab=shop|craft|hero|castle|daily|ally 直接进功能页（验收用）
     if (qs.get('tab')) {
       const t = qs.get('tab');
       if (t === 'daily') await this.showDaily(qs.get('sub'));
+      else if (t === 'ally') await this.showAlly();
       else await this.showTab(t);
     }
 
@@ -149,21 +156,63 @@ class Game {
       b.regain += s.regain;
     }
     const c0 = c || {};
-    // 英雄训练等级（每级 +12% 伤害 / +10% 血量，上限取原表 levelMax）
+    // 英雄训练等级 + 进化阶段（gameCharacters.json 的 evolutionList 共 8 阶）
+    // 第 1 阶的数值当作原有平衡基准，进化只按「本阶 / 第 1 阶」的比值放大，
+    // 每级成长用该阶自带的 _levelUpModel，等级上限也取该阶的 maxLevel
+    const evoList = c0.evolutionList || [];
+    const evo = evoList.length ? Math.max(1, Math.min(evoList.length, Player.heroEvoOf(charID))) : 1;
+    const st = evoList[evo - 1] || null;
+    const s1 = evoList[0] || null;
     const hLv = Player.heroLvOf(charID);
-    const lvDmg = 1 + 0.12 * (hLv - 1);
-    const lvHp = 1 + 0.10 * (hLv - 1);
-    const baseDmg = (c0.damage || 15) * lvDmg;
-    const baseHp = (c0.blood || 1000) * lvHp;
+    let dmgMul = 1 + 0.12 * (hLv - 1), hpMul = 1 + 0.10 * (hLv - 1), rateMul = 1;
+    if (st && s1) {
+      const g = st._levelUpModel || {};
+      const lv = Math.max(0, hLv - 1);
+      dmgMul = (st.damage / (s1.damage || 1)) * (1 + lv * ((g.damage || 0) / (st.damage || 1)));
+      hpMul = (st.blood / (s1.blood || 1)) * (1 + lv * ((g.blood || 0) / (st.blood || 1)));
+      rateMul = (st.atkRate || 1) / (s1.atkRate || 1) * (1 + lv * ((g.atkRate || 0) / (st.atkRate || 1)));
+    }
+    const baseDmg = (c0.damage || 15) * dmgMul;
+    const baseHp = (c0.blood || 1000) * hpMul;
     return {
-      char: c, bonus: b, level: hLv,
+      char: c, bonus: b, level: hLv, evo, evoMax: evoList.length || 1,
+      levelMax: (st && st.maxLevel) || c0.levelMax || 10,
       damage: baseDmg + b.damage,
       blood: baseHp + b.blood,
       armor: (c0.armor || 0) + b.armor,
       crit: (c0.crit || 0) + b.crit,
       atkRange: (c0.atkRange || 0) + b.atkRange,
-      atkRate: (c0.atkRate || 1) + b.atkRate,
+      atkRate: (c0.atkRate || 1) * rateMul + b.atkRate,
       regain: (c0.regain || 0) + b.regain
+    };
+  }
+
+  // 盟友数值（gameAllies.json 的 evolutionList，同样是 8 阶 × maxLevel）
+  allyStats(allyID) {
+    const list = this.allyList || [];
+    const a = list.find(x => x.charID === allyID);
+    if (!a) return null;
+    const rec = Player.allyOf(allyID) || { lv: 1, evo: 1 };
+    const evoList = a.evolutionList || [];
+    const evo = evoList.length ? Math.max(1, Math.min(evoList.length, rec.evo)) : 1;
+    const st = evoList[evo - 1] || null;
+    const lv = Math.max(1, rec.lv || 1);
+    const g = (st && st._levelUpModel) || {};
+    const grow = (field, base) => {
+      const v = (st && st[field]) || 0;
+      const add = (g[field] || 0) * (lv - 1);
+      return v + add;
+    };
+    return {
+      info: a, evo, evoMax: evoList.length || 1, lv,
+      levelMax: (st && st.maxLevel) || a.levelMax || 20,
+      damage: grow('damage', 20) || 20,
+      blood: grow('blood', 100),
+      atkRate: (st && st.atkRate) || 1.5,
+      crit: grow('crit', 0),
+      critRate: (st && st.critRate) || 0,
+      atkRange: grow('atkRange', 0),
+      goldLvUp: (st && st.goldLvUp) || 100
     };
   }
 
@@ -200,7 +249,26 @@ class Game {
     this.playSfx('sfx_tab', 0.3);
   }
 
-  startBattle(stage) {
+  // 盟友页（招募 / 训练 / 进化 / 上阵）
+  async showAlly() {
+    this.audioUnlock();
+    if (!this.ally) this.ally = new AllyScene(this);
+    if (!this.ally.ready) {
+      const loading = document.getElementById('boot');
+      if (loading) loading.classList.remove('hide');
+      await this.ally.init();
+      if (loading) loading.classList.add('hide');
+    }
+    this.ally.toast = '';
+    this.scene = this.ally;
+    this.playSfx('sfx_tab', 0.3);
+  }
+
+  async startBattle(stage) {
+    // 上阵盟友的骨架先就绪再开打（换阵容后第一次进战斗需要补拉）
+    if (this.battle && this.battle.ensureAllySprites) {
+      try { await this.battle.ensureAllySprites(); } catch (e) { /* 缺件就不上场 */ }
+    }
     this.battle.reset(stage);
     this.scene = this.battle;
     this.audioUnlock();
