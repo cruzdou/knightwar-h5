@@ -58,7 +58,8 @@ class Game {
       for (const it of this.itemTables[k]) this.itemByID[it.itemID] = it;
     }
 
-    await this.loadAudio();
+    // 音频不再阻塞启动：后台并行拉取+解码，就绪前 playSfx 自动跳过
+    this.loadAudio().catch(() => {});
     this.select = new LevelSelectScene(this);
     await this.select.init();
     this.battle = new BattleScene(this);
@@ -179,48 +180,50 @@ class Game {
   }
 
   async loadAudio() {    const files = {
-      sfx_shoot: 'assets/audio/hero_01_attack_sfx_hero_01_attack_sfx.wav.wav',
-      sfx_hit: 'assets/audio/beinghit_beinghit.wav.wav',
-      sfx_coin: 'assets/audio/Coins ingame_Coins ingame.wav.wav',
-      sfx_win: 'assets/audio/You Win_You Win.wav.wav',
-      sfx_lose: 'assets/audio/You Lose_You Lose.wav.wav',
+      sfx_shoot: 'assets/audio/hero_01_attack_sfx_hero_01_attack_sfx.mp3',
+      sfx_hit: 'assets/audio/beinghit_beinghit.mp3',
+      sfx_coin: 'assets/audio/Coins ingame_Coins ingame.mp3',
+      sfx_win: 'assets/audio/You Win_You Win.mp3',
+      sfx_lose: 'assets/audio/You Lose_You Lose.mp3',
       // ---- 本轮补的 UI / 战斗音效（全部原包 WAV）----
-      sfx_click: 'assets/audio/button_click_button_click.wav.wav',
-      sfx_back: 'assets/audio/Back_Back.wav.wav',
-      sfx_tab: 'assets/audio/Change_tab_Change_tab.wav.wav',
-      sfx_close: 'assets/audio/Close_screen_sfx_Close_screen_sfx.wav.wav',
-      sfx_buy: 'assets/audio/buy_buy.wav.wav',
-      sfx_openbox: 'assets/audio/Open box_Open box.wav.wav',
-      sfx_craft: 'assets/audio/craft_hit_sfx_craft_hit_sfx.wav.wav',
-      sfx_levelup: 'assets/audio/Level up item_Level up item.wav.wav',
-      sfx_equip: 'assets/audio/Equip_sfx_Equip_sfx.wav.wav',
-      sfx_equipfail: 'assets/audio/Failed_Equip_sfx_Failed_Equip_sfx.wav.wav',
-      sfx_claim: 'assets/audio/claim_item_claim_item.wav.wav',
-      sfx_enter: 'assets/audio/Enter_game_Sfx_Enter_game_Sfx.wav.wav',
-      sfx_footstep: 'assets/audio/foot_step_foot_step.wav.wav',
-      sfx_wallstone: 'assets/audio/rock_impact_small_hit_01_rock_impact_small_hit_01.wav.wav',
-      sfx_skill: 'assets/audio/skill 1_ 02_skill 1_ 02.wav.wav',
-      sfx_blood: 'assets/audio/BloodExplosion_BloodExplosion.wav.wav',
-      sfx_explosion: 'assets/audio/Explosion2_Explosion2.wav.wav',
-      sfx_star: 'assets/audio/star_explore_star_explore.wav.wav',
+      sfx_click: 'assets/audio/button_click_button_click.mp3',
+      sfx_back: 'assets/audio/Back_Back.mp3',
+      sfx_tab: 'assets/audio/Change_tab_Change_tab.mp3',
+      sfx_close: 'assets/audio/Close_screen_sfx_Close_screen_sfx.mp3',
+      sfx_buy: 'assets/audio/buy_buy.mp3',
+      sfx_openbox: 'assets/audio/Open box_Open box.mp3',
+      sfx_craft: 'assets/audio/craft_hit_sfx_craft_hit_sfx.mp3',
+      sfx_levelup: 'assets/audio/Level up item_Level up item.mp3',
+      sfx_equip: 'assets/audio/Equip_sfx_Equip_sfx.mp3',
+      sfx_equipfail: 'assets/audio/Failed_Equip_sfx_Failed_Equip_sfx.mp3',
+      sfx_claim: 'assets/audio/claim_item_claim_item.mp3',
+      sfx_enter: 'assets/audio/Enter_game_Sfx_Enter_game_Sfx.mp3',
+      sfx_footstep: 'assets/audio/foot_step_foot_step.mp3',
+      sfx_wallstone: 'assets/audio/rock_impact_small_hit_01_rock_impact_small_hit_01.mp3',
+      sfx_skill: 'assets/audio/skill 1_ 02_skill 1_ 02.mp3',
+      sfx_blood: 'assets/audio/BloodExplosion_BloodExplosion.mp3',
+      sfx_explosion: 'assets/audio/Explosion2_Explosion2.mp3',
+      sfx_star: 'assets/audio/star_explore_star_explore.mp3',
       // 怪物死亡（按骨架名挑，见 battle.js 的 DIE_SFX）
-      sfx_die_goblin: 'assets/audio/Goblin die_Goblin die.wav.wav',
-      sfx_die_gnoll: 'assets/audio/Gnom die_Gnom die.wav.wav',
-      sfx_die_orc: 'assets/audio/Orc die_Orc die.wav.wav',
-      sfx_die_wolf: 'assets/audio/wolf die_wolf die.wav.wav',
-      sfx_die_thorn: 'assets/audio/thorn die_thorn die.wav.wav',
-      sfx_die_spider: 'assets/audio/Giant spider_Giant spider.wav.wav',
-      sfx_die_lizard: 'assets/audio/lizard_rider die_lizard_rider die.wav.wav',
-      sfx_die_snake: 'assets/audio/snake_die_snake_die.wav.wav'
+      sfx_die_goblin: 'assets/audio/Goblin die_Goblin die.mp3',
+      sfx_die_gnoll: 'assets/audio/Gnom die_Gnom die.mp3',
+      sfx_die_orc: 'assets/audio/Orc die_Orc die.mp3',
+      sfx_die_wolf: 'assets/audio/wolf die_wolf die.mp3',
+      sfx_die_thorn: 'assets/audio/thorn die_thorn die.mp3',
+      sfx_die_spider: 'assets/audio/Giant spider_Giant spider.mp3',
+      sfx_die_lizard: 'assets/audio/lizard_rider die_lizard_rider die.mp3',
+      sfx_die_snake: 'assets/audio/snake_die_snake_die.mp3'
     };
-    for (const [k, f] of Object.entries(files)) {
-      try {
-        const res = await fetch(f);
-        this.audio[k] = await res.arrayBuffer();
-      } catch (e) { /* 音频可选 */ }
-    }
     this.actx = new (window.AudioContext || window.webkitAudioContext)();
     this.bufs = {};
+    // 并行拉取，避免 30+ 个音效串行等待（线上首次加载的最大瓶颈）
+    await Promise.all(Object.entries(files).map(async ([k, f]) => {
+      try {
+        const res = await fetch(f);
+        if (!res.ok) return;
+        this.audio[k] = await res.arrayBuffer();
+      } catch (e) { /* 音频可选 */ }
+    }));
     for (const [k, ab] of Object.entries(this.audio)) {
       try { this.bufs[k] = await this.actx.decodeAudioData(ab.slice(0)); } catch (e) {}
     }

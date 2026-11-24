@@ -44,11 +44,11 @@ window.CONFIG = {
   },
 
   audio: {
-    shoot: 'assets/audio/hero_01_attack_sfx_hero_01_attack_sfx.wav.wav',
-    hit:   'assets/audio/beinghit_beinghit.wav.wav',
-    coin:  'assets/audio/Coins ingame_Coins ingame.wav.wav',
-    win:   'assets/audio/You Win_You Win.wav.wav',
-    lose:  'assets/audio/You Lose_You Lose.wav.wav'
+    shoot: 'assets/audio/hero_01_attack_sfx_hero_01_attack_sfx.mp3',
+    hit:   'assets/audio/beinghit_beinghit.mp3',
+    coin:  'assets/audio/Coins ingame_Coins ingame.mp3',
+    win:   'assets/audio/You Win_You Win.mp3',
+    lose:  'assets/audio/You Lose_You Lose.mp3'
   },
 
   debug: {
