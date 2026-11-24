@@ -200,17 +200,21 @@ class LevelSelectScene {
     if (on) this.hot.push({ x: cx - 22, y: cy - 22, w: 44, h: 44, act: act || (dir > 0 ? 'zoneNext' : 'zonePrev') });
   }
 
-  // 右侧福利列
+  // 右侧福利列（Daily Gift / Quest 点击进每日页，带可领数量小红点）
   drawRightColumn() {
     const x = SEL.right.x, w = SEL.right.w;
+    const ready = window.Daily && Daily.ready;
+    const nSign = ready ? Daily.sectionClaimable('sign') : 0;
+    const nQuest = ready ? Daily.sectionClaimable('quest') : 0;
+    const nEvent = ready ? Daily.sectionClaimable('event') : 0;
     let y = SEL.castle.y;
     this.rightCard(x, y, w, 88, 'VIP only', 'crown', '#c8a13c'); y += 96;
-    this.rightCard(x, y, w, 88, 'Daily Gift', 'chest', '#4f8fd0'); y += 96;
-    this.rightCard(x, y, w, 88, 'Quest', 'book', '#4f8fd0'); y += 96;
-    this.rightCard(x, y, w, 88, 'Star bonus', 'green', '#6aa84f');
+    this.rightCard(x, y, w, 88, 'Daily Gift', 'chest', '#4f8fd0', { act: 'daily', tab: 'sign' }, nSign); y += 96;
+    this.rightCard(x, y, w, 88, 'Quest', 'book', '#4f8fd0', { act: 'daily', tab: 'quest' }, nQuest); y += 96;
+    this.rightCard(x, y, w, 88, 'Event', 'green', '#6aa84f', { act: 'daily', tab: 'event' }, nEvent);
   }
 
-  rightCard(x, y, w, h, label, icon, color) {
+  rightCard(x, y, w, h, label, icon, color, tap, dot) {
     const ctx = this.ctx;
     roundRect(ctx, x, y, w, h, 8, '#141d29', color, 2);
     const lg = ctx.createLinearGradient(x, y, x, y + h);
@@ -221,6 +225,15 @@ class LevelSelectScene {
     const img = this.tex[icon];
     if (img) drawIcon(ctx, img, x + w / 2, y + 34, icon === 'green' ? 0.40 : 0.46);
     text(ctx, label, x + w / 2, y + h - 14, 13, '#dfe9f5', 'center', '#0a1018');
+    // 可领数量小红点
+    if (dot > 0) {
+      ctx.beginPath();
+      ctx.arc(x + w - 14, y + 14, 9, 0, Math.PI * 2);
+      ctx.fillStyle = '#c8382f';
+      ctx.fill();
+      text(ctx, dot > 9 ? '9+' : String(dot), x + w - 14, y + 14, 10, '#fff', 'center');
+    }
+    if (tap) this.hot.push({ x, y, w, h, act: tap.act, tab: tap.tab });
   }
 
   // 里程碑奖励 + 进度条
@@ -374,6 +387,7 @@ class LevelSelectScene {
       if (b.act === 'pagePrev') { this.page = Math.max(0, this.page - 1); this.g.playSfx('sfx_click', 0.26); return; }
       if (b.act === 'pageNext') { this.page = Math.min(this.pageCount() - 1, this.page + 1); this.g.playSfx('sfx_click', 0.26); return; }
       if (b.act === 'stage' && b.stage) { this.g.playSfx('sfx_click', 0.3); this.g.startBattle(b.stage); return; }
+      if (b.act === 'daily') { this.g.playSfx('sfx_tab', 0.3); this.g.showDaily(b.tab); return; }
       if (b.act === 'nav') { this.g.showTab(b.kind); return; }
     }
   }

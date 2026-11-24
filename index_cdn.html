@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<base href="https://cdn.jsdelivr.net/gh/cruzdou/knightwar-h5@main/" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<title>骑士战争 H5 · 原美术重建</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #05070b; overflow: hidden; }
+  canvas { display: block; touch-action: none; }
+  #boot {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: #cfd8e3; font: 15px/1.7 "Microsoft YaHei", sans-serif; background: #05070b; z-index: 10;
+    flex-direction: column;
+  }
+  #boot.hide { opacity: 0; pointer-events: none; transition: opacity .4s; }
+  #boot .bar { width: 240px; height: 5px; background: #182130; border-radius: 3px; overflow: hidden; margin-top: 12px; }
+  #boot .bar i { display: block; height: 100%; width: 40%; background: linear-gradient(90deg,#4f9cff,#7ee0ff); animation: slide 1.1s infinite ease-in-out; }
+  @keyframes slide { 0% { transform: translateX(-100%);} 100% { transform: translateX(350%);} }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="boot">
+  <div style="letter-spacing:2px">骑士战争 H5 · 原美术重建</div>
+  <div class="bar"><i></i></div>
+  <div style="margin-top:10px;color:#7f8fa6;font-size:13px">正在加载 Spine 骨架与美术资源…</div>
+</div>
+
+<script>
+  window.addEventListener('error', function (e) {
+    var d = document.createElement('div');
+    d.style.cssText = 'position:fixed;left:0;top:0;right:0;z-index:99;background:#8b1b1b;color:#fff;padding:8px 12px;font:12px monospace;white-space:pre-wrap';
+    d.textContent = 'JS 错误: ' + (e.message || '') + ' @ ' + (e.filename || '') + ':' + (e.lineno || '');
+    document.body.appendChild(d);
+  });
+</script>
+<script src="vendor/spine-canvas.js"></script>
+<script src="src/config.js"></script>
+<script src="src/core.js"></script>
+<script src="src/state.js"></script>
+<script src="src/ads.js"></script>
+<script src="src/daily.js"></script>
+<script src="src/levels.js"></script>
+<script src="src/battle.js"></script>
+<script src="src/select.js"></script>
+<script src="src/tabs.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>
+

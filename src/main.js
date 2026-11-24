@@ -58,6 +58,9 @@ class Game {
       for (const it of this.itemTables[k]) this.itemByID[it.itemID] = it;
     }
 
+    // 每日系统（签到 / 任务 / 事件）在读表阶段就初始化，选关页才能显示小红点
+    try { await Daily.init(); } catch (e) { /* 表缺失时不影响主流程 */ }
+
     // 音频不再阻塞启动：后台并行拉取+解码，就绪前 playSfx 自动跳过
     this.loadAudio().catch(() => {});
     this.select = new LevelSelectScene(this);
@@ -69,9 +72,11 @@ class Game {
     const qs = new URLSearchParams(location.search);
     this.debug = qs.get('debug') === '1';
 
-    // ?tab=shop|craft|hero|castle 直接进功能页（验收用）
+    // ?tab=shop|craft|hero|castle|daily 直接进功能页（验收用）
     if (qs.get('tab')) {
-      await this.showTab(qs.get('tab'));
+      const t = qs.get('tab');
+      if (t === 'daily') await this.showDaily(qs.get('sub'));
+      else await this.showTab(t);
     }
 
     // ?auto=1 直接开一局（验收/快速试玩）；?stage=1-3 从指定关卡进
@@ -95,6 +100,8 @@ class Game {
     const loop = t => {
       const dt = Math.min(0.05, (t - last) / 1000);
       last = t;
+      // 每日事件的「在线时长」命中：所有场景都在累加
+      if (window.Daily) Daily.tick(dt);
       this.scene.update(dt);
       this.scene.draw();
       requestAnimationFrame(loop);
@@ -142,10 +149,16 @@ class Game {
       b.regain += s.regain;
     }
     const c0 = c || {};
+    // 英雄训练等级（每级 +12% 伤害 / +10% 血量，上限取原表 levelMax）
+    const hLv = Player.heroLvOf(charID);
+    const lvDmg = 1 + 0.12 * (hLv - 1);
+    const lvHp = 1 + 0.10 * (hLv - 1);
+    const baseDmg = (c0.damage || 15) * lvDmg;
+    const baseHp = (c0.blood || 1000) * lvHp;
     return {
-      char: c, bonus: b,
-      damage: (c0.damage || 15) + b.damage,
-      blood: (c0.blood || 1000) + b.blood,
+      char: c, bonus: b, level: hLv,
+      damage: baseDmg + b.damage,
+      blood: baseHp + b.blood,
       armor: (c0.armor || 0) + b.armor,
       crit: (c0.crit || 0) + b.crit,
       atkRange: (c0.atkRange || 0) + b.atkRange,
@@ -168,6 +181,22 @@ class Game {
       if (loading) { loading.classList.add('hide'); }
     }
     this.scene = s;
+    this.playSfx('sfx_tab', 0.3);
+  }
+
+  // 每日页（签到 / 每日任务 / 每日事件）；sub 可指定打开哪个页签
+  async showDaily(sub) {
+    this.audioUnlock();
+    if (!this.daily) this.daily = new DailyScene(this);
+    if (!this.daily.ready) {
+      const loading = document.getElementById('boot');
+      if (loading) loading.classList.remove('hide');
+      await this.daily.init();
+      if (loading) loading.classList.add('hide');
+    }
+    if (sub === 'sign' || sub === 'quest' || sub === 'event') this.daily.tab = sub;
+    this.daily.toast = '';
+    this.scene = this.daily;
     this.playSfx('sfx_tab', 0.3);
   }
 

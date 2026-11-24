@@ -462,18 +462,48 @@ class TabScene {
         text(ctx, String(r[1]), lx + 66, y, 19, '#ffe9a8', 'left');
         if (r[2]) text(ctx, r[2], lx + 66 + String(r[1]).length * 12 + 4, y, 12, '#7ce08a', 'left');
         text(ctx, r[3], rx, y, 14, '#8fa3b7', 'left');
-        text(ctx, String(r[4]), rx + 66, y, 19, '#ffe9a8', 'left');
-        if (r[5]) text(ctx, r[5], rx + 66 + String(r[4]).length * 12 + 4, y, 12, '#7ce08a', 'left');
+        // 等级行：显示训练等级 + 「训练」按钮（花金币升级，战斗里真实生效）
+        if (r[3] === '等级') {
+          const hLv = Player.heroLvOf(h.charID), lvMax = h.levelMax || 10;
+          text(ctx, 'Lv ' + hLv + '/' + lvMax, rx + 66, y, 19, '#ffe9a8', 'left');
+          const cost = 120 * hLv;
+          const bw = 132, bh = 30, bx = sx + sw - bw - 14, by = y - 15;
+          if (hLv >= lvMax) {
+            roundRect(ctx, bx, by, bw, bh, 7, '#1a2431', '#2a3644', 1);
+            text(ctx, '已满级', bx + bw / 2, by + bh / 2, 13, '#6f8398', 'center');
+          } else {
+            roundRect(ctx, bx, by, bw, bh, 7, Player.coins >= cost ? '#e0a52a' : '#3a4654',
+              Player.coins >= cost ? '#ffdf9a' : '#4a5a70', 1);
+            text(ctx, '训练 ' + cost + ' 金币', bx + bw / 2, by + bh / 2, 12, Player.coins >= cost ? '#fff' : '#9fb2c6', 'center', '#1a1206');
+            this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'heroUp', char: h });
+          }
+        } else {
+          text(ctx, String(r[4]), rx + 66, y, 19, '#ffe9a8', 'left');
+          if (r[5]) text(ctx, r[5], rx + 66 + String(r[4]).length * 12 + 4, y, 12, '#7ce08a', 'left');
+        }
       });
-      // 技能
+      // 技能（每行右侧带升级按钮：花表里的 goldUpgrade，上限 maxLevel）
       const skills = (h.skillList || []).slice(0, 3);
       skills.forEach((s, i) => {
         const y = sy + 216 + i * 26;
         // 技能行：CD 与增伤都来自 gameCharacters.json 的 skillList
         const cd = Math.max(6, Math.min(25, Math.round(s.coolDown || 12)));
         const kind = s.skillTypes === 'BulfAll' ? '全队增益' : (i === 2 ? '范围箭雨' : '穿透射击');
-        text(ctx, '· ' + s.name + '   Lv ' + (s.level || 1) + '   ' + kind + '   CD ' + cd + 's',
+        const lv = Player.skillLvOf(h.charID, s.skillID);
+        text(ctx, '· ' + s.name + '   Lv ' + lv + '   ' + kind + '   CD ' + cd + 's',
           sx + 22, y, 13, '#9fd0ff', 'left');
+        const maxLv = s.maxLevel || 160, cost = s.goldUpgrade || 200;
+        const bw = 96, bh = 22, bx = sx + sw - bw - 14, by = y - 11;
+        if (lv >= maxLv) {
+          roundRect(ctx, bx, by, bw, bh, 5, '#1a2431', '#2a3644', 1);
+          text(ctx, '满级', bx + bw / 2, by + bh / 2, 11, '#6f8398', 'center');
+        } else {
+          const can = Player.coins >= cost;
+          roundRect(ctx, bx, by, bw, bh, 5, can ? '#2f6fb0' : '#1a2431',
+            can ? '#7fc6ff' : '#2a3644', 1);
+          text(ctx, '↑ ' + cost, bx + bw / 2, by + bh / 2, 11, can ? '#fff' : '#6f8398', 'center');
+          this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'skillUp', char: h, si: i });
+        }
       });
     }
 
@@ -729,6 +759,7 @@ class TabScene {
           }
           this.g.playSfx('sfx_buy', 0.36);
           this.g.playSfx('sfx_openbox', 0.24);
+          if (window.Daily) Daily.count('chest', 1);
           this.say('已购买 ' + p.name + '：' + this.giveChest(p));
           return;
         }
@@ -749,6 +780,7 @@ class TabScene {
               else {
                 const chest = { coins: 900, gems: 0, up: 0, name: 'Wooden Chest' };
                 this.g.playSfx('sfx_openbox', 0.26);
+                if (window.Daily) Daily.count('chest', 1);
                 this.say('免费铜箱开出：' + this.giveChest(chest));
               }
               this.g.playSfx('sfx_buy', 0.32);
@@ -794,6 +826,7 @@ class TabScene {
           if (!cost) { this.say('该装备没有升级配置（lvUpGold=0）'); return; }
           if (Player.spendCoins(cost)) {
             Player.setLv(it.itemID, lv + 1);
+            if (window.Daily) Daily.count('itemUp', 1);
             this.say(it.name + ' 强化到 Lv ' + (lv + 1));
             this.g.playSfx('sfx_levelup', 0.36);
             this.g.playSfx('sfx_craft', 0.28);
@@ -823,6 +856,30 @@ class TabScene {
           this.fillHero(this.items.chars || []);
           this.g.playSfx('sfx_claim', 0.3);
           return;
+        case 'heroUp': {
+          const h = b.char;
+          const lv = Player.heroLvOf(h.charID), max = h.levelMax || 10;
+          if (lv >= max) { this.say(h.name + ' 已满级'); return; }
+          const cost = 120 * lv;
+          if (!Player.spendCoins(cost)) { this.say('金币不足，训练到 Lv ' + (lv + 1) + ' 需要 ' + cost); this.g.playSfx('sfx_equipfail', 0.3); return; }
+          Player.setHeroLv(h.charID, lv + 1);
+          if (window.Daily) Daily.count('heroUp', 1);
+          this.g.playSfx('sfx_levelup', 0.4);
+          this.say(h.name + ' 训练到 Lv ' + (lv + 1) + '（伤害 +12% / 血量 +10%）');
+          return;
+        }
+        case 'skillUp': {
+          const h = b.char, s = (h.skillList || [])[b.si];
+          if (!s) return;
+          const lv = Player.skillLvOf(h.charID, s.skillID), max = s.maxLevel || 160, cost = s.goldUpgrade || 200;
+          if (lv >= max) { this.say(s.name + ' 已满级'); return; }
+          if (!Player.spendCoins(cost)) { this.say('金币不足，升级 ' + s.name + ' 需要 ' + cost); this.g.playSfx('sfx_equipfail', 0.3); return; }
+          Player.setSkillLv(h.charID, s.skillID, lv + 1);
+          if (window.Daily) Daily.count('skillUp', 1);
+          this.g.playSfx('sfx_levelup', 0.36);
+          this.say(s.name + ' 升到 Lv ' + (lv + 1));
+          return;
+        }
         case 'castleUp': {
           const n = b.next;
           const okC = n.coinUpgrade ? Player.spendCoins(n.coinUpgrade) : true;

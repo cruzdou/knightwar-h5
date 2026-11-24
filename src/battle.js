@@ -187,7 +187,11 @@ class BattleScene {
     this.skills = [0, 1, 2].map(i => ({
       name: (sk[i] && sk[i].name) || ['Power shot', 'Windspeed', 'Rain arrow'][i],
       cd: Math.max(6, Math.min(20, Math.round((sk[i] && sk[i].coolDown) || [10, 14, 20][i]))),
-      t: 0
+      t: 0,
+      // 技能等级（存档里的技能升级）：每级 +6% 伤害；攻速增益类每级再 +3% 攻速
+      lv: sk[i] ? Player.skillLvOf(Player.charID, sk[i].skillID) : 1,
+      mul: 1 + 0.06 * ((sk[i] ? Player.skillLvOf(Player.charID, sk[i].skillID) : 1) - 1),
+      buff: 1.6 + 0.03 * ((sk[i] ? Player.skillLvOf(Player.charID, sk[i].skillID) : 1) - 1)
     }));
     this.rageT = 0;
     this.fireTimer = 0;
@@ -287,6 +291,11 @@ class BattleScene {
     e.dieT = 0.7;
     if (e.info.anims.includes('Die')) e.state.setAnimation(0, 'Die', false);
     this.kills++;
+    // 每日任务/事件的真实计数源（boss 只算 spawnEnemy 里放大标记的那一只）
+    if (window.Daily) {
+      Daily.count('kill', 1);
+      if (e.boss) Daily.count('bossKill', 1);
+    }
     // 死亡音效：按骨架名挑原包 die 音
     const DIE_SFX = {
       Goblin: 'sfx_die_goblin', Gnoll: 'sfx_die_gnoll', Bandit: 'sfx_die_orc',
@@ -382,7 +391,7 @@ class BattleScene {
       const target = this.enemies.filter(e => !e.dead && !e.dying).sort((a, b) => b.y - a.y)[0];
       if (target) {
         this.shoot(target);
-        this.fireTimer = 1 / (this.g.heroAtkRate * (this.rageT > 0 ? 1.6 : 1));
+        this.fireTimer = 1 / (this.g.heroAtkRate * (this.rageT > 0 ? (this.skills[1].buff || 1.6) : 1));
       }
     }
 
@@ -440,6 +449,11 @@ class BattleScene {
       const stars = ratio > 0.7 ? 3 : (ratio > 0.35 ? 2 : 1);
       this.gainedStars = stars;
       if (this.stageData) Player.setStars(this.stageData.name, stars);
+      // 每日事件：通关 / 困难关卡通关
+      if (window.Daily) {
+        Daily.count('win', 1);
+        if (this.stageData && this.stageData.levelMode === 'Hard') Daily.count('hardWin', 1);
+      }
     }
     this.g.playSfx(win ? 'sfx_win' : 'sfx_lose', 0.6);
   }
@@ -741,7 +755,7 @@ class BattleScene {
       for (const e of alive) {
         if (Math.abs(e.x - HERO_X) > 150 || n >= 4) continue;
         n++;
-        const dmg = this.g.heroDamage * 1.8;
+        const dmg = this.g.heroDamage * 1.8 * (sk.mul || 1);
         e.hp -= dmg;
         e.y = Math.max(SPAWN_Y, e.y - 26);           // 击退
         this.floats.push({ x: e.x, y: e.y - 40, v: Math.round(dmg), life: 0.8, crit: true });
@@ -754,7 +768,7 @@ class BattleScene {
       this.fx.push({ img: this.tex.fxGlow, x: HERO_X, y: HERO_FEET - HERO_H * 0.75, r: 90, t: 0, life: 0.9, max: 0.9 });
     } else {
       for (const e of alive) {
-        const dmg = this.g.heroDamage * 1.2;
+        const dmg = this.g.heroDamage * 1.2 * (sk.mul || 1);
         e.hp -= dmg;
         this.floats.push({ x: e.x, y: e.y - 40, v: Math.round(dmg), life: 0.8 });
         if (e.hp <= 0) this.killEnemy(e);

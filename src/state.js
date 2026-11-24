@@ -21,6 +21,10 @@ class PlayerState {
     this.mats = {};
     // 已打造装备：{ itemID: true }；未拥有的装备要先按配方打造才能强化/穿戴
     this.owned = {};
+    // 英雄等级：{ charID: level }（上限取 gameCharacters.json 的 levelMax）
+    this.heroLv = {};
+    // 技能等级：{ 'charID:skillID': level }（上限取 skillList 的 maxLevel）
+    this.skillLv = {};
     this.load();
     if (!Object.keys(this.mats).length) {
       // 新档给一套启动材料，够打第一件装备 + 一次材料合成
@@ -43,6 +47,8 @@ class PlayerState {
       if (s.itemLv && typeof s.itemLv === 'object') this.itemLv = s.itemLv;
       if (s.mats && typeof s.mats === 'object') this.mats = s.mats;
       if (s.owned && typeof s.owned === 'object') this.owned = s.owned;
+      if (s.heroLv && typeof s.heroLv === 'object') this.heroLv = s.heroLv;
+      if (s.skillLv && typeof s.skillLv === 'object') this.skillLv = s.skillLv;
     } catch (e) { /* 存档损坏就用默认值 */ }
   }
 
@@ -52,7 +58,8 @@ class PlayerState {
         coins: this.coins, gems: this.gems, stamina: this.stamina,
         stars: this.stars, charID: this.charID, castleLevel: this.castleLevel,
         equipped: this.equipped, itemLv: this.itemLv,
-        mats: this.mats, owned: this.owned
+        mats: this.mats, owned: this.owned,
+        heroLv: this.heroLv, skillLv: this.skillLv
       }));
     } catch (e) { /* 隐私模式下忽略 */ }
   }
@@ -110,6 +117,13 @@ class PlayerState {
   setStars(levelName, n) {
     if (n > this.starsOf(levelName)) { this.stars[levelName] = n; this.save(); }
   }
+
+  // ---------- 英雄 / 技能等级 ----------
+  heroLvOf(charID) { return this.heroLv[charID] || 1; }
+  setHeroLv(charID, lv) { this.heroLv[charID] = lv; this.save(); }
+
+  skillLvOf(charID, skillID) { return this.skillLv[charID + ':' + skillID] || 1; }
+  setSkillLv(charID, skillID, lv) { this.skillLv[charID + ':' + skillID] = lv; this.save(); }
 }
 
 const Player = new PlayerState();
