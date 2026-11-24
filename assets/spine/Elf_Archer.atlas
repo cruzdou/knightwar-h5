@@ -1,0 +1,69 @@
+
+Elf_Archer.png
+size: 256,128
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 83, 18
+  size: 82, 51
+  orig: 82, 51
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 2, 21
+  size: 79, 103
+  orig: 79, 103
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 2, 2
+  size: 30, 17
+  orig: 30, 17
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: false
+  xy: 209, 90
+  size: 24, 34
+  orig: 24, 34
+  offset: 0, 0
+  index: -1
+L_Leg
+  rotate: false
+  xy: 193, 39
+  size: 22, 30
+  orig: 22, 30
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: true
+  xy: 235, 94
+  size: 30, 17
+  orig: 30, 17
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: false
+  xy: 167, 35
+  size: 24, 34
+  orig: 24, 34
+  offset: 0, 0
+  index: -1
+R_Leg
+  rotate: true
+  xy: 167, 11
+  size: 22, 30
+  orig: 22, 30
+  offset: 0, 0
+  index: -1
+Weapon
+  rotate: true
+  xy: 83, 71
+  size: 53, 124
+  orig: 53, 124
+  offset: 0, 0
+  index: -1

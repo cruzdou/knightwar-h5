@@ -1,0 +1,627 @@
+{
+    "listCraftModel": [
+        {
+            "name": "Rusty Sword Recipe",
+            "description": "",
+            "craftId": 1,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 10
+                }
+            ],
+            "sprite": {
+
+            },
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 1,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Broad sword Recipe",
+            "description": "",
+            "craftId": 2,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 20
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 2,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Silver Sword Recipe",
+            "description": "",
+            "craftId": 3,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 50
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 3,
+            "coinCraft": 0,
+            "gemCraft": 10,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Valyrian Sword Recipe",
+            "description": "",
+            "craftId": 4,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 70
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 4,
+            "coinCraft": 0,
+            "gemCraft": 10,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Silver Moon blade Recipe",
+            "description": "",
+            "craftId": 5,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 80
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 5,
+            "coinCraft": 0,
+            "gemCraft": 15,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Black Fang Recipe",
+            "description": "",
+            "craftId": 6,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 160
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 6,
+            "coinCraft": 0,
+            "gemCraft": 15,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Arcane Edge Recipe",
+            "description": "",
+            "craftId": 7,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 220
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 7,
+            "coinCraft": 0,
+            "gemCraft": 20,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Demon Fate Recipe",
+            "description": "",
+            "craftId": 8,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 300
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 8,
+            "coinCraft": 0,
+            "gemCraft": 20,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Night Fury Recipe",
+            "description": "",
+            "craftId": 9,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 340
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 9,
+            "coinCraft": 0,
+            "gemCraft": 20,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Wooden bow Recipe",
+            "description": "",
+            "craftId": 10,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 10
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 10,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Elvish Wooden bow Recipe",
+            "description": "",
+            "craftId": 11,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 20
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 11,
+            "coinCraft": 0,
+            "gemCraft": 10,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Steel Hunter bow Recipe",
+            "description": "",
+            "craftId": 12,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 50
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 12,
+            "coinCraft": 0,
+            "gemCraft": 10,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Valyrian bow Recipe",
+            "description": "",
+            "craftId": 13,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 70
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 13,
+            "coinCraft": 0,
+            "gemCraft": 15,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Silver Moon bow Recipe",
+            "description": "",
+            "craftId": 14,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 80
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 14,
+            "coinCraft": 0,
+            "gemCraft": 15,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Black Moon Divinity Recipe",
+            "description": "",
+            "craftId": 15,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 160
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 15,
+            "coinCraft": 0,
+            "gemCraft": 20,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Fairy Wings Recipe",
+            "description": "",
+            "craftId": 16,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 220
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 16,
+            "coinCraft": 0,
+            "gemCraft": 20,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Silver Star Recipe",
+            "description": "",
+            "craftId": 17,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 300
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 17,
+            "coinCraft": 0,
+            "gemCraft": 20,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Night Dragon Eyes Recipe",
+            "description": "",
+            "craftId": 18,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 340
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 18,
+            "coinCraft": 0,
+            "gemCraft": 20,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Trainer Staff Recipe",
+            "description": "",
+            "craftId": 19,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 10
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 19,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Elvish wooden staff Recipe",
+            "description": "",
+            "craftId": 20,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 20
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 20,
+            "coinCraft": 0,
+            "gemCraft": 10,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Silver Staff Recipe",
+            "description": "",
+            "craftId": 21,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 60
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 21,
+            "coinCraft": 0,
+            "gemCraft": 10,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Nature Prophet Staff Recipe",
+            "description": "",
+            "craftId": 22,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 70
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 22,
+            "coinCraft": 0,
+            "gemCraft": 15,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Ice Queen staff Recipe",
+            "description": "",
+            "craftId": 23,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 80
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 23,
+            "coinCraft": 0,
+            "gemCraft": 15,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Black king bar Recipe",
+            "description": "",
+            "craftId": 24,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 160
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 24,
+            "coinCraft": 0,
+            "gemCraft": 20,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Staff of life Recipe",
+            "description": "",
+            "craftId": 25,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 220
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 25,
+            "coinCraft": 0,
+            "gemCraft": 20,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Blizzard Recipe",
+            "description": "",
+            "craftId": 26,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 300
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 26,
+            "coinCraft": 0,
+            "gemCraft": 20,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Destroyer Recipe",
+            "description": "",
+            "craftId": 27,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Weapon Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 641,
+                    "numbItem": 340
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 27,
+            "coinCraft": 0,
+            "gemCraft": 20,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        }
+    ]
+}

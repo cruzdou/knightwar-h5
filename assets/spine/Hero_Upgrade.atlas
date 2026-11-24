@@ -1,0 +1,125 @@
+
+Hero_Upgrade.png
+size: 512,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 2, 48
+  size: 93, 132
+  orig: 93, 132
+  offset: 0, 0
+  index: -1
+Body_01
+  rotate: false
+  xy: 354, 378
+  size: 93, 132
+  orig: 93, 132
+  offset: 0, 0
+  index: -1
+Head
+  rotate: true
+  xy: 84, 182
+  size: 106, 130
+  orig: 106, 130
+  offset: 0, 0
+  index: -1
+Khien
+  rotate: false
+  xy: 84, 290
+  size: 144, 220
+  orig: 144, 220
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 171, 2
+  size: 33, 41
+  orig: 33, 41
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: false
+  xy: 2, 9
+  size: 48, 37
+  orig: 48, 37
+  offset: 0, 0
+  index: -1
+L_Hand_01
+  rotate: true
+  xy: 325, 334
+  size: 35, 25
+  orig: 35, 25
+  offset: 0, 0
+  index: -1
+L_Hand_11
+  rotate: true
+  xy: 325, 297
+  size: 35, 25
+  orig: 35, 25
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: false
+  xy: 171, 109
+  size: 48, 71
+  orig: 48, 71
+  offset: 0, 0
+  index: -1
+L_Leg_02
+  rotate: false
+  xy: 449, 386
+  size: 48, 124
+  orig: 48, 124
+  offset: 0, 0
+  index: -1
+L_Shoe
+  rotate: true
+  xy: 206, 2
+  size: 41, 24
+  orig: 41, 24
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: true
+  xy: 230, 292
+  size: 77, 93
+  orig: 77, 93
+  offset: 0, 0
+  index: -1
+R_Leg_02
+  rotate: false
+  xy: 97, 34
+  size: 72, 146
+  orig: 72, 146
+  offset: 0, 0
+  index: -1
+R_Shoe
+  rotate: false
+  xy: 52, 12
+  size: 31, 34
+  orig: 31, 34
+  offset: 0, 0
+  index: -1
+Weapon_1
+  rotate: false
+  xy: 2, 182
+  size: 80, 328
+  orig: 80, 328
+  offset: 0, 0
+  index: -1
+co
+  rotate: true
+  xy: 171, 45
+  size: 62, 47
+  orig: 62, 47
+  offset: 0, 0
+  index: -1
+vay
+  rotate: false
+  xy: 230, 371
+  size: 122, 139
+  orig: 122, 139
+  offset: 0, 0
+  index: -1

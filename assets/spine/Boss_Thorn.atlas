@@ -1,0 +1,41 @@
+
+Boss_Thorn.png
+size: 512,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 2, 2
+  size: 129, 186
+  orig: 129, 186
+  offset: 0, 0
+  index: -1
+Branch
+  rotate: false
+  xy: 2, 190
+  size: 284, 90
+  orig: 284, 90
+  offset: 0, 0
+  index: -1
+Crown
+  rotate: false
+  xy: 2, 282
+  size: 313, 163
+  orig: 313, 163
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 133, 76
+  size: 63, 112
+  orig: 63, 112
+  offset: 0, 0
+  index: -1
+Jaw
+  rotate: false
+  xy: 317, 327
+  size: 79, 118
+  orig: 79, 118
+  offset: 0, 0
+  index: -1

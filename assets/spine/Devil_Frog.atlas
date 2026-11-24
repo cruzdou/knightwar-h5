@@ -1,0 +1,76 @@
+
+Devil_Frog.png
+size: 256,64
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Head
+  rotate: false
+  xy: 2, 19
+  size: 47, 40
+  orig: 47, 40
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 193, 39
+  size: 17, 20
+  orig: 17, 20
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: true
+  xy: 2, 2
+  size: 15, 27
+  orig: 15, 27
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: false
+  xy: 155, 38
+  size: 17, 21
+  orig: 17, 21
+  offset: 0, 0
+  index: -1
+L_Leg_02
+  rotate: false
+  xy: 117, 36
+  size: 17, 23
+  orig: 17, 23
+  offset: 0, 0
+  index: -1
+Mouth
+  rotate: false
+  xy: 51, 22
+  size: 47, 37
+  orig: 47, 37
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 212, 39
+  size: 17, 20
+  orig: 17, 20
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: false
+  xy: 100, 32
+  size: 15, 27
+  orig: 15, 27
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: false
+  xy: 174, 38
+  size: 17, 21
+  orig: 17, 21
+  offset: 0, 0
+  index: -1
+R_Leg_02
+  rotate: false
+  xy: 136, 36
+  size: 17, 23
+  orig: 17, 23
+  offset: 0, 0
+  index: -1

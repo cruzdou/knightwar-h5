@@ -1,0 +1,76 @@
+
+Goblin.png
+size: 128,32
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 2, 2
+  size: 27, 26
+  orig: 27, 26
+  offset: 0, 0
+  index: -1
+Body_01
+  rotate: false
+  xy: 31, 2
+  size: 23, 26
+  orig: 23, 26
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 68, 19
+  size: 11, 9
+  orig: 11, 9
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: false
+  xy: 81, 18
+  size: 9, 10
+  orig: 9, 10
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: false
+  xy: 81, 8
+  size: 7, 8
+  orig: 7, 8
+  offset: 0, 0
+  index: -1
+L_Leg_02
+  rotate: false
+  xy: 56, 17
+  size: 10, 11
+  orig: 10, 11
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 68, 8
+  size: 11, 9
+  orig: 11, 9
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: false
+  xy: 92, 18
+  size: 9, 10
+  orig: 9, 10
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: false
+  xy: 103, 20
+  size: 7, 8
+  orig: 7, 8
+  offset: 0, 0
+  index: -1
+R_Leg_02
+  rotate: false
+  xy: 56, 4
+  size: 10, 11
+  orig: 10, 11
+  offset: 0, 0
+  index: -1

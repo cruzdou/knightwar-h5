@@ -1,0 +1,83 @@
+
+Bandit.png
+size: 128,64
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 24, 31
+  size: 35, 31
+  orig: 35, 31
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 61, 41
+  size: 20, 21
+  orig: 20, 21
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 40, 18
+  size: 13, 11
+  orig: 13, 11
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: false
+  xy: 24, 12
+  size: 14, 17
+  orig: 14, 17
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: true
+  xy: 61, 30
+  size: 9, 11
+  orig: 9, 11
+  offset: 0, 0
+  index: -1
+L_Shoe
+  rotate: true
+  xy: 2, 2
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 99, 51
+  size: 13, 11
+  orig: 13, 11
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: false
+  xy: 83, 45
+  size: 14, 17
+  orig: 14, 17
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: false
+  xy: 114, 51
+  size: 10, 11
+  orig: 10, 11
+  offset: 0, 0
+  index: -1
+R_Shoe
+  rotate: true
+  xy: 24, 2
+  size: 8, 11
+  orig: 8, 11
+  offset: 0, 0
+  index: -1
+R_Weapon
+  rotate: false
+  xy: 2, 11
+  size: 20, 51
+  orig: 20, 51
+  offset: 0, 0
+  index: -1

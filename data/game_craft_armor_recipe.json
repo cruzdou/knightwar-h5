@@ -1,0 +1,631 @@
+{
+    "listCraftModel": [
+        {
+            "name": "Iron armor Recipe",
+            "description": "",
+            "craftId": 201,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 10
+                }
+            ],
+            "sprite": {
+
+            },
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 201,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Plate Mail Recipe",
+            "description": "",
+            "craftId": 202,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 20
+                }
+            ],
+            "sprite": {
+
+            },
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 202,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Silver armor Recipe",
+            "description": "",
+            "craftId": 203,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 40
+                }
+            ],
+            "sprite": {
+
+            },
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 203,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Black Knight Armor Recipe",
+            "description": "",
+            "craftId": 204,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 70
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 204,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Silvermoon Armor Recipe",
+            "description": null,
+            "craftId": 205,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 80
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 205,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Silver Knight armor Recipe",
+            "description": "",
+            "craftId": 206,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 110
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 206,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Dragon armor Recipe",
+            "description": "",
+            "craftId": 207,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 150
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 207,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Living armor Recipe",
+            "description": null,
+            "craftId": 208,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 250
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 208,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Knight",
+            "canCraft": false
+        },
+        {
+            "name": "Night Fury Armor",
+            "description": null,
+            "craftId": 209,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 250
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 209,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Leather armor Recipe",
+            "description": null,
+            "craftId": 210,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 10
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 210,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Steel light armor Recipe",
+            "description": null,
+            "craftId": 211,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 20
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 211,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Silver light armor Recipe",
+            "description": null,
+            "craftId": 212,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 40
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 212,
+            "coinCraft": 0,
+            "gemCraft": 5,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Dark Elf armor Recipe",
+            "description": null,
+            "craftId": 213,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 70
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 213,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Silvermoon Tunic Recipe",
+            "description": null,
+            "craftId": 214,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 70
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 214,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Moon Keeper Recipe",
+            "description": null,
+            "craftId": 215,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 110
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 215,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Dark Wings Recipe",
+            "description": null,
+            "craftId": 216,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 150
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 216,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Moon Guardian Recipe",
+            "description": null,
+            "craftId": 217,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 250
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 217,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "Archer",
+            "canCraft": false
+        },
+        {
+            "name": "Night Dragon Armor Recipe",
+            "description": null,
+            "craftId": 218,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 250
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 218,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": " Robe Recipe",
+            "description": null,
+            "craftId": 219,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 10
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 219,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Silk Robe Recipe",
+            "description": null,
+            "craftId": 220,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 20
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 220,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Silver Robe Recipe",
+            "description": null,
+            "craftId": 221,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 40
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 221,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Black Wizard Robe Recipe",
+            "description": null,
+            "craftId": 222,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 70
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 222,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Ice Queen Robe Recipe",
+            "description": null,
+            "craftId": 223,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 70
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 223,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "White Wizard Robe",
+            "description": null,
+            "craftId": 224,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 110
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 224,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Cloak of Fate Recipe",
+            "description": null,
+            "craftId": 225,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 150
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 225,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Cloak of Life Recipe",
+            "description": null,
+            "craftId": 226,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 250
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 226,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "Magic",
+            "canCraft": false
+        },
+        {
+            "name": "Destroyer Cloak Recipe",
+            "description": null,
+            "craftId": 227,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Armor  Material",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 642,
+                    "numbItem": 250
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 227,
+            "coinCraft": 0,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "characterType": "All",
+            "canCraft": false
+        }
+    ]
+}

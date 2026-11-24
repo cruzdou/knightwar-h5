@@ -1,0 +1,90 @@
+
+Orc_Chieftian.png
+size: 512,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 2, 284
+  size: 231, 226
+  orig: 231, 226
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 147, 148
+  size: 68, 134
+  orig: 68, 134
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 380, 416
+  size: 99, 94
+  orig: 99, 94
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: true
+  xy: 2, 61
+  size: 76, 148
+  orig: 76, 148
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: true
+  xy: 2, 2
+  size: 57, 78
+  orig: 57, 78
+  offset: 0, 0
+  index: -1
+L_Leg_02
+  rotate: true
+  xy: 152, 2
+  size: 58, 83
+  orig: 58, 83
+  offset: 0, 0
+  index: -1
+L_Weapon
+  rotate: false
+  xy: 2, 139
+  size: 143, 143
+  orig: 143, 143
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: true
+  xy: 385, 315
+  size: 99, 94
+  orig: 99, 94
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: true
+  xy: 235, 290
+  size: 75, 148
+  orig: 75, 148
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: true
+  xy: 385, 257
+  size: 56, 78
+  orig: 56, 78
+  offset: 0, 0
+  index: -1
+R_Leg_02
+  rotate: false
+  xy: 152, 62
+  size: 58, 84
+  orig: 58, 84
+  offset: 0, 0
+  index: -1
+R_Weapon
+  rotate: false
+  xy: 235, 367
+  size: 143, 143
+  orig: 143, 143
+  offset: 0, 0
+  index: -1

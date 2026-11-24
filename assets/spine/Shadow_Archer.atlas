@@ -1,0 +1,83 @@
+
+Shadow_Archer.png
+size: 128,64
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 2, 18
+  size: 34, 43
+  orig: 34, 43
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 60, 38
+  size: 24, 23
+  orig: 24, 23
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 86, 50
+  size: 13, 11
+  orig: 13, 11
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: true
+  xy: 2, 2
+  size: 14, 17
+  orig: 14, 17
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: false
+  xy: 76, 25
+  size: 9, 11
+  orig: 9, 11
+  offset: 0, 0
+  index: -1
+L_Shoe
+  rotate: false
+  xy: 36, 5
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: -1
+L_Weapon
+  rotate: false
+  xy: 38, 18
+  size: 20, 43
+  orig: 20, 43
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 21, 5
+  size: 13, 11
+  orig: 13, 11
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: false
+  xy: 60, 19
+  size: 14, 17
+  orig: 14, 17
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: true
+  xy: 86, 38
+  size: 10, 11
+  orig: 10, 11
+  offset: 0, 0
+  index: -1
+R_Shoe
+  rotate: false
+  xy: 101, 50
+  size: 8, 11
+  orig: 8, 11
+  offset: 0, 0
+  index: -1

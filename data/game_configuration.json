@@ -1,0 +1,17 @@
+{
+    "maxLives": 0,
+    "timeToNextLife": 0,
+    "livesRefillCost": 0,
+    "initialCoins": 300,
+    "initialDiamond": 50,
+    "initialEnergy": 50,
+    "initialLevel": 1,
+    "initialViplevel": 0,
+    "numExtraMoves": 0,
+    "extraMovesCost": 0,
+    "numExtraTime": 0,
+    "extraTimeCost": 0,
+    "defaultTileScore": 0,
+    "iapItems": [],
+    "rewardedAdCoins": 0
+}

@@ -1,0 +1,83 @@
+
+Devil_Turtle.png
+size: 256,64
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body_01
+  rotate: false
+  xy: 57, 10
+  size: 37, 52
+  orig: 37, 52
+  offset: 0, 0
+  index: -1
+Body_11
+  rotate: false
+  xy: 2, 10
+  size: 53, 52
+  orig: 53, 52
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 96, 43
+  size: 20, 19
+  orig: 20, 19
+  offset: 0, 0
+  index: -1
+L_Hand
+  rotate: false
+  xy: 96, 20
+  size: 17, 21
+  orig: 17, 21
+  offset: 0, 0
+  index: -1
+L_Leg
+  rotate: false
+  xy: 96, 2
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: false
+  xy: 141, 45
+  size: 13, 17
+  orig: 13, 17
+  offset: 0, 0
+  index: -1
+L_Leg_02
+  rotate: false
+  xy: 171, 48
+  size: 12, 14
+  orig: 12, 14
+  offset: 0, 0
+  index: -1
+R_Hand
+  rotate: true
+  xy: 118, 45
+  size: 17, 21
+  orig: 17, 21
+  offset: 0, 0
+  index: -1
+R_Leg
+  rotate: false
+  xy: 114, 2
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: false
+  xy: 156, 45
+  size: 13, 17
+  orig: 13, 17
+  offset: 0, 0
+  index: -1
+R_Leg_02
+  rotate: false
+  xy: 185, 48
+  size: 12, 14
+  orig: 12, 14
+  offset: 0, 0
+  index: -1

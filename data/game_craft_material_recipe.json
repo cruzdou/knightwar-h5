@@ -1,0 +1,431 @@
+{
+    "listCraftModel": [
+        {
+            "name": "Steel Recipe",
+            "description": null,
+            "craftId": 601,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Iron",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/01_Iron.png",
+                    "itemId": 601,
+                    "numbItem": 3
+                }
+            ],
+            "sprite": {
+
+            },
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 607,
+            "coinCraft": 500,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Common",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Leather Recipe",
+            "description": null,
+            "craftId": 602,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Animal Hide",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/03_Animal Hide.png",
+                    "itemId": 603,
+                    "numbItem": 3
+                }
+            ],
+            "sprite": {
+
+            },
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 608,
+            "coinCraft": 500,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Rare",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Cords Recipe",
+            "description": null,
+            "craftId": 603,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Rope",
+                    "spritePath": "",
+                    "itemId": 605,
+                    "numbItem": 3
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 609,
+            "coinCraft": 500,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Epic",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Silk Recipe",
+            "description": null,
+            "craftId": 604,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Cloth",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/06_Cloth.png",
+                    "itemId": 606,
+                    "numbItem": 3
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 610,
+            "coinCraft": 500,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Legendary",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Plank Recipe",
+            "description": null,
+            "craftId": 605,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Brand",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/04_Branch.png",
+                    "itemId": 604,
+                    "numbItem": 3
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 611,
+            "coinCraft": 500,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Rare",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Flint Recipe",
+            "description": null,
+            "craftId": 606,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Coal",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/02_Coal.png",
+                    "itemId": 602,
+                    "numbItem": 3
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 612,
+            "coinCraft": 500,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Rare",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Metalor Recipe",
+            "description": null,
+            "craftId": 607,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Steel",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 607,
+                    "numbItem": 3
+                },
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Silver",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/15_Silver.png",
+                    "itemId": 615,
+                    "numbItem": 3
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 616,
+            "coinCraft": 10000,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Epic",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Perfect Leather Recipe",
+            "description": null,
+            "craftId": 608,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Oil",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/13_Oil.png",
+                    "itemId": 613,
+                    "numbItem": 3
+                },
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Leather",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/08_Leather.png",
+                    "itemId": 608,
+                    "numbItem": 3
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 617,
+            "coinCraft": 10000,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Epic",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Life Seed Recipe",
+            "description": null,
+            "craftId": 609,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Wood elf",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/14_Elf Wood.png",
+                    "itemId": 614,
+                    "numbItem": 3
+                },
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Flint",
+                    "spritePath": "",
+                    "itemId": 612,
+                    "numbItem": 3
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 618,
+            "coinCraft": 10000,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Epic",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Steel Chain Recipe",
+            "description": null,
+            "craftId": 610,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Steel",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/07_Steel.png",
+                    "itemId": 607,
+                    "numbItem": 3
+                },
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Cords",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/09_Cords.png",
+                    "itemId": 609,
+                    "numbItem": 3
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 619,
+            "coinCraft": 10000,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Epic",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Arcane Stone Recipe",
+            "description": null,
+            "craftId": 611,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Valyrian",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/20_Valyrian.png",
+                    "itemId": 620,
+                    "numbItem": 5
+                },
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Magic Essence",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/21_MagicEssence.png",
+                    "itemId": 621,
+                    "numbItem": 5
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 626,
+            "coinCraft": 50000,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Legendary",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Tree of Life Recipe",
+            "description": null,
+            "craftId": 612,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Life seed",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/18_Life Seed.png",
+                    "itemId": 618,
+                    "numbItem": 5
+                },
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Moonlight tea",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/25_MoonlightTear.png",
+                    "itemId": 625,
+                    "numbItem": 5
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 627,
+            "coinCraft": 50000,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Legendary",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Flamed Stone Recipe",
+            "description": null,
+            "craftId": 613,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Fire Spirit",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/22_FireSpirit.png",
+                    "itemId": 622,
+                    "numbItem": 5
+                },
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Magic Essence",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/21_MagicEssence.png",
+                    "itemId": 621,
+                    "numbItem": 5
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 628,
+            "coinCraft": 50000,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Legendary",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Black Crystal Recipe",
+            "description": null,
+            "craftId": 614,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Dragon glass",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/24_DragonGlass.png",
+                    "itemId": 624,
+                    "numbItem": 5
+                },
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Ice Spirit",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/23_IceSpirit.png",
+                    "itemId": 623,
+                    "numbItem": 5
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 629,
+            "coinCraft": 50000,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Legendary",
+            "characterType": "All",
+            "canCraft": false
+        },
+        {
+            "name": "Star Eye Recipe",
+            "description": null,
+            "craftId": 615,
+            "listCraftItems": [
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Ice Spirit",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/23_IceSpirit.png",
+                    "itemId": 623,
+                    "numbItem": 5
+                },
+                {
+                    "itemsType": "Items type material",
+                    "itemName": "Moonlight tea",
+                    "spritePath": "Assets/Sprites/Tool/item_materials/25_MoonlightTear.png",
+                    "itemId": 625,
+                    "numbItem": 5
+                }
+            ],
+            "sprite": null,
+            "spritePath": "",
+            "isHave": false,
+            "itemID": 630,
+            "coinCraft": 50000,
+            "gemCraft": 0,
+            "numbCraft": 0,
+            "gameItemType": "Legendary",
+            "characterType": "All",
+            "canCraft": false
+        }
+    ]
+}

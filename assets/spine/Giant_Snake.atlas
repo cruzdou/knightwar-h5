@@ -1,0 +1,41 @@
+
+Giant_Snake.png
+size: 512,64
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body_01
+  rotate: false
+  xy: 2, 2
+  size: 150, 58
+  orig: 150, 58
+  offset: 0, 0
+  index: -1
+Body_11
+  rotate: true
+  xy: 291, 13
+  size: 47, 62
+  orig: 47, 62
+  offset: 0, 0
+  index: -1
+Face_01
+  rotate: true
+  xy: 393, 30
+  size: 30, 33
+  orig: 30, 33
+  offset: 0, 0
+  index: -1
+Face_11
+  rotate: false
+  xy: 355, 28
+  size: 36, 32
+  orig: 36, 32
+  offset: 0, 0
+  index: -1
+Tail
+  rotate: true
+  xy: 154, 28
+  size: 32, 135
+  orig: 32, 135
+  offset: 0, 0
+  index: -1

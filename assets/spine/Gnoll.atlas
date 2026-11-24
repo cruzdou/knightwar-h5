@@ -1,0 +1,76 @@
+
+Gnoll.png
+size: 256,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 2, 128
+  size: 86, 113
+  orig: 86, 113
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 2, 45
+  size: 48, 81
+  orig: 48, 81
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 90, 200
+  size: 36, 41
+  orig: 36, 41
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: false
+  xy: 52, 77
+  size: 27, 49
+  orig: 27, 49
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: false
+  xy: 128, 203
+  size: 31, 38
+  orig: 31, 38
+  offset: 0, 0
+  index: -1
+L_Leg_02
+  rotate: false
+  xy: 194, 207
+  size: 22, 34
+  orig: 22, 34
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 2, 2
+  size: 36, 41
+  orig: 36, 41
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: false
+  xy: 90, 149
+  size: 27, 49
+  orig: 27, 49
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: false
+  xy: 161, 203
+  size: 31, 38
+  orig: 31, 38
+  offset: 0, 0
+  index: -1
+R_Leg_02
+  rotate: false
+  xy: 218, 207
+  size: 22, 34
+  orig: 22, 34
+  offset: 0, 0
+  index: -1

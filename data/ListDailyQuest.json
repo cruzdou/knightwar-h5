@@ -1,0 +1,409 @@
+{
+    "Version": 0,
+    "listQuestModel": [
+        {
+            "id": 1,
+            "name": "Trainning",
+            "description": "Upgrade your hero 3 times",
+            "SequenceType": "Daily",
+            "listQuestType": [
+                {
+                    "Id": 1,
+                    "questType": "Upgrade",
+                    "RequestValue1": 5,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "RewardItems": [
+                        {
+                            "numb": 20,
+                            "items": {
+                                "itemID": -3,
+                                "numbItems": 0,
+                                "itemName": "Gem",
+                                "bonusItemTypes": "Gem",
+                                "sale": 0.0,
+                                "gemBuy": 0,
+                                "coinBuy": 0,
+                                "dropRate": 0.0,
+                                "isSelect": false,
+                                "levelBonus": 1,
+                                "gameItemRate": "Common",
+                                "itemRank": 0,
+                                "ImagePath": null
+                            },
+                            "itemRate": "Common"
+                        }
+                    ],
+                    "TargetSpritePath": null
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "Monster Hunter",
+            "description": "Kill 50 Enemy",
+            "SequenceType": "Daily",
+            "listQuestType": [
+                {
+                    "Id": 1,
+                    "questType": "Kill",
+                    "RequestValue1": 500,
+                    "RequestValue2": 0,
+                    "TargetID": -1,
+                    "RewardItems": [
+                        {
+                            "numb": 3000,
+                            "items": {
+                                "itemID": -2,
+                                "numbItems": 0,
+                                "itemName": "Coins",
+                                "bonusItemTypes": "Coins",
+                                "sale": 0.0,
+                                "gemBuy": 0,
+                                "coinBuy": 0,
+                                "dropRate": 0.0,
+                                "isSelect": false,
+                                "levelBonus": 1,
+                                "gameItemRate": "Common",
+                                "itemRank": 0,
+                                "ImagePath": null
+                            },
+                            "itemRate": "Common"
+                        }
+                    ],
+                    "TargetSpritePath": null
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Teamate",
+            "description": "Upgrade your ally",
+            "SequenceType": "Daily",
+            "listQuestType": [
+                {
+                    "Id": 1,
+                    "questType": "Upgrade",
+                    "RequestValue1": 5,
+                    "RequestValue2": 0,
+                    "TargetID": 1,
+                    "RewardItems": [
+                        {
+                            "numb": 20,
+                            "items": {
+                                "itemID": -3,
+                                "numbItems": 0,
+                                "itemName": "Gem",
+                                "bonusItemTypes": "Gem",
+                                "sale": 0.0,
+                                "gemBuy": 0,
+                                "coinBuy": 0,
+                                "dropRate": 0.0,
+                                "isSelect": false,
+                                "levelBonus": 1,
+                                "gameItemRate": "Common",
+                                "itemRank": 0,
+                                "ImagePath": null
+                            },
+                            "itemRate": "Common"
+                        }
+                    ],
+                    "TargetSpritePath": null
+                },
+                {
+                    "Id": 2,
+                    "questType": "Upgrade",
+                    "RequestValue1": 10,
+                    "RequestValue2": 0,
+                    "TargetID": 1,
+                    "RewardItems": [
+                        {
+                            "numb": 3000,
+                            "items": {
+                                "itemID": -2,
+                                "numbItems": 0,
+                                "itemName": "Coins",
+                                "bonusItemTypes": "Coins",
+                                "sale": 0.0,
+                                "gemBuy": 0,
+                                "coinBuy": 0,
+                                "dropRate": 0.0,
+                                "isSelect": false,
+                                "levelBonus": 1,
+                                "gameItemRate": "Common",
+                                "itemRank": 0,
+                                "ImagePath": null
+                            },
+                            "itemRate": "Common"
+                        }
+                    ],
+                    "TargetSpritePath": null
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "name": "Open Gem Treasure",
+            "description": "Gem Treasure",
+            "SequenceType": "Daily",
+            "listQuestType": [
+                {
+                    "Id": 1,
+                    "questType": "Chest",
+                    "RequestValue1": 1,
+                    "RequestValue2": 0,
+                    "TargetID": 4,
+                    "RewardItems": [
+                        {
+                            "numb": 2000,
+                            "items": {
+                                "itemID": -2,
+                                "numbItems": 0,
+                                "itemName": "Coins",
+                                "bonusItemTypes": "Coins",
+                                "sale": 0.0,
+                                "gemBuy": 0,
+                                "coinBuy": 0,
+                                "dropRate": 0.0,
+                                "isSelect": false,
+                                "levelBonus": 1,
+                                "gameItemRate": "Common",
+                                "itemRank": 0,
+                                "ImagePath": null
+                            },
+                            "itemRate": "Common"
+                        }
+                    ],
+                    "TargetSpritePath": null
+                },
+                {
+                    "Id": 2,
+                    "questType": "Chest",
+                    "RequestValue1": 3,
+                    "RequestValue2": 0,
+                    "TargetID": 4,
+                    "RewardItems": [
+                        {
+                            "numb": 5000,
+                            "items": {
+                                "itemID": -2,
+                                "numbItems": 0,
+                                "itemName": "Coins",
+                                "bonusItemTypes": "Coins",
+                                "sale": 0.0,
+                                "gemBuy": 0,
+                                "coinBuy": 0,
+                                "dropRate": 0.0,
+                                "isSelect": false,
+                                "levelBonus": 1,
+                                "gameItemRate": "Common",
+                                "itemRank": 0,
+                                "ImagePath": null
+                            },
+                            "itemRate": "Common"
+                        }
+                    ],
+                    "TargetSpritePath": null
+                },
+                {
+                    "Id": 3,
+                    "questType": "Chest",
+                    "RequestValue1": 10,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "RewardItems": [
+                        {
+                            "numb": 100,
+                            "items": {
+                                "itemID": -3,
+                                "numbItems": 0,
+                                "itemName": "Gem",
+                                "bonusItemTypes": "Gem",
+                                "sale": 0.0,
+                                "gemBuy": 0,
+                                "coinBuy": 0,
+                                "dropRate": 0.0,
+                                "isSelect": false,
+                                "levelBonus": 1,
+                                "gameItemRate": "Common",
+                                "itemRank": 0,
+                                "ImagePath": null
+                            },
+                            "itemRate": "Common"
+                        }
+                    ],
+                    "TargetSpritePath": null
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "name": "Upgrade item",
+            "description": "upgrade your item 3 time",
+            "SequenceType": "Daily",
+            "listQuestType": [
+                {
+                    "Id": 1,
+                    "questType": "Upgrade",
+                    "RequestValue1": 10,
+                    "RequestValue2": 0,
+                    "TargetID": 2,
+                    "RewardItems": [
+                        {
+                            "numb": 2000,
+                            "items": {
+                                "itemID": -2,
+                                "numbItems": 0,
+                                "itemName": "Coins",
+                                "bonusItemTypes": "Coins",
+                                "sale": 0.0,
+                                "gemBuy": 0,
+                                "coinBuy": 0,
+                                "dropRate": 0.0,
+                                "isSelect": false,
+                                "levelBonus": 1,
+                                "gameItemRate": "Common",
+                                "itemRank": 0,
+                                "ImagePath": null
+                            },
+                            "itemRate": "Common"
+                        }
+                    ],
+                    "TargetSpritePath": null
+                },
+                {
+                    "Id": 2,
+                    "questType": "Upgrade",
+                    "RequestValue1": 20,
+                    "RequestValue2": 0,
+                    "TargetID": 2,
+                    "RewardItems": [
+                        {
+                            "numb": 5000,
+                            "items": {
+                                "itemID": -2,
+                                "numbItems": 0,
+                                "itemName": "Coins",
+                                "bonusItemTypes": "Coins",
+                                "sale": 0.0,
+                                "gemBuy": 0,
+                                "coinBuy": 0,
+                                "dropRate": 0.0,
+                                "isSelect": false,
+                                "levelBonus": 1,
+                                "gameItemRate": "Common",
+                                "itemRank": 0,
+                                "ImagePath": null
+                            },
+                            "itemRate": "Common"
+                        }
+                    ],
+                    "TargetSpritePath": null
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "name": "Upgrade Skill",
+            "description": "Upgrade hero skill 3 time",
+            "SequenceType": "Daily",
+            "listQuestType": [
+                {
+                    "Id": 1,
+                    "questType": "Upgrade",
+                    "RequestValue1": 3,
+                    "RequestValue2": 0,
+                    "TargetID": 4,
+                    "RewardItems": [
+                        {
+                            "numb": 5000,
+                            "items": {
+                                "itemID": -2,
+                                "numbItems": 0,
+                                "itemName": "Coins",
+                                "bonusItemTypes": "Coins",
+                                "sale": 0.0,
+                                "gemBuy": 0,
+                                "coinBuy": 0,
+                                "dropRate": 0.0,
+                                "isSelect": false,
+                                "levelBonus": 1,
+                                "gameItemRate": "Common",
+                                "itemRank": 0,
+                                "ImagePath": null
+                            },
+                            "itemRate": "Common"
+                        }
+                    ],
+                    "TargetSpritePath": null
+                },
+                {
+                    "Id": 2,
+                    "questType": "Upgrade",
+                    "RequestValue1": 10,
+                    "RequestValue2": 0,
+                    "TargetID": 4,
+                    "RewardItems": [
+                        {
+                            "numb": 20,
+                            "items": {
+                                "itemID": -3,
+                                "numbItems": 0,
+                                "itemName": "Gem",
+                                "bonusItemTypes": "Gem",
+                                "sale": 0.0,
+                                "gemBuy": 0,
+                                "coinBuy": 0,
+                                "dropRate": 0.0,
+                                "isSelect": false,
+                                "levelBonus": 1,
+                                "gameItemRate": "Common",
+                                "itemRank": 0,
+                                "ImagePath": null
+                            },
+                            "itemRate": "Common"
+                        }
+                    ],
+                    "TargetSpritePath": null
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "name": "Complete All",
+            "description": "Complete All daily quest",
+            "SequenceType": "Daily",
+            "listQuestType": [
+                {
+                    "Id": 1,
+                    "questType": "CompleteAllDaily",
+                    "RequestValue1": 0,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "RewardItems": [
+                        {
+                            "numb": 50,
+                            "items": {
+                                "itemID": -3,
+                                "numbItems": 0,
+                                "itemName": "Gem",
+                                "bonusItemTypes": "Gem",
+                                "sale": 0.0,
+                                "gemBuy": 0,
+                                "coinBuy": 0,
+                                "dropRate": 0.0,
+                                "isSelect": false,
+                                "levelBonus": 1,
+                                "gameItemRate": "Common",
+                                "itemRank": 0,
+                                "ImagePath": null
+                            },
+                            "itemRate": "Common"
+                        }
+                    ],
+                    "TargetSpritePath": null
+                }
+            ]
+        }
+    ]
+}

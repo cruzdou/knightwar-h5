@@ -1,0 +1,125 @@
+
+Hero_03_Ingame.png
+size: 512,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body_01
+  rotate: false
+  xy: 269, 455
+  size: 54, 54
+  orig: 54, 54
+  offset: 0, 0
+  index: -1
+Bosy_11
+  rotate: false
+  xy: 269, 413
+  size: 52, 40
+  orig: 52, 40
+  offset: 0, 0
+  index: -1
+Hair_01
+  rotate: false
+  xy: 2, 2
+  size: 103, 105
+  orig: 103, 105
+  offset: 0, 0
+  index: -1
+Hair_11
+  rotate: false
+  xy: 164, 277
+  size: 62, 125
+  orig: 62, 125
+  offset: 0, 0
+  index: -1
+Hair_21
+  rotate: false
+  xy: 164, 150
+  size: 62, 125
+  orig: 62, 125
+  offset: 0, 0
+  index: -1
+Hair_31
+  rotate: false
+  xy: 164, 404
+  size: 103, 105
+  orig: 103, 105
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 325, 454
+  size: 45, 55
+  orig: 45, 55
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 228, 336
+  size: 18, 23
+  orig: 18, 23
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: false
+  xy: 164, 117
+  size: 24, 31
+  orig: 24, 31
+  offset: 0, 0
+  index: -1
+L_Hand
+  rotate: false
+  xy: 190, 135
+  size: 24, 13
+  orig: 24, 13
+  offset: 0, 0
+  index: -1
+L_Leg
+  rotate: false
+  xy: 228, 361
+  size: 30, 41
+  orig: 30, 41
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 130, 41
+  size: 18, 23
+  orig: 18, 23
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: false
+  xy: 372, 478
+  size: 24, 31
+  orig: 24, 31
+  offset: 0, 0
+  index: -1
+R_Hand
+  rotate: false
+  xy: 372, 463
+  size: 24, 13
+  orig: 24, 13
+  offset: 0, 0
+  index: -1
+R_Leg
+  rotate: false
+  xy: 130, 66
+  size: 30, 41
+  orig: 30, 41
+  offset: 0, 0
+  index: -1
+R_Weapon
+  rotate: false
+  xy: 107, 19
+  size: 21, 88
+  orig: 21, 88
+  offset: 0, 0
+  index: -1
+Weapon_01
+  rotate: false
+  xy: 2, 109
+  size: 160, 400
+  orig: 160, 400
+  offset: 0, 0
+  index: -1

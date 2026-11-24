@@ -1,0 +1,83 @@
+
+Troll.png
+size: 256,32
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body_01
+  rotate: false
+  xy: 101, 8
+  size: 18, 21
+  orig: 18, 21
+  offset: 0, 0
+  index: -1
+Head
+  rotate: true
+  xy: 68, 6
+  size: 23, 31
+  orig: 23, 31
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 185, 17
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: true
+  xy: 121, 19
+  size: 10, 22
+  orig: 10, 22
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: true
+  xy: 169, 19
+  size: 10, 14
+  orig: 10, 14
+  offset: 0, 0
+  index: -1
+L_Leg_02
+  rotate: false
+  xy: 213, 18
+  size: 10, 11
+  orig: 10, 11
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 199, 17
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: true
+  xy: 145, 19
+  size: 10, 22
+  orig: 10, 22
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: true
+  xy: 121, 8
+  size: 9, 14
+  orig: 9, 14
+  offset: 0, 0
+  index: -1
+R_Leg_02
+  rotate: false
+  xy: 225, 18
+  size: 10, 11
+  orig: 10, 11
+  offset: 0, 0
+  index: -1
+Weapon
+  rotate: true
+  xy: 2, 2
+  size: 27, 64
+  orig: 27, 64
+  offset: 0, 0
+  index: -1

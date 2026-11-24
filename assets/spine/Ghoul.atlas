@@ -1,0 +1,76 @@
+
+Ghoul.png
+size: 128,64
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: true
+  xy: 2, 19
+  size: 43, 39
+  orig: 43, 39
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 43, 28
+  size: 26, 34
+  orig: 26, 34
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 82, 2
+  size: 20, 25
+  orig: 20, 25
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: false
+  xy: 71, 29
+  size: 23, 33
+  orig: 23, 33
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: false
+  xy: 46, 2
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+L_Shoe
+  rotate: true
+  xy: 2, 6
+  size: 11, 20
+  orig: 11, 20
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 104, 2
+  size: 20, 25
+  orig: 20, 25
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: false
+  xy: 96, 29
+  size: 23, 33
+  orig: 23, 33
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: false
+  xy: 64, 2
+  size: 16, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+R_Shoe
+  rotate: true
+  xy: 24, 6
+  size: 11, 20
+  orig: 11, 20
+  offset: 0, 0
+  index: -1

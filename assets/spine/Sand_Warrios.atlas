@@ -1,0 +1,83 @@
+
+Sand_Warrios.png
+size: 128,32
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body_01
+  rotate: false
+  xy: 53, 12
+  size: 14, 18
+  orig: 14, 18
+  offset: 0, 0
+  index: -1
+Body_11
+  rotate: false
+  xy: 26, 12
+  size: 25, 18
+  orig: 25, 18
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 2, 8
+  size: 22, 22
+  orig: 22, 22
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 52, 3
+  size: 12, 7
+  orig: 12, 7
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: true
+  xy: 69, 18
+  size: 12, 19
+  orig: 12, 19
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: false
+  xy: 111, 19
+  size: 10, 11
+  orig: 10, 11
+  offset: 0, 0
+  index: -1
+L_Shoe
+  rotate: true
+  xy: 26, 2
+  size: 8, 11
+  orig: 8, 11
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 69, 9
+  size: 12, 7
+  orig: 12, 7
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: true
+  xy: 90, 18
+  size: 12, 19
+  orig: 12, 19
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: true
+  xy: 83, 6
+  size: 10, 11
+  orig: 10, 11
+  offset: 0, 0
+  index: -1
+R_Shoe
+  rotate: true
+  xy: 39, 2
+  size: 8, 11
+  orig: 8, 11
+  offset: 0, 0
+  index: -1

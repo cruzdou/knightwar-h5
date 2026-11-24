@@ -1,0 +1,76 @@
+
+Boss_Golem.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 2, 145
+  size: 393, 333
+  orig: 393, 333
+  offset: 0, 0
+  index: -1
+Hip
+  rotate: false
+  xy: 397, 138
+  size: 190, 121
+  orig: 190, 121
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: true
+  xy: 2, 2
+  size: 141, 226
+  orig: 141, 226
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: false
+  xy: 397, 261
+  size: 185, 217
+  orig: 185, 217
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: false
+  xy: 589, 152
+  size: 92, 107
+  orig: 92, 107
+  offset: 0, 0
+  index: -1
+L_Leg_02
+  rotate: false
+  xy: 683, 172
+  size: 87, 87
+  orig: 87, 87
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: true
+  xy: 771, 337
+  size: 141, 226
+  orig: 141, 226
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: false
+  xy: 584, 261
+  size: 185, 217
+  orig: 185, 217
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: false
+  xy: 230, 36
+  size: 92, 107
+  orig: 92, 107
+  offset: 0, 0
+  index: -1
+R_Leg_02
+  rotate: false
+  xy: 683, 83
+  size: 87, 87
+  orig: 87, 87
+  offset: 0, 0
+  index: -1

@@ -1,0 +1,62 @@
+
+Harpy.png
+size: 256,32
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 192, 2
+  size: 25, 28
+  orig: 25, 28
+  offset: 0, 0
+  index: -1
+Head
+  rotate: true
+  xy: 160, 2
+  size: 28, 30
+  orig: 28, 30
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: false
+  xy: 219, 15
+  size: 10, 15
+  orig: 10, 15
+  offset: 0, 0
+  index: -1
+L_Leg_02
+  rotate: true
+  xy: 2, 2
+  size: 9, 19
+  orig: 9, 19
+  offset: 0, 0
+  index: -1
+L_Wing
+  rotate: false
+  xy: 2, 13
+  size: 77, 17
+  orig: 77, 17
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: true
+  xy: 44, 2
+  size: 9, 17
+  orig: 9, 17
+  offset: 0, 0
+  index: -1
+R_Leg_02
+  rotate: true
+  xy: 23, 2
+  size: 9, 19
+  orig: 9, 19
+  offset: 0, 0
+  index: -1
+R_Wing
+  rotate: false
+  xy: 81, 13
+  size: 77, 17
+  orig: 77, 17
+  offset: 0, 0
+  index: -1

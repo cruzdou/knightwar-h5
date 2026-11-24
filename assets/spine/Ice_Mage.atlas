@@ -1,0 +1,55 @@
+
+Ice_Mage.png
+size: 256,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body_01
+  rotate: false
+  xy: 2, 82
+  size: 111, 141
+  orig: 111, 141
+  offset: 0, 0
+  index: -1
+Body_11
+  rotate: false
+  xy: 115, 82
+  size: 73, 141
+  orig: 73, 141
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 2, 19
+  size: 61, 61
+  orig: 61, 61
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 65, 63
+  size: 30, 17
+  orig: 30, 17
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: false
+  xy: 2, 2
+  size: 38, 15
+  orig: 38, 15
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 190, 189
+  size: 30, 17
+  orig: 30, 17
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: false
+  xy: 190, 208
+  size: 39, 15
+  orig: 39, 15
+  offset: 0, 0
+  index: -1

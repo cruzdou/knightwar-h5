@@ -1,0 +1,279 @@
+{
+    "listDailyEventModel": [
+        {
+            "id": 1,
+            "name": "Time Online",
+            "description": "Time Online ",
+            "listEventType": [
+                {
+                    "id": 1,
+                    "name": "Online 5 Minutes",
+                    "eventType": "Time",
+                    "RequestValue1": 300,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 100.0,
+                    "rarePrizeRate": 0.0,
+                    "epicPrizeRate": 0.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 2,
+                    "name": "Online 20 Minutes",
+                    "eventType": "Time",
+                    "RequestValue1": 1200,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 20.0,
+                    "rarePrizeRate": 75.0,
+                    "epicPrizeRate": 5.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 3,
+                    "name": "Online 60 Minutes",
+                    "eventType": "Time",
+                    "RequestValue1": 3600,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 0.0,
+                    "rarePrizeRate": 80.0,
+                    "epicPrizeRate": 20.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 4,
+                    "name": "Online 90 Minutes",
+                    "eventType": "Time",
+                    "RequestValue1": 5400,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 0.0,
+                    "rarePrizeRate": 0.0,
+                    "epicPrizeRate": 95.0,
+                    "legendDaryPrizeRate": 5.0
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "Level Pass",
+            "description": "Level Pass",
+            "listEventType": [
+                {
+                    "id": 1,
+                    "name": "Win 5 Any Level",
+                    "eventType": "LevelPass",
+                    "RequestValue1": 5,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 70.0,
+                    "rarePrizeRate": 30.0,
+                    "epicPrizeRate": 0.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 2,
+                    "name": "Win 10 Any Level",
+                    "eventType": "LevelPass",
+                    "RequestValue1": 10,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 20.0,
+                    "rarePrizeRate": 65.0,
+                    "epicPrizeRate": 15.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 3,
+                    "name": "Win 30 Any Level",
+                    "eventType": "LevelPass",
+                    "RequestValue1": 30,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 0.0,
+                    "rarePrizeRate": 100.0,
+                    "epicPrizeRate": 0.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 4,
+                    "name": "Win 50 Any Level",
+                    "eventType": "LevelPass",
+                    "RequestValue1": 50,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 0.0,
+                    "rarePrizeRate": 0.0,
+                    "epicPrizeRate": 100.0,
+                    "legendDaryPrizeRate": 0.0
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Passed Level Hard",
+            "description": "Passed Level Hard",
+            "listEventType": [
+                {
+                    "id": 1,
+                    "name": "Win 1 Hard Level",
+                    "eventType": "HardLevelPass",
+                    "RequestValue1": 1,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 70.0,
+                    "rarePrizeRate": 30.0,
+                    "epicPrizeRate": 0.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 2,
+                    "name": "Win 5 Hard Level",
+                    "eventType": "HardLevelPass",
+                    "RequestValue1": 5,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 0.0,
+                    "rarePrizeRate": 100.0,
+                    "epicPrizeRate": 0.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 3,
+                    "name": "Win 10 Hard Level",
+                    "eventType": "HardLevelPass",
+                    "RequestValue1": 10,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 0.0,
+                    "rarePrizeRate": 100.0,
+                    "epicPrizeRate": 0.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 4,
+                    "name": "Win 15 Hard Level",
+                    "eventType": "HardLevelPass",
+                    "RequestValue1": 30,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 0.0,
+                    "rarePrizeRate": 0.0,
+                    "epicPrizeRate": 100.0,
+                    "legendDaryPrizeRate": 0.0
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "name": "Kill Enemy",
+            "description": "Kill Enemy",
+            "listEventType": [
+                {
+                    "id": 1,
+                    "name": "Kill 500 Enemy",
+                    "eventType": "KillEnemy",
+                    "RequestValue1": 500,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 100.0,
+                    "rarePrizeRate": 0.0,
+                    "epicPrizeRate": 0.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 2,
+                    "name": "Kill 2000 Enemy",
+                    "eventType": "KillEnemy",
+                    "RequestValue1": 2000,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 80.0,
+                    "rarePrizeRate": 20.0,
+                    "epicPrizeRate": 0.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 3,
+                    "name": "Kill 10.000 Enemy",
+                    "eventType": "KillEnemy",
+                    "RequestValue1": 10000,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 0.0,
+                    "rarePrizeRate": 100.0,
+                    "epicPrizeRate": 0.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 4,
+                    "name": "Kill 50.000 Enemy",
+                    "eventType": "KillEnemy",
+                    "RequestValue1": 50000,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 0.0,
+                    "rarePrizeRate": 0.0,
+                    "epicPrizeRate": 100.0,
+                    "legendDaryPrizeRate": 0.0
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "name": "Kill Boss",
+            "description": "Kill Boss",
+            "listEventType": [
+                {
+                    "id": 1,
+                    "name": "Kill 10 Boss",
+                    "eventType": "KillBoss",
+                    "RequestValue1": 10,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 100.0,
+                    "rarePrizeRate": 0.0,
+                    "epicPrizeRate": 0.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 2,
+                    "name": "Kill 50 Boss",
+                    "eventType": "KillBoss",
+                    "RequestValue1": 50,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 0.0,
+                    "rarePrizeRate": 100.0,
+                    "epicPrizeRate": 0.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 3,
+                    "name": "Kill 200 Boss",
+                    "eventType": "KillBoss",
+                    "RequestValue1": 200,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 0.0,
+                    "rarePrizeRate": 80.0,
+                    "epicPrizeRate": 20.0,
+                    "legendDaryPrizeRate": 0.0
+                },
+                {
+                    "id": 4,
+                    "name": "Kill 500 Boss",
+                    "eventType": "KillBoss",
+                    "RequestValue1": 500,
+                    "RequestValue2": 0,
+                    "TargetID": 0,
+                    "commonPrizeRate": 0.0,
+                    "rarePrizeRate": 0.0,
+                    "epicPrizeRate": 100.0,
+                    "legendDaryPrizeRate": 0.0
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,104 @@
+
+Hero_01_Ingame.png
+size: 128,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body_01
+  rotate: false
+  xy: 44, 102
+  size: 42, 38
+  orig: 42, 38
+  offset: 0, 0
+  index: -1
+Body_11
+  rotate: false
+  xy: 44, 142
+  size: 53, 35
+  orig: 53, 35
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 44, 179
+  size: 64, 67
+  orig: 64, 67
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 24, 57
+  size: 18, 23
+  orig: 18, 23
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: false
+  xy: 2, 2
+  size: 22, 23
+  orig: 22, 23
+  offset: 0, 0
+  index: -1
+L_Hand
+  rotate: false
+  xy: 44, 63
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+L_Leg_01
+  rotate: false
+  xy: 2, 54
+  size: 20, 26
+  orig: 20, 26
+  offset: 0, 0
+  index: -1
+L_Shoe
+  rotate: false
+  xy: 110, 231
+  size: 12, 15
+  orig: 12, 15
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 24, 32
+  size: 18, 23
+  orig: 18, 23
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: false
+  xy: 44, 77
+  size: 22, 23
+  orig: 22, 23
+  offset: 0, 0
+  index: -1
+R_Hand
+  rotate: false
+  xy: 68, 88
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+R_Leg_01
+  rotate: false
+  xy: 2, 27
+  size: 20, 25
+  orig: 20, 25
+  offset: 0, 0
+  index: -1
+R_Shoe
+  rotate: false
+  xy: 110, 219
+  size: 11, 10
+  orig: 11, 10
+  offset: 0, 0
+  index: -1
+Weapon/Layer 0
+  rotate: false
+  xy: 2, 82
+  size: 40, 164
+  orig: 40, 164
+  offset: 0, 0
+  index: -1

@@ -1,0 +1,48 @@
+
+Vulture.png
+size: 128,64
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 2, 22
+  size: 33, 35
+  orig: 33, 35
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 2, 2
+  size: 8, 18
+  orig: 8, 18
+  offset: 0, 0
+  index: -1
+L_Leg
+  rotate: false
+  xy: 93, 46
+  size: 8, 11
+  orig: 8, 11
+  offset: 0, 0
+  index: -1
+L_Wing
+  rotate: false
+  xy: 37, 45
+  size: 54, 12
+  orig: 54, 12
+  offset: 0, 0
+  index: -1
+R_Leg
+  rotate: false
+  xy: 12, 9
+  size: 8, 11
+  orig: 8, 11
+  offset: 0, 0
+  index: -1
+R_Wing
+  rotate: false
+  xy: 37, 31
+  size: 54, 12
+  orig: 54, 12
+  offset: 0, 0
+  index: -1

@@ -1,0 +1,76 @@
+
+Giant_Guardian.png
+size: 512,64
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Chest
+  rotate: false
+  xy: 2, 10
+  size: 77, 52
+  orig: 77, 52
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 81, 12
+  size: 45, 50
+  orig: 45, 50
+  offset: 0, 0
+  index: -1
+L_Arm_01
+  rotate: false
+  xy: 128, 14
+  size: 39, 48
+  orig: 39, 48
+  offset: 0, 0
+  index: -1
+L_Arm_02
+  rotate: false
+  xy: 169, 9
+  size: 32, 53
+  orig: 32, 53
+  offset: 0, 0
+  index: -1
+L_Hand
+  rotate: false
+  xy: 276, 2
+  size: 31, 27
+  orig: 31, 27
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 203, 18
+  size: 36, 44
+  orig: 36, 44
+  offset: 0, 0
+  index: -1
+R_Arm_02
+  rotate: false
+  xy: 241, 15
+  size: 33, 47
+  orig: 33, 47
+  offset: 0, 0
+  index: -1
+R_Hand
+  rotate: false
+  xy: 318, 31
+  size: 30, 31
+  orig: 30, 31
+  offset: 0, 0
+  index: -1
+Spine_01
+  rotate: false
+  xy: 309, 6
+  size: 36, 23
+  orig: 36, 23
+  offset: 0, 0
+  index: -1
+Spine_02
+  rotate: false
+  xy: 276, 31
+  size: 40, 31
+  orig: 40, 31
+  offset: 0, 0
+  index: -1

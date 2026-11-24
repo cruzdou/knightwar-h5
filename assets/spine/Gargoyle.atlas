@@ -1,0 +1,34 @@
+
+Gargoyle.png
+size: 128,64
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body
+  rotate: false
+  xy: 84, 27
+  size: 20, 33
+  orig: 20, 33
+  offset: 0, 0
+  index: -1
+Head
+  rotate: false
+  xy: 84, 2
+  size: 24, 23
+  orig: 24, 23
+  offset: 0, 0
+  index: -1
+L
+  rotate: false
+  xy: 2, 21
+  size: 39, 39
+  orig: 39, 39
+  offset: 0, 0
+  index: -1
+R
+  rotate: false
+  xy: 43, 21
+  size: 39, 39
+  orig: 39, 39
+  offset: 0, 0
+  index: -1

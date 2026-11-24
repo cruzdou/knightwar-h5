@@ -1,0 +1,97 @@
+
+Hero_04_Ingame.png
+size: 256,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Body_11
+  rotate: false
+  xy: 2, 2
+  size: 46, 45
+  orig: 46, 45
+  offset: 0, 0
+  index: -1
+Cloak
+  rotate: false
+  xy: 202, 468
+  size: 32, 42
+  orig: 32, 42
+  offset: 0, 0
+  index: -1
+Head_11
+  rotate: false
+  xy: 2, 49
+  size: 120, 99
+  orig: 120, 99
+  offset: 0, 0
+  index: -1
+Hip
+  rotate: false
+  xy: 144, 393
+  size: 44, 29
+  orig: 44, 29
+  offset: 0, 0
+  index: -1
+L_Arm_11
+  rotate: false
+  xy: 50, 7
+  size: 35, 40
+  orig: 35, 40
+  offset: 0, 0
+  index: -1
+L_Leg_11
+  rotate: false
+  xy: 124, 114
+  size: 15, 34
+  orig: 15, 34
+  offset: 0, 0
+  index: -1
+L_Shoulders_11
+  rotate: false
+  xy: 87, 10
+  size: 28, 37
+  orig: 28, 37
+  offset: 0, 0
+  index: -1
+L_Weapon_01
+  rotate: false
+  xy: 2, 150
+  size: 140, 360
+  orig: 140, 360
+  offset: 0, 0
+  index: -1
+R_Weapon_01
+  rotate: false
+  xy: 2, 150
+  size: 140, 360
+  orig: 140, 360
+  offset: 0, 0
+  index: -1
+Layer 36
+  rotate: false
+  xy: 144, 466
+  size: 56, 44
+  orig: 56, 44
+  offset: 0, 0
+  index: -1
+R_Arm_11
+  rotate: false
+  xy: 144, 424
+  size: 35, 40
+  orig: 35, 40
+  offset: 0, 0
+  index: -1
+R_Leg_11
+  rotate: false
+  xy: 236, 476
+  size: 15, 34
+  orig: 15, 34
+  offset: 0, 0
+  index: -1
+R_Shoulders_11
+  rotate: false
+  xy: 144, 360
+  size: 29, 31
+  orig: 29, 31
+  offset: 0, 0
+  index: -1
