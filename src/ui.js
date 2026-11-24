@@ -50,8 +50,9 @@ class PopupLayer {
     if (kind === 'share') return 372;
     if (kind === 'rate') return 352;
     if (kind === 'chest') {
-      const n = this.aggCount(this.current.data.res);
-      return 220 + Math.min(10, n) * 34 + (n > 10 ? 26 : 0) + 110;
+      const total = this.aggCount(this.current.data.res);
+      const n = Math.min(10, total);
+      return 168 + n * 34 + (total > 10 ? 26 : 0) + 78;
     }
     return 380;
   }
