@@ -73,6 +73,8 @@ class Game {
     await this.select.init();
     this.battle = new BattleScene(this);
     await this.battle.init();
+    // 上阵盟友骨架在后台预取：第一次点关卡就不用等
+    this.battle.ensureAllySprites().catch(() => {});
     this.scene = this.select;
 
     const qs = new URLSearchParams(location.search);

@@ -241,7 +241,7 @@ class BattleScene {
     // 上阵盟友（最多 3 名）：站在英雄两侧/后方，自动向最靠墙的敌人射击
     // 数值取自 gameAllies.json 该阶该级的伤害；盟友不吃伤害（简化：不会被打死）
     this.allies = [];
-    const allySlots = [{ x: 232, y: 1044 }, { x: 488, y: 1044 }, { x: 360, y: 976 }];
+    const allySlots = [{ x: 232, y: 1052 }, { x: 488, y: 1052 }, { x: 360, y: 986 }];
     (Player.squad || []).slice(0, 3).forEach((id, i) => {
       const info = this.ally_infos && this.ally_infos[id];
       const st = this.g.allyStats ? this.g.allyStats(id) : null;
@@ -251,7 +251,7 @@ class BattleScene {
       a.x = allySlots[i].x;
       a.y = allySlots[i].y;
       a.flip = false;
-      a.scale = (HERO_H * 0.78) / info.h;
+      a.scale = (HERO_H * 0.92) / info.h;
       a.dmg = Math.max(1, st.damage * (window.CONFIG ? CONFIG.balance.damageMult : 3) * 0.55);
       a.rate = Math.max(0.6, st.atkRate || 1.5);
       a.crit = st.critRate || 8;

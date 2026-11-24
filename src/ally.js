@@ -318,6 +318,8 @@ class AllyScene {
           if (r === 'full') { this.say('上阵已满 3 名，请先下阵一个'); this.g.playSfx('sfx_equipfail', 0.3); return; }
           if (r === 'last') { this.say('至少要留 1 名盟友上阵'); this.g.playSfx('sfx_equipfail', 0.3); return; }
           this.say(Player.inSquad(b.id) ? this.nameOf(b.id) + ' 已上阵' : this.nameOf(b.id) + ' 已下阵');
+          // 换阵容后台预取骨架，下一场战斗不用等
+          if (this.g.battle && this.g.battle.ensureAllySprites) this.g.battle.ensureAllySprites().catch(() => {});
           this.g.playSfx('sfx_equip', 0.34);
           return;
         }
