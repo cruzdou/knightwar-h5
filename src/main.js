@@ -281,16 +281,29 @@ class Game {
     this.playSfx('sfx_tab', 0.3);
   }
 
-  async startBattle(stage) {
+  async startBattle(stage, opts) {
     // 上阵盟友的骨架先就绪再开打（换阵容后第一次进战斗需要补拉）
     if (this.battle && this.battle.ensureAllySprites) {
       try { await this.battle.ensureAllySprites(); } catch (e) { /* 缺件就不上场 */ }
     }
-    this.battle.reset(stage);
+    this.battle.reset(stage, opts);
     this.scene = this.battle;
     this.audioUnlock();
     this.playSfx('sfx_enter', 0.3);
     this.playSfx('sfx_footstep', 0.18);
+  }
+
+  // Raid：扣 1 张对应票 → 用同一关（强化版）开打
+  async startRaid(stage, kind) {
+    if (!Player.spendRaidTicket(kind, 1)) return 'no-ticket';
+    await this.startBattle(stage, { raid: { kind, mult: 2 } });
+    return 'ok';
+  }
+
+  showRaid() {
+    this.scene = new RaidScene(this);
+    this.audioUnlock();
+    this.playSfx('sfx_tab', 0.3);
   }
 
   async loadAudio() {    const files = {

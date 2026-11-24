@@ -287,3 +287,4 @@ class PopupLayer {
 
 const Popup = new PopupLayer();
 window.Popup = Popup;
+

@@ -114,6 +114,9 @@ class LevelSelectScene {
     this.packCard(x, y, w, 104, 'BONUS PACK', '04:52', '50 宝石');
     y += 112;
     this.packCard(x, y, w, 104, 'STARTER PACK', '04:34:31', '限时');
+    // Raid 入口（票数实时显示）
+    y += 112;
+    this.packCard(x, y, w, 92, 'RAID', '票 ' + Player.raidTicketTotal() + ' 张', 'BOSS', 'raid');
   }
 
   packCard(x, y, w, h, title, sub, tag, act) {
@@ -391,6 +394,7 @@ class LevelSelectScene {
       if (b.act === 'stage' && b.stage) { this.g.playSfx('sfx_click', 0.3); this.g.startBattle(b.stage); return; }
       if (b.act === 'daily') { this.g.playSfx('sfx_tab', 0.3); this.g.showDaily(b.tab); return; }
       if (b.act === 'ally') { this.g.playSfx('sfx_tab', 0.3); this.g.showAlly(); return; }
+      if (b.act === 'raid') { this.g.playSfx('sfx_tab', 0.3); this.g.showRaid(); return; }
       if (b.act === 'nav') { this.g.showTab(b.kind); return; }
     }
   }

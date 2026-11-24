@@ -196,6 +196,14 @@ class PlayerState {
     const k = this.raidTickets;
     return (k.normal || 0) + (k.medium || 0) + (k.hard || 0) + (k.super || 0);
   }
+  // 花票（RaidScene 进关时扣 1 张）；票不够返回 false
+  spendRaidTicket(kind, n) {
+    const have = this.raidTickets[kind] || 0;
+    if (have < (n || 1)) return false;
+    this.raidTickets[kind] = have - (n || 1);
+    this.save();
+    return true;
+  }
 
   isBossCleared(levelName) { return !!this.bossClear[levelName]; }
   setBossCleared(levelName) { this.bossClear[levelName] = true; this.save(); }

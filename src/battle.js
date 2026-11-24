@@ -160,7 +160,7 @@ class BattleScene {
   }
 
   // ---------- 一局重置（吃 ListAllLevel 的关卡元数据） ----------
-  reset(stage) {
+  reset(stage, opts) {
     if (stage) this.stageData = stage;
     if (!this.stageData) this.stageData = { name: '1-1', zone: 0, totalEnemy: 12, levelCoins: 86, levelType: 'Normal' };
     const st = this.stageData;
@@ -219,6 +219,15 @@ class BattleScene {
     {
       const q = new URLSearchParams(location.search).get('matdrop');
       this.matDropRate = q ? Math.max(0, Math.min(1, parseFloat(q))) : 0.16;
+    }
+    // Raid：强化版 Boss 关（血量 ×2、金币 ×2、材料概率 ×2），票已在 RaidScene 扣掉
+    this.raid = (opts && opts.raid) ? opts.raid : null;
+    if (this.raid) {
+      const mult = this.raid.mult || 2;
+      this.hpK *= mult;
+      this.coinPerKill *= mult;
+      this.matDropRate = Math.min(1, this.matDropRate * mult);
+      this.bonusRewards.push('RAID 强敌（' + (this.raid.kind || 'normal') + '）：敌人 ×' + mult + ' · 金币/材料 ×' + mult);
     }
     this.state = 'play';
 
@@ -360,7 +369,7 @@ class BattleScene {
     this.coinPops.push({ x: e.x, y: e.y - 24, t: 0 });
     // 材料掉落：普通怪 12%，Boss 必掉 2 个（材料表 601~643）
     const isBossUnit = !!(e.info && e.info.isBoss) || (this.isBoss && this.wave === this.waveCount);
-    const times = isBossUnit ? 2 : (Math.random() < this.matDropRate ? 1 : 0);
+    const times = (isBossUnit ? 2 : (Math.random() < this.matDropRate ? 1 : 0)) * (this.raid ? (this.raid.mult || 2) : 1);
     for (let i = 0; i < times; i++) {
       const id = this.rollMat();
       Player.addMat(id, 1);
@@ -636,6 +645,11 @@ class BattleScene {
     const redW = barW * 0.42;
     roundRect(ctx, barX, barY, redW, barH, 7, '#a4121a');
     text(ctx, 'Stage ' + this.stage, barX + 14, barY + barH / 2, 28, '#ffffff', 'left', '#5d0a0e');
+    // Raid 标记
+    if (this.raid) {
+      roundRect(ctx, barX + 14, barY + barH + 6, 88, 24, 6, '#3a2b10', '#ffcf5c', 1);
+      text(ctx, 'RAID ×' + (this.raid.mult || 2), barX + 58, barY + barH + 18, 12, '#ffcf5c', 'center');
+    }
 
     // 绿色城墙血条（42% → 75%）
     const gx = barX + redW + 6, gw = barW * 0.75 - redW - 6;
