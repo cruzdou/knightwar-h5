@@ -57,6 +57,7 @@ class TabScene {
     this.renderer = new SP.canvas.SkeletonRenderer(this.ctx);
     this.actor = null;
     this.heroCache = {};
+    this.chestResult = null;   // 开箱结果浮层
   }
 
   async init() {
@@ -185,19 +186,23 @@ class TabScene {
   }
 
   // ================= 商店 =================
+  // 6 个真实宝箱（TreasureBox.json 的 id 1/2/3/4 装备箱 + 10/11 盟友箱）
+  shopChests() {
+    const ids = [1, 2, 3, 4, 10, 11];
+    const arts = { 1: 'shop_img_chest_0.png', 2: 'shop_img_chest_1.png', 3: 'shop_img_chest_2.png',
+      4: 'shop_img_chest_3.png', 10: 'shop_img_chest_4.png', 11: 'shop_img_chest_4.png' };
+    const boxes = (window.Chest && Chest.list) ? Chest.list : [];
+    return ids.map(id => boxes.find(b => b.id === id)).filter(Boolean).map(b => ({
+      box: b, id: b.id, name: b.name, art: arts[b.id] || 'shop_img_chest_0.png'
+    }));
+  }
+
   draw_shop() {
     const ctx = this.ctx;
-    this.title('商店  SHOP', '广告剩余 ' + Ads.remaining() + '/' + Ads.dailyMax + ' 次');
+    const tickets = Player.raidTicketTotal();
+    this.title('商店  SHOP', '广告剩余 ' + Ads.remaining() + '/' + Ads.dailyMax + ' 次 · Raid 票 ' + tickets);
 
-    // 宝箱：花钱买宝石价，开箱真实发放金币 / 宝石 / 装备强化
-    const products = [
-      { art: 'shop_img_chest_0.png', name: 'Wooden Chest', price: 40, cur: 'gem', coins: 900, gems: 0, up: 0 },
-      { art: 'shop_img_chest_1.png', name: 'Silver Chest', price: 55, cur: 'gem', coins: 1400, gems: 8, up: 0 },
-      { art: 'shop_img_chest_2.png', name: 'Golden Chest', price: 400, cur: 'gem', coins: 9000, gems: 60, up: 1 },
-      { art: 'shop_img_chest_3.png', name: 'Royal Chest', price: 2500, cur: 'gem', coins: 60000, gems: 400, up: 2 },
-      { art: 'shop_img_chest_4.png', name: 'Mythic Chest', price: 5000, cur: 'gem', coins: 150000, gems: 1000, up: 3 },
-      { art: 'shop_pack_gem_6.png', name: 'Gem Pack', price: 300, cur: 'coin', coins: 0, gems: 6, up: 0 }
-    ];
+    const products = this.shopChests();
     const cw = (W - 24 - 10) / 2, ch = 246, gap = 10;
     const x0 = 12, y0 = 146;
     products.forEach((p, i) => {
@@ -214,23 +219,36 @@ class TabScene {
         const hh = 92, ww = Math.min(cw - 60, hh * img.width / img.height);
         ctx.drawImage(img, x + (cw - ww) / 2, y + 8, ww, hh);
       }
-      text(ctx, p.name, x + cw / 2, y + 120, 17, '#e8eef6', 'center', '#0a1018');
-      // 内容小字
-      const bits = [];
-      if (p.coins) bits.push(p.coins + ' 金币');
-      if (p.gems) bits.push(p.gems + ' 宝石');
-      if (p.up) bits.push('强化 +' + p.up);
-      text(ctx, bits.join(' · '), x + cw / 2, y + 142, 12, '#8fa3b7', 'center');
+      const top = Chest.topRarity(p.box);
+      const topC = Chest.rarityColor(
+        top === '传说' ? 'super' : top === '史诗' ? 'hard' : top === '稀有' ? 'medium' : 'normal');
+      roundRect(ctx, x + 10, y + 10, 74, 20, 5, 'rgba(0,0,0,0.55)', topC, 1);
+      text(ctx, '可出' + top, x + 47, y + 20, 11, topC, 'center');
 
-      const ic = this.tex[p.cur === 'gem' ? 'gem' : 'coin'];
+      text(ctx, p.name, x + cw / 2, y + 120, 16, '#e8eef6', 'center', '#0a1018');
+      // 内容小字：装备箱 3 槽 / 盟友箱是盟友卡
+      const isAlly = p.id === 10 || p.id === 11;
+      text(ctx, isAlly ? '盟友卡 x3 · 重复转升级' : '3 槽随机装备 · 重复转强化',
+        x + cw / 2, y + 142, 12, '#8fa3b7', 'center');
+
+      const pr = Chest.price(p.box, 1);
+      const ic = this.tex[pr.cur === 'gem' ? 'gem' : 'coin'];
       drawIcon(ctx, ic, x + cw / 2 - 30, y + 166, 0.5);
-      text(ctx, String(p.price), x + cw / 2 - 12, y + 166, 18, '#ffe9a8', 'left', '#20160a');
+      text(ctx, String(pr.v), x + cw / 2 - 12, y + 166, 18, '#ffe9a8', 'left', '#20160a');
+      // 10 连小按钮（价格取 x10）
+      const pr10 = Chest.price(p.box, 10);
+      if (pr10.v > 0) {
+        const bw10 = 78, bh10 = 26, bx10 = x + cw - bw10 - 8, by10 = y + 154;
+        roundRect(ctx, bx10, by10, bw10, bh10, 6, '#243448', '#4a7fb5', 1);
+        text(ctx, '10× ' + pr10.v + (pr10.cur === 'coin' ? '金' : '宝'), bx10 + bw10 / 2, by10 + bh10 / 2, 11, '#9fd0ff', 'center');
+        this.hot.push({ x: bx10, y: by10, w: bw10, h: bh10, act: 'buyChest', id: p.id, n: 10 });
+      }
 
       const bw = cw - 40, bh = 42, bx = x + 20, by = y + ch - 50;
       if (this.tex.btnY) ctx.drawImage(this.tex.btnY, bx, by, bw, bh);
       else roundRect(ctx, bx, by, bw, bh, 8, '#e0a52a');
-      text(ctx, 'BUY', bx + bw / 2, by + bh / 2, 17, '#fff', 'center', '#1a1206');
-      this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'buy', item: p });
+      text(ctx, 'OPEN', bx + bw / 2, by + bh / 2, 17, '#fff', 'center', '#1a1206');
+      this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'buyChest', id: p.id, n: 1 });
     });
 
     // 广告 / 内购 横向四格
@@ -259,6 +277,52 @@ class TabScene {
         bx + bw / 2, by + bh / 2, 13, off ? '#fff' : '#9fb2c6', 'center', '#1a1206');
       this.hot.push({ x: bx, y: by, w: bw, h: bh, act: p.act });
     });
+
+    if (this.chestResult) this.drawChestResult();
+  }
+
+  // 开箱结果浮层（全屏点击关闭）
+  drawChestResult() {
+    const ctx = this.ctx;
+    const res = this.chestResult;
+    ctx.fillStyle = 'rgba(4,8,12,0.82)';
+    ctx.fillRect(0, 0, W, H);
+
+    // 合并同名奖励：label → {n, rarity}
+    const map = new Map();
+    for (const r of res.rewards) {
+      const k = r.label;
+      if (map.has(k)) map.get(k).n++;
+      else map.set(k, { n: 1, rarity: r.rarity });
+    }
+    const rows = Array.from(map.entries()).map(([label, v]) => ({ label, ...v }));
+    const show = rows.slice(0, 10);
+    const ph = 210 + show.length * 34 + (rows.length > 10 ? 26 : 0);
+    const pw = 640, px = (W - pw) / 2, py = (H - ph) / 2;
+
+    roundRect(ctx, px, py, pw, ph, 14, '#101a26', '#5a7ea6', 2);
+    text(ctx, res.boxName, W / 2, py + 40, 22, '#ffe9a8', 'center', '#000');
+    text(ctx, '×' + res.count + ' · 共 ' + res.rewards.length + ' 件', W / 2, py + 68, 14, '#8fa3b7', 'center');
+
+    show.forEach((r, i) => {
+      const ry = py + 96 + i * 34;
+      roundRect(ctx, px + 24, ry, pw - 48, 28, 6, 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.08)', 1);
+      ctx.beginPath();
+      ctx.arc(px + 44, ry + 14, 6, 0, Math.PI * 2);
+      ctx.fillStyle = Chest.rarityColor(r.rarity);
+      ctx.fill();
+      text(ctx, Chest.rarityLabel(r.rarity), px + 58, ry + 14, 12, Chest.rarityColor(r.rarity), 'left');
+      text(ctx, r.label + (r.n > 1 ? ' x' + r.n : '').slice(0, 30), px + 116, ry + 14, 14, '#e8eef6', 'left');
+    });
+    if (rows.length > 10) text(ctx, '… 还有 ' + (rows.length - 10) + ' 种奖励', W / 2, py + 96 + 10 * 34 + 14, 12, '#8fa3b7', 'center');
+
+    const tk = Object.keys(res.tickets || {}).filter(k => res.tickets[k] > 0);
+    const tkTxt = tk.length ? 'Raid 票：' + tk.map(k => k + ' x' + res.tickets[k]).join('、') : '';
+    if (tkTxt) text(ctx, tkTxt, W / 2, py + ph - 86, 15, '#ffcf5c', 'center', '#000');
+
+    const bw = 220, bh = 48, bx = W / 2 - bw / 2, by = py + ph - 62;
+    roundRect(ctx, bx, by, bw, bh, 10, '#2f7ad6', '#8fc4ff', 2);
+    text(ctx, '收下（点击任意处）', W / 2, by + bh / 2, 16, '#fff', 'center');
   }
 
   // ================= 锻造 =================
@@ -758,6 +822,11 @@ class TabScene {
 
   ptDown(p) {
     this.g.audioUnlock();
+    if (this.chestResult) {
+      this.chestResult = null;
+      this.g.playSfx('sfx_click', 0.3);
+      return;
+    }
     for (const b of this.hot) {
       if (p.x < b.x || p.x > b.x + b.w || p.y < b.y || p.y > b.y + b.h) continue;
       switch (b.act) {
@@ -774,21 +843,27 @@ class TabScene {
         case 'itemNext': this.itemPage++; this.g.playSfx('sfx_click', 0.26); return;
         case 'castlePrev': this.castlePage = Math.max(0, this.castlePage - 1); this.g.playSfx('sfx_click', 0.26); return;
         case 'castleNext': this.castlePage++; this.g.playSfx('sfx_click', 0.26); return;
-        case 'buy': {
-          // 真实发放：扣货币 → 金币/宝石入账 → 宝箱附带的强化点直接加到装备上
-          const p = b.item;
-          const ok = p.cur === 'gem' ? Player.spendGems(p.price) : Player.spendCoins(p.price);
+        case 'buyChest': {
+          // 真实开箱：扣货币 → 按 TreasureBox.json 的概率与池子发奖
+          const box = Chest.box(b.id);
+          if (!box) { this.say('宝箱表未加载'); return; }
+          const pr = Chest.price(box, b.n);
+          const ok = pr.cur === 'gem' ? Player.spendGems(pr.v) : Player.spendCoins(pr.v);
           if (!ok) {
-            this.say((p.cur === 'gem' ? '宝石' : '金币') + '不足，需要 ' + p.price);
+            this.say((pr.cur === 'gem' ? '宝石' : '金币') + '不足，需要 ' + pr.v);
             this.g.playSfx('sfx_equipfail', 0.36);
             return;
           }
+          const res = Chest.open(b.id, b.n);
+          this.chestResult = res;
           this.g.playSfx('sfx_buy', 0.36);
           this.g.playSfx('sfx_openbox', 0.24);
-          if (window.Daily) Daily.count('chest', 1);
-          this.say('已购买 ' + p.name + '：' + this.giveChest(p));
           return;
         }
+        case 'closeChest':
+          this.chestResult = null;
+          this.g.playSfx('sfx_click', 0.3);
+          return;
         case 'ad_coin':
         case 'ad_gem':
         case 'ad_chest': {
@@ -797,17 +872,15 @@ class TabScene {
           this.g.playSfx('sfx_click', 0.3);
           Ads.show({
             title: kind === 'ad_coin' ? '看广告领 600 金币'
-              : kind === 'ad_gem' ? '看广告领 8 宝石' : '看广告免费开铜箱',
+              : kind === 'ad_gem' ? '看广告领 8 宝石' : '看广告免费开 Common Chest',
             seconds: 4,
             onDone: done => {
               if (!done) { this.say('广告未看完，没有奖励'); return; }
               if (kind === 'ad_coin') { Player.addCoins(600); this.say('奖励到账：金币 +600'); }
               else if (kind === 'ad_gem') { Player.addGems(8); this.say('奖励到账：宝石 +8'); }
               else {
-                const chest = { coins: 900, gems: 0, up: 0, name: 'Wooden Chest' };
+                this.chestResult = Chest.open(1, 1);   // 免费开 #1 Common Chest
                 this.g.playSfx('sfx_openbox', 0.26);
-                if (window.Daily) Daily.count('chest', 1);
-                this.say('免费铜箱开出：' + this.giveChest(chest));
               }
               this.g.playSfx('sfx_buy', 0.32);
             },

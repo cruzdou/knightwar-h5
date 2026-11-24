@@ -234,7 +234,14 @@ class AllyScene {
   }
 
   // ---------- 成本 ----------
-  recruitCost(id) { return 120 + 60 * (id - 1); }
+  // 招募 = 开一箱 #10 Support Treasure，价格直接取 TreasureBox.json（150 宝石）
+  recruitCost(id) {
+    if (window.Chest && Chest.ready) {
+      const bx = Chest.box(10);
+      if (bx) { const p = Chest.price(bx, 1); if (p.v > 0) return p.v; }
+    }
+    return 150;
+  }
 
   trainCost(id) {
     const st = this.g.allyStats ? this.g.allyStats(id) : null;
@@ -276,11 +283,22 @@ class AllyScene {
           return;
         case 'sel': this.sel = b.id; this.g.playSfx('sfx_click', 0.3); return;
         case 'recruit': {
+          // 真实入口：开 #10 Support Treasure（150 宝石，TreasureBox.json），必得盟友卡
           const cost = this.recruitCost(b.id);
           if (!Player.spendGems(cost)) { this.say('宝石不足，需要 ' + cost); this.g.playSfx('sfx_equipfail', 0.3); return; }
-          Player.recruitAlly(b.id);
-          this.say('招募成功：' + this.nameOf(b.id) + ' 已加入并上阵');
-          this.g.playSfx('sfx_claim', 0.36);
+          const res = window.Chest ? Chest.open(10, 1) : null;
+          const got = res ? res.rewards.filter(r => r.kind === 'ally' || r.kind === 'allyUp') : [];
+          let msg;
+          if (got.length) {
+            msg = '支援宝箱：' + got.map(r => r.label).join('、');
+          } else {
+            Player.recruitAlly(b.id);
+            msg = '招募成功：' + this.nameOf(b.id) + '（宝箱未出盟友卡，已按指定保底）';
+          }
+          const tk = res && res.tickets ? Object.keys(res.tickets).filter(k => res.tickets[k] > 0) : [];
+          if (tk.length) msg += ' · Raid 票 ' + tk.map(k => k + ' x' + res.tickets[k]).join('、');
+          this.say(msg);
+          this.g.playSfx('sfx_openbox', 0.32);
           return;
         }
         case 'train': {

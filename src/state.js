@@ -30,6 +30,12 @@ class PlayerState {
     // 盟友：{ allyID: { lv, evo } }（取 gameAllies.json）；squad 为上场顺序（最多 3）
     this.allies = {};
     this.squad = [1];
+    // 宝箱保底计数：{ 'boxID:slot': {m,h,s} }
+    this.chestPity = {};
+    // Raid 票（TreasureBox.json 的 raidTicketXxx 掉落）
+    this.raidTickets = { normal: 0, medium: 0, hard: 0, super: 0 };
+    // Boss 关首通记录：{ '1-1': true }
+    this.bossClear = {};
     this.load();
     if (!Object.keys(this.mats).length) {
       // 新档给一套启动材料，够打第一件装备 + 一次材料合成
@@ -57,6 +63,9 @@ class PlayerState {
       if (s.heroEvo && typeof s.heroEvo === 'object') this.heroEvo = s.heroEvo;
       if (s.allies && typeof s.allies === 'object') this.allies = s.allies;
       if (Array.isArray(s.squad)) this.squad = s.squad;
+      if (s.chestPity && typeof s.chestPity === 'object') this.chestPity = s.chestPity;
+      if (s.raidTickets && typeof s.raidTickets === 'object') this.raidTickets = s.raidTickets;
+      if (s.bossClear && typeof s.bossClear === 'object') this.bossClear = s.bossClear;
     } catch (e) { /* 存档损坏就用默认值 */ }
     // 新档默认送 1 号盟友（Elf Archer），否则战场上一个帮手都没有
     if (!Object.keys(this.allies).length) this.allies = { 1: { lv: 1, evo: 1 } };
@@ -71,7 +80,8 @@ class PlayerState {
         equipped: this.equipped, itemLv: this.itemLv,
         mats: this.mats, owned: this.owned,
         heroLv: this.heroLv, skillLv: this.skillLv,
-        heroEvo: this.heroEvo, allies: this.allies, squad: this.squad
+        heroEvo: this.heroEvo, allies: this.allies, squad: this.squad,
+        chestPity: this.chestPity, raidTickets: this.raidTickets, bossClear: this.bossClear
       }));
     } catch (e) { /* 隐私模式下忽略 */ }
   }
@@ -167,6 +177,22 @@ class PlayerState {
     this.save();
     return 'ok';
   }
+
+  // ---------- 宝箱保底 / Raid 票 / Boss 首通 ----------
+  pityOf(boxID, slotKey) { return this.chestPity[boxID + ':' + slotKey] || { m: 0, h: 0, s: 0 }; }
+  setPity(boxID, slotKey, p) { this.chestPity[boxID + ':' + slotKey] = p; this.save(); }
+
+  addRaidTicket(kind, n) {
+    this.raidTickets[kind] = (this.raidTickets[kind] || 0) + n;
+    this.save();
+  }
+  raidTicketTotal() {
+    const k = this.raidTickets;
+    return (k.normal || 0) + (k.medium || 0) + (k.hard || 0) + (k.super || 0);
+  }
+
+  isBossCleared(levelName) { return !!this.bossClear[levelName]; }
+  setBossCleared(levelName) { this.bossClear[levelName] = true; this.save(); }
 }
 
 const Player = new PlayerState();

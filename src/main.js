@@ -64,6 +64,9 @@ class Game {
       this.allyList = d.listCharacters || [];
     } catch (e) { this.allyList = []; }
 
+    // 宝箱表（TreasureBox.json）：商店 6 个箱子与盟友招募共用
+    try { await Chest.init(this); } catch (e) { /* 表缺失时商店回落为空 */ }
+
     // 每日系统（签到 / 任务 / 事件）在读表阶段就初始化，选关页才能显示小红点
     try { await Daily.init(); } catch (e) { /* 表缺失时不影响主流程 */ }
 

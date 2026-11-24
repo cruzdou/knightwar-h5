@@ -188,6 +188,7 @@ class BattleScene {
     this.coinPops.length = 0;
     this.matPops.length = 0;
     this.matDrops = {};
+    this.bonusRewards = [];
     this.fx.length = 0;
     this.coins = 0;
     this.castleHP = 561;
@@ -506,13 +507,38 @@ class BattleScene {
   gameOver(win) {
     this.state = 'over';
     this.winFlag = win;
+    this.bonusRewards = [];
     // 结算写存档：金币入账 + 星级（按城墙剩余血量给 1~3 星）
     if (win) {
       Player.addCoins(this.coins);
       const ratio = this.castleHP / this.castleMax;
       const stars = ratio > 0.7 ? 3 : (ratio > 0.35 ? 2 : 1);
       this.gainedStars = stars;
+      const st = this.stageData || {};
+      const oldStars = st.name ? (Player.starsOf(st.name) || 0) : 0;
       if (this.stageData) Player.setStars(this.stageData.name, stars);
+      // 星级奖励（ListAllLevel.json 的 _1/2/3starBonus 是宝石数）：只在刷新纪录时才多给差额
+      const bonusArr = [st._1starBonus || 0, st._2starBonus || 0, st._3starBonus || 0];
+      const gain = Math.max(0, (bonusArr[stars - 1] || 0) - (bonusArr[Math.max(0, oldStars - 1)] || 0));
+      if (gain > 0) { Player.addGems(gain); this.bonusRewards.push('星级奖励 宝石 +' + gain); }
+      // 通关保底材料（minMaterial）
+      const minMat = Math.max(0, st.minMaterial || 0);
+      if (minMat > 0) {
+        const add = {};
+        for (let i = 0; i < minMat; i++) {
+          const id = this.rollMat();
+          Player.addMat(id, 1);
+          this.matDrops[id] = (this.matDrops[id] || 0) + 1;
+          add[id] = (add[id] || 0) + 1;
+        }
+        this.bonusRewards.push('通关保底材料：' + Object.keys(add).map(id => this.matName(id) + ' x' + add[id]).join('、'));
+      }
+      // Boss 首通（bigBoss 关）：Raid 票 +1（原包只给了票字段，Raid 玩法未开放）
+      if (st.levelType === 'bigBoss' && st.name && !Player.isBossCleared(st.name)) {
+        Player.setBossCleared(st.name);
+        Player.addRaidTicket('normal', 1);
+        this.bonusRewards.push('Boss 首通：Raid 票 +1');
+      }
       // 每日事件：通关 / 困难关卡通关
       if (window.Daily) {
         Daily.count('win', 1);
@@ -724,6 +750,10 @@ class BattleScene {
         if (this.tex.star) drawIcon(ctx, this.tex.star, W / 2 - 40 + i * 40, H * 0.20 + ih + 104, 0.16, i < n ? 1 : 0.35);
       }
     }
+    // 结算追加奖励（星级宝石 / 保底材料 / Boss 首通票）
+    (this.bonusRewards || []).slice(0, 3).forEach((r, i) => {
+      text(ctx, r.slice(0, 40), W / 2, H * 0.20 + ih + 132 + i * 20, 13, '#ffcf5c', 'center', '#000');
+    });
     this.bigBtn(W / 2, H * 0.62, 260, 70, '再来一局', '#2f7ad6', '#8fc4ff');
     this.bigBtn(W / 2, H * 0.62 + 90, 260, 70, '返回关卡', '#4a5a70', '#9fb2c6');
     // 广告位：胜利双倍金币 / 失败复活（各一次，可换成真实激励视频）

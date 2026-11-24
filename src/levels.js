@@ -25,9 +25,18 @@ async function loadLevelList() {
       indexInZone: idx,
       name: (it.zoneID + 1) + '-' + (idx + 1),
       levelType: it.levelType,
+      levelMode: it.levelMode,
       totalEnemy: it.totalEnemy,
       totalBlood: it.totalBlood,
       levelCoins: it.levelCoins,
+      totalMinCoins: it.totalMinCoins,
+      totalMaxCoins: it.totalMaxCoins,
+      // 结算用（Battle.gameOver 读这三个字段）
+      minMaterial: it.minMaterial,
+      materialID: it.materialID,
+      _1starBonus: it._1starBonus,
+      _2starBonus: it._2starBonus,
+      _3starBonus: it._3starBonus,
       // 原版存档里没有星级，这里按关卡类型给一个可玩的初始星级
       stars: it.levelType === 'bigBoss' ? 3 : (it.levelType === 'MiniBoss' ? 2 : 1 + (it.id % 3))
     };
