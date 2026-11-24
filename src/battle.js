@@ -645,10 +645,11 @@ class BattleScene {
     const redW = barW * 0.42;
     roundRect(ctx, barX, barY, redW, barH, 7, '#a4121a');
     text(ctx, 'Stage ' + this.stage, barX + 14, barY + barH / 2, 28, '#ffffff', 'left', '#5d0a0e');
-    // Raid 标记
+    // Raid 标记（放在红色 Stage 段右侧，避免压住下方小图标）
     if (this.raid) {
-      roundRect(ctx, barX + 14, barY + barH + 6, 88, 24, 6, '#3a2b10', '#ffcf5c', 1);
-      text(ctx, 'RAID ×' + (this.raid.mult || 2), barX + 58, barY + barH + 18, 12, '#ffcf5c', 'center');
+      const bx = barX + redW - 96, by = barY + 12;
+      roundRect(ctx, bx, by, 84, 28, 6, '#3a2b10', '#ffcf5c', 1);
+      text(ctx, 'RAID ×' + (this.raid.mult || 2), bx + 42, by + 14, 13, '#ffcf5c', 'center');
     }
 
     // 绿色城墙血条（42% → 75%）
