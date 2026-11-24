@@ -297,6 +297,7 @@ class AllyScene {
           }
           const tk = res && res.tickets ? Object.keys(res.tickets).filter(k => res.tickets[k] > 0) : [];
           if (tk.length) msg += ' · Raid 票 ' + tk.map(k => k + ' x' + res.tickets[k]).join('、');
+          if (res && window.Popup) Popup.open('chest', { res });
           this.say(msg);
           this.g.playSfx('sfx_openbox', 0.32);
           return;

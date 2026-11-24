@@ -57,7 +57,6 @@ class TabScene {
     this.renderer = new SP.canvas.SkeletonRenderer(this.ctx);
     this.actor = null;
     this.heroCache = {};
-    this.chestResult = null;   // 开箱结果浮层
   }
 
   async init() {
@@ -277,52 +276,6 @@ class TabScene {
         bx + bw / 2, by + bh / 2, 13, off ? '#fff' : '#9fb2c6', 'center', '#1a1206');
       this.hot.push({ x: bx, y: by, w: bw, h: bh, act: p.act });
     });
-
-    if (this.chestResult) this.drawChestResult();
-  }
-
-  // 开箱结果浮层（全屏点击关闭）
-  drawChestResult() {
-    const ctx = this.ctx;
-    const res = this.chestResult;
-    ctx.fillStyle = 'rgba(4,8,12,0.82)';
-    ctx.fillRect(0, 0, W, H);
-
-    // 合并同名奖励：label → {n, rarity}
-    const map = new Map();
-    for (const r of res.rewards) {
-      const k = r.label;
-      if (map.has(k)) map.get(k).n++;
-      else map.set(k, { n: 1, rarity: r.rarity });
-    }
-    const rows = Array.from(map.entries()).map(([label, v]) => ({ label, ...v }));
-    const show = rows.slice(0, 10);
-    const ph = 210 + show.length * 34 + (rows.length > 10 ? 26 : 0);
-    const pw = 640, px = (W - pw) / 2, py = (H - ph) / 2;
-
-    roundRect(ctx, px, py, pw, ph, 14, '#101a26', '#5a7ea6', 2);
-    text(ctx, res.boxName, W / 2, py + 40, 22, '#ffe9a8', 'center', '#000');
-    text(ctx, '×' + res.count + ' · 共 ' + res.rewards.length + ' 件', W / 2, py + 68, 14, '#8fa3b7', 'center');
-
-    show.forEach((r, i) => {
-      const ry = py + 96 + i * 34;
-      roundRect(ctx, px + 24, ry, pw - 48, 28, 6, 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.08)', 1);
-      ctx.beginPath();
-      ctx.arc(px + 44, ry + 14, 6, 0, Math.PI * 2);
-      ctx.fillStyle = Chest.rarityColor(r.rarity);
-      ctx.fill();
-      text(ctx, Chest.rarityLabel(r.rarity), px + 58, ry + 14, 12, Chest.rarityColor(r.rarity), 'left');
-      text(ctx, r.label + (r.n > 1 ? ' x' + r.n : '').slice(0, 30), px + 116, ry + 14, 14, '#e8eef6', 'left');
-    });
-    if (rows.length > 10) text(ctx, '… 还有 ' + (rows.length - 10) + ' 种奖励', W / 2, py + 96 + 10 * 34 + 14, 12, '#8fa3b7', 'center');
-
-    const tk = Object.keys(res.tickets || {}).filter(k => res.tickets[k] > 0);
-    const tkTxt = tk.length ? 'Raid 票：' + tk.map(k => k + ' x' + res.tickets[k]).join('、') : '';
-    if (tkTxt) text(ctx, tkTxt, W / 2, py + ph - 86, 15, '#ffcf5c', 'center', '#000');
-
-    const bw = 220, bh = 48, bx = W / 2 - bw / 2, by = py + ph - 62;
-    roundRect(ctx, bx, by, bw, bh, 10, '#2f7ad6', '#8fc4ff', 2);
-    text(ctx, '收下（点击任意处）', W / 2, by + bh / 2, 16, '#fff', 'center');
   }
 
   // ================= 锻造 =================
@@ -822,11 +775,6 @@ class TabScene {
 
   ptDown(p) {
     this.g.audioUnlock();
-    if (this.chestResult) {
-      this.chestResult = null;
-      this.g.playSfx('sfx_click', 0.3);
-      return;
-    }
     for (const b of this.hot) {
       if (p.x < b.x || p.x > b.x + b.w || p.y < b.y || p.y > b.y + b.h) continue;
       switch (b.act) {
@@ -855,15 +803,11 @@ class TabScene {
             return;
           }
           const res = Chest.open(b.id, b.n);
-          this.chestResult = res;
+          Popup.open('chest', { res });
           this.g.playSfx('sfx_buy', 0.36);
           this.g.playSfx('sfx_openbox', 0.24);
           return;
         }
-        case 'closeChest':
-          this.chestResult = null;
-          this.g.playSfx('sfx_click', 0.3);
-          return;
         case 'ad_coin':
         case 'ad_gem':
         case 'ad_chest': {
@@ -879,7 +823,7 @@ class TabScene {
               if (kind === 'ad_coin') { Player.addCoins(600); this.say('奖励到账：金币 +600'); }
               else if (kind === 'ad_gem') { Player.addGems(8); this.say('奖励到账：宝石 +8'); }
               else {
-                this.chestResult = Chest.open(1, 1);   // 免费开 #1 Common Chest
+                Popup.open('chest', { res: Chest.open(1, 1) });   // 免费开 #1 Common Chest
                 this.g.playSfx('sfx_openbox', 0.26);
               }
               this.g.playSfx('sfx_buy', 0.32);

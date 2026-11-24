@@ -36,6 +36,9 @@ class PlayerState {
     this.raidTickets = { normal: 0, medium: 0, hard: 0, super: 0 };
     // Boss 关首通记录：{ '1-1': true }
     this.bossClear = {};
+    // 设置项（设置面板读写）：音效开关 / 是否已评过分
+    this.sfxOn = true;
+    this.rated = false;
     this.load();
     if (!Object.keys(this.mats).length) {
       // 新档给一套启动材料，够打第一件装备 + 一次材料合成
@@ -66,6 +69,8 @@ class PlayerState {
       if (s.chestPity && typeof s.chestPity === 'object') this.chestPity = s.chestPity;
       if (s.raidTickets && typeof s.raidTickets === 'object') this.raidTickets = s.raidTickets;
       if (s.bossClear && typeof s.bossClear === 'object') this.bossClear = s.bossClear;
+      if (typeof s.sfxOn === 'boolean') this.sfxOn = s.sfxOn;
+      if (typeof s.rated === 'boolean') this.rated = s.rated;
     } catch (e) { /* 存档损坏就用默认值 */ }
     // 新档默认送 1 号盟友（Elf Archer），否则战场上一个帮手都没有
     if (!Object.keys(this.allies).length) this.allies = { 1: { lv: 1, evo: 1 } };
@@ -81,7 +86,8 @@ class PlayerState {
         mats: this.mats, owned: this.owned,
         heroLv: this.heroLv, skillLv: this.skillLv,
         heroEvo: this.heroEvo, allies: this.allies, squad: this.squad,
-        chestPity: this.chestPity, raidTickets: this.raidTickets, bossClear: this.bossClear
+        chestPity: this.chestPity, raidTickets: this.raidTickets, bossClear: this.bossClear,
+        sfxOn: this.sfxOn, rated: this.rated
       }));
     } catch (e) { /* 隐私模式下忽略 */ }
   }
@@ -193,6 +199,16 @@ class PlayerState {
 
   isBossCleared(levelName) { return !!this.bossClear[levelName]; }
   setBossCleared(levelName) { this.bossClear[levelName] = true; this.save(); }
+
+  // 重置进度：三个存档键一起清掉，然后重新载入页面
+  resetAll() {
+    try {
+      localStorage.removeItem('kw2_h5_save_v1');
+      localStorage.removeItem('kw2_h5_daily_v1');
+      localStorage.removeItem('kw2_h5_ads_v1');
+    } catch (e) { /* 忽略 */ }
+    location.reload();
+  }
 }
 
 const Player = new PlayerState();

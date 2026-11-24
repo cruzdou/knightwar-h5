@@ -15,7 +15,17 @@ class Game {
 
     this.cv.addEventListener('pointerdown', ev => {
       ev.preventDefault();
-      if (this.scene) this.scene.ptDown(this.scene.toLocal(ev));
+      const p = this.scene ? this.scene.toLocal(ev) : null;
+      if (!p) return;
+      // 弹窗层最优先：打开时吃掉所有点击
+      if (window.Popup && Popup.ptDown(p)) return;
+      // 顶栏齿轮 → 设置（战斗中自动暂停）
+      if (p.x > W - 64 && p.y < 70) {
+        if (this.scene === this.battle && this.battle.state === 'play') this.battle.state = 'pause';
+        Popup.open('settings');
+        return;
+      }
+      this.scene.ptDown(p);
     });
   }
 
@@ -114,8 +124,10 @@ class Game {
       last = t;
       // 每日事件的「在线时长」命中：所有场景都在累加
       if (window.Daily) Daily.tick(dt);
+      if (window.Popup) Popup.update(dt);
       this.scene.update(dt);
       this.scene.draw();
+      if (window.Popup) Popup.draw(this.ctx);
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
@@ -336,6 +348,7 @@ class Game {
   }
 
   playSfx(key, vol) {
+    if (!Player.sfxOn) return;                       // 设置面板的音效开关
     if (!this.actx || !this.bufs[key] || this.actx.state !== 'running') return;
     const src = this.actx.createBufferSource();
     src.buffer = this.bufs[key];
