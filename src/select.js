@@ -50,9 +50,10 @@ class LevelSelectScene {
       green: 'ribbon_bg_green.png',
       lock: 'stage_frame_icon_lock.png'
     };
-    for (const [k, f] of Object.entries(names)) {
+    // 并行加载首屏贴图（串行时线上每张都要等 CDN，首屏会很慢）
+    await Promise.all(Object.entries(names).map(async ([k, f]) => {
       try { t[k] = await loadImage(f); } catch (e) { t[k] = null; }
-    }
+    }));
     this.tex = t;
     this.scene = 'select';
   }

@@ -12,12 +12,33 @@ const SP = window.spine;
 
 // ---------- 图片加载 ----------
 const imgCache = {};
+// 单张图片超时（线上 CDN 慢时避免整页启动被一张图卡死）；?imgto=30 可调
+const IMG_TIMEOUT = (() => {
+  const q = new URLSearchParams(location.search).get('imgto');
+  const v = q ? parseInt(q, 10) : NaN;
+  return Number.isFinite(v) && v > 0 ? v * 1000 : 8000;
+})();
+
+// 1x1 透明占位图：线上某张贴图慢/缺失时用它兜底，保证 drawImage 不会抛错
+const BLANK_IMG = (() => {
+  const im = new Image();
+  im.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+  return im;
+})();
+
 function loadImage(name) {
   if (imgCache[name]) return imgCache[name];
-  imgCache[name] = new Promise((res, rej) => {
+  imgCache[name] = new Promise(res => {
     const im = new Image();
-    im.onload = () => res(im);
-    im.onerror = () => rej(new Error('图片加载失败: ' + name));
+    let done = false;
+    const timer = setTimeout(() => {
+      if (done) return;
+      done = true;
+      console.warn('图片加载超时，用透明占位: ' + name);
+      res(BLANK_IMG);
+    }, IMG_TIMEOUT);
+    im.onload = () => { if (done) return; done = true; clearTimeout(timer); res(im); };
+    im.onerror = () => { if (done) return; done = true; clearTimeout(timer); res(BLANK_IMG); };
     im.src = ART + name;
   });
   return imgCache[name];
@@ -30,18 +51,30 @@ function texWrap(im) {
   return { getImage: () => im, setFilters() {}, setWraps() {}, width: im.width, height: im.height };
 }
 
+// 带超时的 fetch：慢网络下别让一个骨架把启动流程吊死
+function fetchText(url, ms) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), ms || SPINE_TIMEOUT);
+  return fetch(url, { signal: ctl.signal }).then(r => r.text()).finally(() => clearTimeout(timer));
+}
+const SPINE_TIMEOUT = 12000;
+
 async function loadSpine(name) {
   if (spineCache[name]) return spineCache[name];
   const base = SPINE_DIR + name;
-  const [atlasText, jsonObj] = await Promise.all([
-    fetch(base + '.atlas').then(r => r.text()),
-    fetch(base + '.json').then(r => r.json())
+  const [atlasText, jsonText] = await Promise.all([
+    fetchText(base + '.atlas'),
+    fetchText(base + '.json')
   ]);
+  const jsonObj = JSON.parse(jsonText);
   const pageNames = [...atlasText.matchAll(/^([^\n]+\.png)\s*$/gm)].map(m => m[1]);
   const pages = {};
   await Promise.all(pageNames.map(async p => {
     pages[p] = texWrap(await new Promise((res, rej) => {
-      const im = new Image(); im.onload = () => res(im); im.onerror = rej;
+      const im = new Image();
+      const timer = setTimeout(() => rej(new Error('贴图超时: ' + p)), SPINE_TIMEOUT);
+      im.onload = () => { clearTimeout(timer); res(im); };
+      im.onerror = () => { clearTimeout(timer); rej(new Error('贴图缺失: ' + p)); };
       im.src = SPINE_DIR + p;
     }));
   }));

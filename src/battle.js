@@ -33,9 +33,10 @@ class BattleScene {
   async init() {
     // 主角走存档里选中的英雄（1 Mel / 2 Maximus / 3 Sam / 4 Crimson）
     this.hero_infos = {};
-    for (const [id, name] of Object.entries(HERO_SKELETONS)) {
+    // 并行拉骨架：线上串行会让首屏等很久
+    await Promise.allSettled(Object.entries(HERO_SKELETONS).map(async ([id, name]) => {
       try { this.hero_infos[id] = await loadSpine(name); } catch (e) { /* 骨架缺件时跳过 */ }
-    }
+    }));
     this.hero_info = this.hero_infos[Player.charID] || this.hero_infos[1] || await loadSpine('Elf_Archer');
 
     // 只取「渲染完整」的骨架当敌人（其余骨架缺件，先不进池）
@@ -45,44 +46,37 @@ class BattleScene {
                   'Devil_Turtle', 'Sand_Warrios', 'Seraph'];
     this.enemy_pool = [];
     this.enemy_infos = {};
-    for (const n of pool) {
+    await Promise.allSettled(pool.map(async n => {
       try {
         const info = await loadSpine(n);
         this.enemy_infos[n] = info;
-        this.enemy_pool.push(info);
       } catch (e) { /* 缺图集跳过 */ }
-    }
+    }));
+    for (const n of pool) if (this.enemy_infos[n]) this.enemy_pool.push(this.enemy_infos[n]);
 
+    // 贴图并行加载（每张独立兜底，慢网络下不会互相拖死）
+    const li = n => loadImage(n).catch(() => null);
+    const [bgfield, bgZones, castle, castle2, arrow, gold, gem, sword, magic,
+           skillIcons, skillBorder, pause, speed, hpbar, btmbar,
+           fxRing, fxBolt, fxSwirl, fxGlow, fxStar, fxDust, fxSmoke,
+           win, lose, star, splash, play] = await Promise.all([
+      li('bg1.png'),
+      Promise.all([li('bg1.png'), li('bg2.png'), li('bg3.png'), li('bg4.png'), li('bg5.png')]),
+      li('castle_1.png'), li('castle_1_1.png'), li('bullet_arrow.png'),
+      li('UI_cur_coin.png'), li('icon_gem.png'), li('UI-btn-fight.png'), li('btn_icon_magic.png'),
+      Promise.all([li('Skill_H01_1.png'), li('Skill_H01_2.png'), li('Skill_H01_3.png')]),
+      li('Skill_border_active.png'), li('btn_icon_player_pause.png'), li('btn_icon_boot_speed.png'),
+      li('HP_bar_border.png'), li('HUD_btm_bar.png'),
+      li('ground_light03.png'), li('ground_earth03.png'), li('ground_storm.png'),
+      li('fx_glow1.png'), li('fx_star1.png'), li('fx_dust1.png'), li('fx_smoke_01_d.png'),
+      li('victory.png'), li('defeatbanner.png'), li('result_star.png'),
+      li('BG_Splash.png'), li('Play_btn.png')
+    ]);
     this.tex = {
-      bgfield: await loadImage('bg1.png'),
-      bgZones: [await loadImage('bg1.png'), await loadImage('bg2.png'),
-                await loadImage('bg3.png'), await loadImage('bg4.png'), await loadImage('bg5.png')],
-      castle: await loadImage('castle_1.png'),
-      castle2: await loadImage('castle_1_1.png'),
-      arrow: await loadImage('bullet_arrow.png'),
-      gold: await loadImage('UI_cur_coin.png'),
-      gem: await loadImage('icon_gem.png'),
-      sword: await loadImage('UI-btn-fight.png'),
-      magic: await loadImage('btn_icon_magic.png'),
-      skillIcons: [await loadImage('Skill_H01_1.png'), await loadImage('Skill_H01_2.png'),
-                   await loadImage('Skill_H01_3.png')],
-      skillBorder: await loadImage('Skill_border_active.png'),
-      pause: await loadImage('btn_icon_player_pause.png'),
-      speed: await loadImage('btn_icon_boot_speed.png'),
-      hpbar: await loadImage('HP_bar_border.png'),
-      btmbar: await loadImage('HUD_btm_bar.png'),
-      fxRing: await loadImage('ground_light03.png'),
-      fxBolt: await loadImage('ground_earth03.png'),
-      fxSwirl: await loadImage('ground_storm.png'),
-      fxGlow: await loadImage('fx_glow1.png'),
-      fxStar: await loadImage('fx_star1.png'),
-      fxDust: await loadImage('fx_dust1.png'),
-      fxSmoke: await loadImage('fx_smoke_01_d.png'),
-      win: await loadImage('victory.png'),
-      lose: await loadImage('defeatbanner.png'),
-      star: await loadImage('result_star.png'),
-      splash: await loadImage('BG_Splash.png'),
-      play: await loadImage('Play_btn.png')
+      bgfield, bgZones, castle, castle2, arrow, gold, gem, sword, magic,
+      skillIcons, skillBorder, pause, speed, hpbar, btmbar,
+      fxRing, fxBolt, fxSwirl, fxGlow, fxStar, fxDust, fxSmoke,
+      win, lose, star, splash, play
     };
 
     this.bg = this.buildBackground();
