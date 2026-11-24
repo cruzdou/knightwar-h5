@@ -39,6 +39,8 @@ class PlayerState {
     // 设置项（设置面板读写）：音效开关 / 是否已评过分
     this.sfxOn = true;
     this.rated = false;
+    // 限时礼包：{ bonus: {end, bought}, starter: {...} }
+    this.packs = {};
     this.load();
     if (!Object.keys(this.mats).length) {
       // 新档给一套启动材料，够打第一件装备 + 一次材料合成
@@ -71,6 +73,7 @@ class PlayerState {
       if (s.bossClear && typeof s.bossClear === 'object') this.bossClear = s.bossClear;
       if (typeof s.sfxOn === 'boolean') this.sfxOn = s.sfxOn;
       if (typeof s.rated === 'boolean') this.rated = s.rated;
+      if (s.packs && typeof s.packs === 'object') this.packs = s.packs;
     } catch (e) { /* 存档损坏就用默认值 */ }
     // 新档默认送 1 号盟友（Elf Archer），否则战场上一个帮手都没有
     if (!Object.keys(this.allies).length) this.allies = { 1: { lv: 1, evo: 1 } };
@@ -87,7 +90,7 @@ class PlayerState {
         heroLv: this.heroLv, skillLv: this.skillLv,
         heroEvo: this.heroEvo, allies: this.allies, squad: this.squad,
         chestPity: this.chestPity, raidTickets: this.raidTickets, bossClear: this.bossClear,
-        sfxOn: this.sfxOn, rated: this.rated
+        sfxOn: this.sfxOn, rated: this.rated, packs: this.packs
       }));
     } catch (e) { /* 隐私模式下忽略 */ }
   }
@@ -102,6 +105,25 @@ class PlayerState {
     if (this.gems < n) return false;
     this.gems -= n; this.save(); return true;
   }
+
+  // ---------- 限时礼包 ----------
+  // 首次展示时记下截止时间（小时），之后按真实时间倒计时；买过就不再显示倒计时
+  packState(key, hours) {
+    if (!this.packs[key]) this.packs[key] = {};
+    const p = this.packs[key];
+    if (!p.end) { p.end = Date.now() + (hours || 24) * 3600e3; this.save(); }
+    return p;
+  }
+  packLeft(key, hours) {
+    const p = this.packState(key, hours);
+    return p.bought ? 0 : Math.max(0, p.end - Date.now());
+  }
+  markPackBought(key) {
+    const p = this.packState(key);
+    p.bought = true;
+    this.save();
+  }
+  resetPacks() { this.packs = {}; this.save(); }
 
   // ---------- 装备（每英雄三格：武器 / 护甲 / 神器） ----------
   equippedOf(charID) { return this.equipped[charID] || {}; }

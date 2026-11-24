@@ -111,15 +111,27 @@ class LevelSelectScene {
     y = SEL.castle.y + 96;
     this.packCard(x, y, w, 104, 'ALLIES PACK', '四位英雄', 'FREE', 'ally');
     y += 112;
-    this.packCard(x, y, w, 104, 'BONUS PACK', '04:52', '50 宝石');
+    this.packCard(x, y, w, 104, 'BONUS PACK', this.packTimer('bonus', 6), '50G', 'pack', 'bonus');
     y += 112;
-    this.packCard(x, y, w, 104, 'STARTER PACK', '04:34:31', '限时');
+    this.packCard(x, y, w, 104, 'STARTER PACK', this.packTimer('starter', 24), '90G', 'pack', 'starter');
     // Raid 入口（票数实时显示）
     y += 112;
     this.packCard(x, y, w, 92, 'RAID', '票 ' + Player.raidTicketTotal() + ' 张', 'BOSS', 'raid');
   }
 
-  packCard(x, y, w, h, title, sub, tag, act) {
+  // 礼包倒计时文案：未买→剩余时间；买过→已购买；超时→已结束
+  packTimer(key, hours) {
+    const p = Player.packState(key, hours);
+    if (p.bought) return '已购买';
+    const left = Player.packLeft(key, hours);
+    if (left <= 0) return '已结束';
+    const s = Math.floor(left / 1000);
+    const hh = Math.floor(s / 3600), mm = Math.floor((s % 3600) / 60), ss = s % 60;
+    const two = n => (n < 10 ? '0' + n : '' + n);
+    return hh > 0 ? hh + ':' + two(mm) + ':' + two(ss) : mm + ':' + two(ss);
+  }
+
+  packCard(x, y, w, h, title, sub, tag, act, key) {
     const ctx = this.ctx;
     roundRect(ctx, x, y, w, h, 8, '#16202d', '#33475e', 2);
     const lg = ctx.createLinearGradient(x, y, x, y + 30);
@@ -134,10 +146,10 @@ class LevelSelectScene {
       drawIcon(ctx, this.tex.chest, x + w / 2, y + 52, 0.34);
     }
     text(ctx, sub, x + w / 2, y + 84, 13, '#a8bccf', 'center');
-    roundRect(ctx, x + w - 32, y + 4, 26, 15, 4, '#3a2b10', '#ffcf5c', 1);
-    text(ctx, tag.slice(0, 3), x + w - 19, y + 12, 9, '#ffcf5c', 'center');
-    // 可点的礼包卡（ALLIES PACK → 盟友页）
-    if (act) this.hot.push({ x, y, w, h, act });
+    roundRect(ctx, x + w - 34, y + 4, 28, 15, 4, '#3a2b10', '#ffcf5c', 1);
+    text(ctx, tag, x + w - 20, y + 12, 9, '#ffcf5c', 'center');
+    // 可点的卡：盟友页 / 礼包详情 / Raid 页
+    if (act) this.hot.push({ x, y, w, h, act, key });
   }
 
   // 中央城堡面板
@@ -395,6 +407,14 @@ class LevelSelectScene {
       if (b.act === 'daily') { this.g.playSfx('sfx_tab', 0.3); this.g.showDaily(b.tab); return; }
       if (b.act === 'ally') { this.g.playSfx('sfx_tab', 0.3); this.g.showAlly(); return; }
       if (b.act === 'raid') { this.g.playSfx('sfx_tab', 0.3); this.g.showRaid(); return; }
+      if (b.act === 'pack') {
+        const p = this.g.packDef(b.key);
+        if (!p) return;
+        if (Player.packState(b.key, p.hours).bought) { this.g.playSfx('sfx_equipfail', 0.3); return; }
+        this.g.playSfx('sfx_click', 0.3);
+        Popup.open('pack', { key: b.key });
+        return;
+      }
       if (b.act === 'nav') { this.g.showTab(b.kind); return; }
     }
   }

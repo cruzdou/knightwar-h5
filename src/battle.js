@@ -195,6 +195,25 @@ class BattleScene {
     this.castleMax = 561;
     this.heroHP = 500;
     this.heroMax = 500;
+    // 城墙血量/护甲/回复随城堡等级（gameCastle.json listLevelUp），0.35 次方压平曲线
+    this.wallArmor = 0;
+    this.wallRegain = 0;
+    this.regainT = 0;
+    {
+      const cd = this.g.castleData;
+      if (cd) {
+        const rows = cd.listLevelUp || [];
+        const lv = Player.castleLevel || 1;
+        const row = rows.find(r => r.level === lv) || {};
+        const b1 = (rows[0] && rows[0].blood) || cd.blood || 1000;
+        const blood = row.blood || cd.blood || b1;
+        const k = Math.max(0.8, Math.min(4, Math.pow(blood / b1 || 1, 0.35)));
+        this.castleMax = Math.round(561 * k);
+        this.castleHP = this.castleMax;
+        this.wallArmor = Math.max(0, row.armor !== undefined ? row.armor : (cd.armor || 0));
+        this.wallRegain = Math.max(0, row.regain !== undefined ? row.regain : (cd.regain || 0));
+      }
+    }
     this.spawnLeft = this.perWave;
     this.spawnTimer = 1.0;
     this.kills = 0;
@@ -406,6 +425,15 @@ class BattleScene {
     if (this.state !== 'play') return;
     const d = dt * this.speed;
 
+    // 城墙回复（城堡 regain 字段）：每 2 秒回 regain/3 点，战斗中不会回满
+    if (this.wallRegain && this.castleHP < this.castleMax) {
+      this.regainT = (this.regainT || 0) + dt;
+      if (this.regainT >= 2) {
+        this.regainT = 0;
+        this.castleHP = Math.min(this.castleMax, this.castleHP + Math.max(1, Math.round(this.wallRegain / 3)));
+      }
+    }
+
     if (this.spawnLeft > 0) {
       this.spawnTimer -= d;
       if (this.spawnTimer <= 0) {
@@ -434,7 +462,10 @@ class BattleScene {
         e.atkT = (e.atkT || 0) - d;
         if (e.atkT <= 0) {
           e.atkT = 1.0;
-          this.castleHP = Math.max(0, this.castleHP - 12);
+          // 护甲减伤：dmg = 12 × (1 - armor/(armor+40))，城堡等级越高越耐打
+          const ar = this.wallArmor || 0;
+          const dmg = Math.max(1, Math.round(12 * (1 - ar / (ar + 40))));
+          this.castleHP = Math.max(0, this.castleHP - dmg);
           this.shake = 0.22;
           // 撞墙特效：烟尘 + 火花
           this.fx.push({ img: this.tex.fxSmoke, x: e.x, y: WALL_Y - 10, r: 110, t: 0, life: 0.5, max: 0.5, rot: 0 });

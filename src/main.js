@@ -74,6 +74,12 @@ class Game {
       this.allyList = d.listCharacters || [];
     } catch (e) { this.allyList = []; }
 
+    // 城堡表（gameCastle.json）：城堡页升级与战斗城墙血量共用
+    try {
+      const d = await fetch('data/gameCastle.json').then(r => r.json());
+      this.castleData = (d.listCastle || [])[0] || null;
+    } catch (e) { this.castleData = null; }
+
     // 宝箱表（TreasureBox.json）：商店 6 个箱子与盟友招募共用
     try { await Chest.init(this); } catch (e) { /* 表缺失时商店回落为空 */ }
 
@@ -304,6 +310,77 @@ class Game {
     this.scene = new RaidScene(this);
     this.audioUnlock();
     this.playSfx('sfx_tab', 0.3);
+  }
+
+  // 材料名（礼包/详情面板显示用）
+  matName(id) {
+    const it = this.itemByID && this.itemByID[id];
+    return (it && it.name) || ('#' + id);
+  }
+
+  // 礼包强化点落点：当前英雄穿戴的三件里等级最低的
+  pickUpgradeTarget() {
+    const eq = Player.equipped[Player.charID] || {};
+    const list = ['weapon', 'armor', 'artifact']
+      .map(s => this.itemByID && this.itemByID[eq[s]]).filter(Boolean);
+    if (!list.length) return null;
+    return list.sort((a, b) => Player.lvOf(a.itemID) - Player.lvOf(b.itemID))[0];
+  }
+
+  // ---------- 限时礼包（BONUS PACK / STARTER PACK） ----------
+  // 原包这两张卡是内购位，H5 版改成宝石购买 + 真实发货，买过即置灰
+  packDef(key) {
+    const P = {
+      bonus: {
+        key: 'bonus', name: 'BONUS PACK', hours: 6, gem: 50,
+        desc: '限时 6 小时，一次性',
+        items: [
+          { kind: 'coin', n: 5000 }, { kind: 'gem', n: 50 },
+          { kind: 'mat', id: 641, n: 12 }, { kind: 'mat', id: 603, n: 6 }
+        ]
+      },
+      starter: {
+        key: 'starter', name: 'STARTER PACK', hours: 24, gem: 90,
+        desc: '新手 24 小时，一次性',
+        items: [
+          { kind: 'coin', n: 20000 }, { kind: 'gem', n: 120 },
+          { kind: 'mat', id: 601, n: 15 }, { kind: 'mat', id: 606, n: 10 },
+          { kind: 'mat', id: 641, n: 20 }, { kind: 'up', n: 3 }
+        ]
+      }
+    };
+    return P[key] || null;
+  }
+
+  // 返回 'ok' | 'no-gem' | 'bought' | 'expired'
+  buyPack(key) {
+    const p = this.packDef(key);
+    if (!p) return 'no-gem';
+    if (Player.packState(key, p.hours).bought) return 'bought';
+    if (Player.packLeft(key, p.hours) <= 0) return 'expired';
+    if (!Player.spendGems(p.gem)) return 'no-gem';
+    Player.markPackBought(key);
+
+    const rewards = [];
+    for (const it of p.items) {
+      if (it.kind === 'coin') { Player.addCoins(it.n); rewards.push({ label: '金币 x' + it.n, rarity: 2 }); }
+      else if (it.kind === 'gem') { Player.addGems(it.n); rewards.push({ label: '宝石 x' + it.n, rarity: 3 }); }
+      else if (it.kind === 'mat') {
+        Player.addMat(it.id, it.n);
+        const nm = this.matName(it.id);
+        rewards.push({ label: nm + ' x' + it.n, rarity: 1 });
+      } else if (it.kind === 'up') {
+        // 强化点：加给当前等级最低的已拥有装备
+        const t = this.pickUpgradeTarget();
+        if (t) {
+          Player.setLv(t.itemID, Math.min((t.maxLevelUpgrade || 10), Player.lvOf(t.itemID) + it.n));
+          rewards.push({ label: (t.name || ('#' + t.itemID)) + ' 强化 +' + it.n, rarity: 3 });
+        }
+      }
+    }
+    Popup.open('chest', { res: { boxName: p.name + ' · 已发放', count: 1, rewards, tickets: {} } });
+    this.playSfx('sfx_buy', 0.34);
+    return 'ok';
   }
 
   async loadAudio() {    const files = {

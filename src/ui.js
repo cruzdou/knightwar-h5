@@ -54,6 +54,12 @@ class PopupLayer {
       const n = Math.min(10, total);
       return 168 + n * 34 + (total > 10 ? 26 : 0) + 78;
     }
+    if (kind === 'pack') {
+      const g = window.game;
+      const p = g && g.packDef ? g.packDef(this.current.data.key) : null;
+      const n = p ? p.items.length : 4;
+      return 246 + n * 32;
+    }
     return 380;
   }
 
@@ -93,6 +99,7 @@ class PopupLayer {
     else if (kind === 'share') this.drawShare(px, py, pw, ph);
     else if (kind === 'rate') this.drawRate(px, py, pw, ph);
     else if (kind === 'chest') this.drawChest(px, py, pw, ph, data.res);
+    else if (kind === 'pack') this.drawPack(px, py, pw, ph, data);
     else this.drawConfirm(px, py, pw, ph, data);
 
     ctx.restore();
@@ -215,6 +222,39 @@ class PopupLayer {
     this.btn(ctx, px + pw / 2 - 110, py + ph - 72, 220, 48, '收下', 'close', '#2f7ad6', '#8fc4ff');
   }
 
+  // ---------- 礼包详情（BONUS / STARTER PACK） ----------
+  drawPack(px, py, pw, ph, data) {
+    const ctx = window.game.ctx;
+    const g = window.game;
+    const p = g.packDef(data.key);
+    if (!p) return;
+    this.titleBar(ctx, px, py, pw, p.name);
+    text(ctx, p.desc, px + pw / 2, py + 74, 13, '#8fa3b7', 'center');
+
+    const names = { coin: '金币', gem: '宝石' };
+    const rows = p.items.map(it => {
+      if (it.kind === 'coin') return '金币 ×' + it.n;
+      if (it.kind === 'gem') return '宝石 ×' + it.n;
+      if (it.kind === 'up') return '装备强化 +' + it.n;
+      const nm = (g && g.matName) ? g.matName(it.id) : ('材料#' + it.id);
+      return nm + ' ×' + it.n;
+    });
+    rows.forEach((r, i) => {
+      const ry = py + 104 + i * 32;
+      roundRect(ctx, px + 32, ry, pw - 64, 26, 6, 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.08)', 1);
+      text(ctx, '•  ' + r, px + 48, ry + 13, 14, '#e8eef6', 'left');
+    });
+
+    const left = Player.packLeft(data.key, p.hours);
+    const bought = Player.packState(data.key, p.hours).bought;
+    const price = p.gem + ' 宝石';
+    text(ctx, '价格 ' + price + '    当前 ' + Player.gems + ' 宝石', px + pw / 2, py + 104 + rows.length * 32 + 18, 13,
+      Player.gems >= p.gem ? '#9fe6a8' : '#ff9a8a', 'center');
+    const canBuy = !bought && left > 0 && Player.gems >= p.gem;
+    this.btn(ctx, px + 60, py + ph - 84, pw - 120, 54,
+      bought ? '已购买' : (left <= 0 ? '已结束' : '购买 ' + price), 'buyPack', '#c58a1c', '#ffdf9a', !canBuy);
+  }
+
   // 不支持 Clipboard API 时的兜底：临时 textarea + execCommand
   fallbackCopy(txt) {
     try {
@@ -258,6 +298,16 @@ class PopupLayer {
         return;
       case 'share': this.open('share'); return;
       case 'rate': this.open('rate'); return;
+      case 'buyPack': {
+        const key = this.current.data.key;
+        this.close();
+        const r = g && g.buyPack ? g.buyPack(key) : 'no-gem';
+        if (r === 'no-gem') {
+          if (g.select && g.select.say) g.select.say('宝石不够，先去商店或签到攒一点');
+          g.playSfx('sfx_equipfail', 0.3);
+        }
+        return;
+      }
       case 'reset':
         this.confirm('重置进度？', '会清空金币、宝石、装备、材料、关卡星数与每日进度。\n此操作不可撤销。', () => Player.resetAll());
         return;
