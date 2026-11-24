@@ -37,9 +37,21 @@ function loadImage(name) {
       console.warn('图片加载超时，用透明占位: ' + name);
       res(BLANK_IMG);
     }, IMG_TIMEOUT);
+    let triedFallback = false;
     im.onload = () => { if (done) return; done = true; clearTimeout(timer); res(im); };
-    im.onerror = () => { if (done) return; done = true; clearTimeout(timer); res(BLANK_IMG); };
-    im.src = ART + name;
+    im.onerror = () => {
+      if (done) return;
+      // 首选 webp（体积约 1/3）；个别未转换的贴图回退到原 png
+      if (!triedFallback && /\.png$/i.test(name)) {
+        triedFallback = true;
+        im.src = ART + name;
+        return;
+      }
+      done = true;
+      clearTimeout(timer);
+      res(BLANK_IMG);
+    };
+    im.src = /\.png$/i.test(name) ? (ART + name.replace(/\.png$/i, '.webp')) : (ART + name);
   });
   return imgCache[name];
 }
