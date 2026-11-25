@@ -10,6 +10,10 @@ class PlayerState {
     this.coins = 445;
     this.gems = 55;
     this.stamina = 50;
+    this.staminaMax = 50;         // 体力上限
+    this.staminaTs = Date.now();  // 上一次恢复计时起点（每 3 分钟 +1）
+    // 星级里程碑领取记录：{ zoneIdx: { 0:true, ... } }
+    this.starClaims = {};
     this.stars = {};        // { '1-1': 3, ... }
     this.charID = 1;
     this.castleLevel = 1;
@@ -38,6 +42,7 @@ class PlayerState {
     this.bossClear = {};
     // 设置项（设置面板读写）：音效开关 / 是否已评过分
     this.sfxOn = true;
+    this.musicOn = true;   // 背景音乐开关（设置面板）
     this.rated = false;
     // 限时礼包：{ bonus: {end, bought}, starter: {...} }
     this.packs = {};
@@ -55,7 +60,7 @@ class PlayerState {
   load() {
     try {
       const s = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
-      for (const k of ['coins', 'gems', 'stamina', 'charID', 'castleLevel']) {
+      for (const k of ['coins', 'gems', 'stamina', 'charID', 'castleLevel', 'staminaMax', 'staminaTs']) {
         if (typeof s[k] === 'number') this[k] = s[k];
       }
       if (s.stars && typeof s.stars === 'object') this.stars = s.stars;
@@ -72,6 +77,8 @@ class PlayerState {
       if (s.raidTickets && typeof s.raidTickets === 'object') this.raidTickets = s.raidTickets;
       if (s.bossClear && typeof s.bossClear === 'object') this.bossClear = s.bossClear;
       if (typeof s.sfxOn === 'boolean') this.sfxOn = s.sfxOn;
+      if (typeof s.musicOn === 'boolean') this.musicOn = s.musicOn;
+      if (s.starClaims && typeof s.starClaims === 'object') this.starClaims = s.starClaims;
       if (typeof s.rated === 'boolean') this.rated = s.rated;
       if (s.packs && typeof s.packs === 'object') this.packs = s.packs;
     } catch (e) { /* 存档损坏就用默认值 */ }
@@ -83,7 +90,7 @@ class PlayerState {
   save() {
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify({
-        coins: this.coins, gems: this.gems, stamina: this.stamina,
+        coins: this.coins, gems: this.gems, stamina: this.stamina, staminaMax: this.staminaMax, staminaTs: this.staminaTs, musicOn: this.musicOn, starClaims: this.starClaims,
         stars: this.stars, charID: this.charID, castleLevel: this.castleLevel,
         equipped: this.equipped, itemLv: this.itemLv,
         mats: this.mats, owned: this.owned,
@@ -93,6 +100,42 @@ class PlayerState {
         sfxOn: this.sfxOn, rated: this.rated, packs: this.packs
       }));
     } catch (e) { /* 隐私模式下忽略 */ }
+  }
+
+  // ---------- 体力（每 3 分钟恢复 1 点，离线也恢复） ----------
+  staminaRegen() {
+    const MAX = this.staminaMax || 50, PER = 180e3;
+    if (this.stamina >= MAX) { this.staminaTs = Date.now(); return; }
+    const now = Date.now();
+    const base = this.staminaTs || now;
+    const gain = Math.floor((now - base) / PER);
+    if (gain <= 0) return;
+    this.stamina = Math.min(MAX, this.stamina + gain);
+    this.staminaTs = this.stamina >= MAX ? now : base + gain * PER;
+    this.save();
+  }
+  staminaNextIn() {
+    if (this.stamina >= this.staminaMax) return 0;
+    const PER = 180e3;
+    return Math.max(0, PER - (Date.now() - (this.staminaTs || Date.now())));
+  }
+  spendStamina(n) {
+    this.staminaRegen();
+    if (this.stamina < n) return false;
+    const wasFull = this.stamina >= this.staminaMax;
+    this.stamina -= n;
+    if (wasFull) this.staminaTs = Date.now();
+    this.save();
+    return true;
+  }
+  refillStamina() { this.stamina = this.staminaMax; this.staminaTs = Date.now(); this.save(); }
+
+  // ---------- 星级里程碑 ----------
+  starClaimed(zone, i) { return !!((this.starClaims[zone] || {})[i]); }
+  claimStar(zone, i) {
+    if (!this.starClaims[zone]) this.starClaims[zone] = {};
+    this.starClaims[zone][i] = true;
+    this.save();
   }
 
   addCoins(n) { this.coins = Math.max(0, this.coins + n); this.save(); }

@@ -85,6 +85,19 @@ class LevelSelectScene {
     this.drawMilestones();
     this.drawCards();
     this.drawNav();
+    this.drawToast();
+  }
+
+  // 轻量提示条：里程碑领取等即时反馈
+  say(txt) { this.toast = { txt, until: Date.now() + 1700 }; }
+
+  drawToast() {
+    const t = this.toast;
+    if (!t || Date.now() > t.until) return;
+    const ctx = this.ctx, w = Math.min(W - 80, 26 + t.txt.length * 13), h = 40;
+    const x = (W - w) / 2, y = H - 200;
+    roundRect(ctx, x, y, w, h, 20, 'rgba(12,20,30,0.92)', '#e8b548', 1);
+    text(ctx, t.txt, W / 2, y + h / 2, 14, '#ffe9a8', 'center');
   }
 
   // 顶部资源条（与其它功能页共用）
@@ -253,28 +266,55 @@ class LevelSelectScene {
     if (tap) this.hot.push({ x, y, w, h, act: tap.act, tab: tap.tab });
   }
 
-  // 里程碑奖励 + 进度条
+  // 里程碑：按本区累计星数领奖，每区四档各能领一次
+  // 阈值按本区星数上限等比切（3 关小区也能领到），奖励固定
+  milestoneNeeds(stages) {
+    const max = Math.max(1, stages.length * 3);
+    return [0.35, 0.55, 0.75, 1.0].map((pct, i) =>
+      i === 3 ? max : Math.max(1, Math.min(max, Math.round(max * pct))));
+  }
+
   drawMilestones() {
     const ctx = this.ctx;
     const x = SEL.mid.x, w = SEL.mid.w, y = SEL.castle.y + SEL.castle.h + 12;
     text(ctx, 'STAR MILESTONE', x, y - 2, 11, '#7f93a8', 'left');
+
+    const stages = this.curStages();
+    const starsGot = stages.reduce((s2, l) => s2 + Player.starsOf(l.name), 0);
+    const starsMax = Math.max(1, stages.length * 3);
+    const zone = this.zoneIdx;
+    const needs = this.milestoneNeeds(stages);
+    text(ctx, '★ ' + starsGot + ' / ' + starsMax, x + w, y - 2, 11, '#8fa3b7', 'right');
     const rewards = [
-      { lbl: '3-1', img: this.tex.coin, on: true },
-      { lbl: '5-1', img: this.tex.gem, on: true },
-      { lbl: '7-1', img: this.tex.anvil, on: false },
-      { lbl: '10-1', img: this.tex.book, on: false }
+      { kind: 'coin', n: 800 },
+      { kind: 'gem', n: 15 },
+      { kind: 'coin', n: 2500 },
+      { kind: 'gem', n: 40 }
     ];
+
     const cw = (w - 18) / 4;
-    rewards.forEach((r, i) => {
+    needs.forEach((need, i) => {
+      const r = rewards[i];
       const cx = x + i * (cw + 6);
-      roundRect(ctx, cx, y + 10, cw, 44, 7, r.on ? '#1a2635' : '#131b25', r.on ? '#6d5a2c' : '#28323e', 2);
-      if (r.img) drawIcon(ctx, r.img, cx + 20, y + 32, 0.4, r.on ? 1 : 0.55);
-      text(ctx, r.lbl, cx + cw - 12, y + 32, 13, r.on ? '#ffe9a8' : '#7f93a8', 'right');
+      const reached = starsGot >= need;
+      const claimed = Player.starClaimed(zone, i);
+      const claimable = reached && !claimed;
+      const bg = claimable ? '#2a2110' : (claimed ? '#141d17' : '#131b25');
+      const edge = claimable ? '#e8b548' : (claimed ? '#2f6b45' : '#28323e');
+      roundRect(ctx, cx, y + 10, cw, 44, 7, bg, edge, claimable ? 2 : 1);
+      const img = r.kind === 'coin' ? this.tex.coin : this.tex.gem;
+      if (img) drawIcon(ctx, img, cx + 18, y + 32, 0.38, reached ? 1 : 0.5);
+      text(ctx, need + '★', cx + 40, y + 24, 12, claimable ? '#ffe9a8' : '#8fa3b7', 'left');
+      text(ctx, claimed ? '已领' : (claimable ? '可领取' : '+' + r.n), cx + cw - 10, y + 42, 12,
+        claimed ? '#6fd39a' : (claimable ? '#ffcf5c' : '#6f8398'), 'right');
+      if (claimable) this.hot.push({ x: cx, y: y + 10, w: cw, h: 44, act: 'msClaim', idx: i, zone, need, kind: r.kind, n: r.n });
     });
-    // 蓝色进度条
+
+    // 进度条（按本区 30 星）
     const by = y + 58;
     roundRect(ctx, x, by, w, 8, 4, '#16202d', '#2c3f52', 1);
-    roundRect(ctx, x, by, w * 0.42, 8, 4, '#3f95e0');
+
+    roundRect(ctx, x, by, w * Math.min(1, starsGot / starsMax), 8, 4, '#3f95e0');
   }
 
   // 关卡卡片列表
@@ -413,6 +453,17 @@ class LevelSelectScene {
         if (Player.packState(b.key, p.hours).bought) { this.g.playSfx('sfx_equipfail', 0.3); return; }
         this.g.playSfx('sfx_click', 0.3);
         Popup.open('pack', { key: b.key });
+        return;
+      }
+      if (b.act === 'msClaim') {
+        const stages2 = this.curStages();
+        const got = stages2.reduce((a, l) => a + Player.starsOf(l.name), 0);
+        if (got < b.need || Player.starClaimed(b.zone, b.idx)) return;
+        Player.claimStar(b.zone, b.idx);
+        if (b.kind === 'coin') Player.addCoins(b.n);
+        else Player.addGems(b.n);
+        this.g.playSfx('sfx_buy', 0.34);
+        this.say('里程碑奖励：' + (b.kind === 'coin' ? '金币' : '宝石') + ' ×' + b.n);
         return;
       }
       if (b.act === 'nav') { this.g.showTab(b.kind); return; }

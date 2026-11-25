@@ -46,7 +46,7 @@ class PopupLayer {
 
   // 面板几何：宽 600，高按内容给
   panelH(kind) {
-    if (kind === 'settings') return 420;
+    if (kind === 'settings') return 494;
     if (kind === 'share') return 372;
     if (kind === 'rate') return 352;
     if (kind === 'chest') {
@@ -54,6 +54,7 @@ class PopupLayer {
       const n = Math.min(10, total);
       return 168 + n * 34 + (total > 10 ? 26 : 0) + 78;
     }
+    if (kind === 'stamina') return 360;
     if (kind === 'pack') {
       const g = window.game;
       const p = g && g.packDef ? g.packDef(this.current.data.key) : null;
@@ -100,6 +101,7 @@ class PopupLayer {
     else if (kind === 'rate') this.drawRate(px, py, pw, ph);
     else if (kind === 'chest') this.drawChest(px, py, pw, ph, data.res);
     else if (kind === 'pack') this.drawPack(px, py, pw, ph, data);
+    else if (kind === 'stamina') this.drawStamina(px, py, pw, ph, data);
     else this.drawConfirm(px, py, pw, ph, data);
 
     ctx.restore();
@@ -128,6 +130,7 @@ class PopupLayer {
     this.titleBar(ctx, px, py, pw, '设置  SETTINGS');
     const rows = [
       { lbl: '音效', sub: Player.sfxOn ? '开' : '关', act: 'toggleSfx' },
+      { lbl: '音乐', sub: Player.musicOn ? '开' : '关', act: 'toggleMusic' },
       { lbl: '分享给朋友', sub: '复制链接 / 分享文案', act: 'share' },
       { lbl: '给个评分', sub: Player.rated ? '已评分，谢谢！' : '5 星打分', act: 'rate' },
       { lbl: '重置进度', sub: '清空金币/装备/关卡星数', act: 'reset' }
@@ -138,11 +141,12 @@ class PopupLayer {
       text(ctx, r.lbl, px + 46, ry + 22, 17, '#e8eef6', 'left');
       text(ctx, r.sub, px + 46, ry + 44, 13, '#8fa3b7', 'left');
       // 右侧开关/箭头
-      if (r.act === 'toggleSfx') {
+      if (r.act === 'toggleSfx' || r.act === 'toggleMusic') {
+        const on = r.act === 'toggleSfx' ? Player.sfxOn : Player.musicOn;
         const tx = px + pw - 96, ty = ry + 16;
-        roundRect(ctx, tx, ty, 60, 30, 15, Player.sfxOn ? '#2f7ad6' : '#2a3543', Player.sfxOn ? '#8fc4ff' : '#4a5a70', 1);
+        roundRect(ctx, tx, ty, 60, 30, 15, on ? '#2f7ad6' : '#2a3543', on ? '#8fc4ff' : '#4a5a70', 1);
         ctx.beginPath();
-        ctx.arc(tx + (Player.sfxOn ? 45 : 15), ty + 15, 11, 0, Math.PI * 2);
+        ctx.arc(tx + (on ? 45 : 15), ty + 15, 11, 0, Math.PI * 2);
         ctx.fillStyle = '#e8eef6';
         ctx.fill();
       } else {
@@ -255,6 +259,27 @@ class PopupLayer {
       bought ? '已购买' : (left <= 0 ? '已结束' : '购买 ' + price), 'buyPack', '#c58a1c', '#ffdf9a', !canBuy);
   }
 
+  // ---------- 体力不足 ----------
+  drawStamina(px, py, pw, ph, data) {
+    const ctx = window.game.ctx;
+    const cost = (data && data.cost) || 5;
+    const g = window.game;
+    this.titleBar(ctx, px, py, pw, '体力不足');
+    text(ctx, '进关卡需要 ' + cost + ' 点体力，现在只有 ' + Player.stamina + '/' + Player.staminaMax,
+      px + pw / 2, py + 104, 15, '#cfd8e3', 'center');
+    const nxt = Player.staminaNextIn();
+    const mm = Math.floor(nxt / 60000), ss = Math.floor((nxt % 60000) / 1000);
+    text(ctx, '下一点体力：' + (Player.stamina >= Player.staminaMax ? '已满' : (mm + ':' + String(ss).padStart(2, '0'))),
+      px + pw / 2, py + 134, 13, '#8fa3b7', 'center');
+    const ready = Ads.remaining() > 0;
+    this.btn(ctx, px + 48, py + 168, pw - 96, 54,
+      ready ? '看广告 · 回满体力' : '今日广告次数已用完', 'staminaAd', '#2f7ad6', '#8fc4ff', !ready);
+    const canBuy = Player.gems >= 50;
+    this.btn(ctx, px + 48, py + 234, pw - 96, 54,
+      '50 宝石 · 回满体力（现有 ' + Player.gems + '）', 'staminaBuy', '#c58a1c', '#ffdf9a', !canBuy);
+    if (this.msg) text(ctx, this.msg, px + pw / 2, py + ph - 44, 13, '#ffcf5c', 'center');
+  }
+
   // 不支持 Clipboard API 时的兜底：临时 textarea + execCommand
   fallbackCopy(txt) {
     try {
@@ -296,6 +321,32 @@ class PopupLayer {
         Player.save();
         this.msg = Player.sfxOn ? '音效已打开' : '音效已关闭';
         return;
+      case 'toggleMusic':
+        Player.musicOn = !Player.musicOn;
+        Player.save();
+        if (g && g.refreshMusic) g.refreshMusic();
+        this.msg = Player.musicOn ? '音乐已打开' : '音乐已关闭';
+        return;
+      case 'staminaAd': {
+        this.msg = '拉取广告…';
+        Ads.show({
+          title: '回满体力',
+          onDone: ok => {
+            if (ok) { Player.refillStamina(); this.close(); if (g && g.select && g.select.say) g.select.say('体力已回满'); }
+            else this.msg = '广告没看完，没有奖励';
+          },
+          onFail: () => { this.msg = '今天广告次数用完了'; }
+        });
+        return;
+      }
+      case 'staminaBuy': {
+        if (!Player.spendGems(50)) { this.msg = '宝石不够'; return; }
+        Player.refillStamina();
+        this.close();
+        if (g && g.select && g.select.say) g.select.say('体力已回满');
+        if (g) g.playSfx('sfx_buy', 0.34);
+        return;
+      }
       case 'share': this.open('share'); return;
       case 'rate': this.open('rate'); return;
       case 'buyPack': {

@@ -138,6 +138,7 @@ class Game {
       last = t;
       // 每日事件的「在线时长」命中：所有场景都在累加
       if (window.Daily) Daily.tick(dt);
+      if (window.Player) Player.staminaRegen();
       if (window.Popup) Popup.update(dt);
       if (this.scene) { this.scene.update(dt); this.scene.draw(); }
       if (window.Popup) Popup.draw(this.ctx);
@@ -149,6 +150,7 @@ class Game {
   showSelect() {
     this.scene = this.select;
     this.audioUnlock();
+    this.refreshMusic();
   }
 
   // 单件装备在某等级下的实际属性（原包：base + (lv-1)*lvUpXxx）
@@ -295,6 +297,15 @@ class Game {
   }
 
   async startBattle(stage, opts) {
+    // 体力门槛：普通关卡 5 点，Raid 走票不扣体力
+    const isRaid = !!(opts && opts.raid);
+    if (!isRaid) {
+      if (!Player.spendStamina(5)) {
+        Popup.open('stamina', { cost: 5 });
+        this.playSfx('sfx_equipfail', 0.3);
+        return;
+      }
+    }
     // 上阵盟友的骨架先就绪再开打（换阵容后第一次进战斗需要补拉）
     if (this.battle && this.battle.ensureAllySprites) {
       try { await this.battle.ensureAllySprites(); } catch (e) { /* 缺件就不上场 */ }
@@ -306,6 +317,7 @@ class Game {
     this.battle.reset(stage, opts);
     this.scene = this.battle;
     this.audioUnlock();
+    this.refreshMusic();
     this.playSfx('sfx_enter', 0.3);
     this.playSfx('sfx_footstep', 0.18);
   }
@@ -395,6 +407,9 @@ class Game {
   }
 
   async loadAudio() {    const files = {
+      bgm_select: 'assets/audio/Back_Back.mp3',
+      bgm_battle: 'assets/audio/InGame1_InGame1.mp3',
+      bgm_boss: 'assets/audio/InGame2_InGame2.mp3',
       sfx_shoot: 'assets/audio/hero_01_attack_sfx_hero_01_attack_sfx.mp3',
       sfx_hit: 'assets/audio/beinghit_beinghit.mp3',
       sfx_coin: 'assets/audio/Coins ingame_Coins ingame.mp3',
@@ -447,6 +462,41 @@ class Game {
     for (const [k, ab] of Object.entries(this.audio)) {
       try { this.bufs[k] = await this.actx.decodeAudioData(ab.slice(0)); } catch (e) {}
     }
+  }
+
+  // ---------- 背景音乐（循环 BGM；音量固定低调，不抢占 SFX） ----------
+  playMusic(key) {
+    if (!key) return;
+    if (this._bgmKey === key && this._bgm) return;
+    if (Player.musicOn === false) { this.stopMusic(); this._bgmKey = key; return; }
+    if (!this.actx || !this.bufs[key]) return;
+    this.stopMusic();
+    try {
+      const src = this.actx.createBufferSource();
+      src.buffer = this.bufs[key];
+      src.loop = true;
+      const gain = this.actx.createGain();
+      gain.gain.value = 0.22;
+      src.connect(gain).connect(this.actx.destination);
+      src.start(0);
+      this._bgm = { src, gain, key };
+      this._bgmKey = key;
+    } catch (e) { /* 音频不可用时静默 */ }
+  }
+
+  stopMusic() {
+    if (this._bgm) { try { this._bgm.src.stop(0); } catch (e) { /* 已停止 */ } }
+    this._bgm = null;
+    this._bgmKey = null;
+  }
+
+  // 当前场景该放哪首都由这里决定（设置里切开关也复用）
+  refreshMusic() {
+    if (!Player.musicOn) { this.stopMusic(); return; }
+    if (this.scene === this.battle) {
+      const st = this.battle && this.battle.stageData;
+      this.playMusic(st && st.levelType === 'bigBoss' ? 'bgm_boss' : 'bgm_battle');
+    } else this.playMusic('bgm_select');
   }
 
   audioUnlock() {
