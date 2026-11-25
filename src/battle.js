@@ -38,12 +38,20 @@ class BattleScene {
 
   async init() {
     // 主角走存档里选中的英雄（1 Mel / 2 Maximus / 3 Sam / 4 Crimson）
+    // 首屏只等「当前英雄」一个骨架，其余英雄和敌人全部放后台，别把启动吊在 17 个骨架上
     this.hero_infos = {};
-    // 并行拉骨架：线上串行会让首屏等很久
-    await Promise.allSettled(Object.entries(HERO_SKELETONS).map(async ([id, name]) => {
+    const heroes = Object.entries(HERO_SKELETONS);
+    const curID = Player.charID;
+    const curName = HERO_SKELETONS[curID] || HERO_SKELETONS[1];
+    this.hero_info = await loadSpine(curName).catch(() => null);
+    if (this.hero_info) this.hero_infos[curID] = this.hero_info;
+    if (!this.hero_info) this.hero_info = await loadSpine('Elf_Archer').catch(() => null);
+    this._heroReady = Promise.allSettled(heroes.map(async ([id, name]) => {
+      if (this.hero_infos[id]) return;
       try { this.hero_infos[id] = await loadSpine(name); } catch (e) { /* 骨架缺件时跳过 */ }
     }));
-    this.hero_info = this.hero_infos[Player.charID] || this.hero_infos[1] || await loadSpine('Elf_Archer');
+
+    // 换英雄时可能还没拉到，这里提供等待入口
 
     // 只取「渲染完整」的骨架当敌人（其余骨架缺件，先不进池）
     const pool = ['Goblin', 'Gnoll', 'Bandit', 'Thorn', 'Wolf', 'Ent',
@@ -52,13 +60,14 @@ class BattleScene {
                   'Devil_Turtle', 'Sand_Warrios', 'Seraph'];
     this.enemy_pool = [];
     this.enemy_infos = {};
-    await Promise.allSettled(pool.map(async n => {
+    this._enemyReady = Promise.allSettled(pool.map(async n => {
       try {
         const info = await loadSpine(n);
         this.enemy_infos[n] = info;
       } catch (e) { /* 缺图集跳过 */ }
-    }));
-    for (const n of pool) if (this.enemy_infos[n]) this.enemy_pool.push(this.enemy_infos[n]);
+    })).then(() => {
+      for (const n of pool) if (this.enemy_infos[n]) this.enemy_pool.push(this.enemy_infos[n]);
+    });
 
     // 贴图并行加载（每张独立兜底，慢网络下不会互相拖死）
     const li = n => loadImage(n).catch(() => null);
@@ -102,6 +111,12 @@ class BattleScene {
   }
 
   // 换主角骨架（按 charID）
+  // 开打前确保敌人骨架与当前英雄就绪（首屏不再等它们）
+  async ensureEnemies() {
+    if (this._heroReady) { try { await this._heroReady; } catch (e) { /* 忽略 */ } }
+    if (this._enemyReady) { try { await this._enemyReady; } catch (e) { /* 忽略 */ } }
+  }
+
   setHero(charID) {
     const info = this.hero_infos[charID] || this.hero_info;
     if (!info) return;

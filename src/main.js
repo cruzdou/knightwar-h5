@@ -294,6 +294,10 @@ class Game {
     if (this.battle && this.battle.ensureAllySprites) {
       try { await this.battle.ensureAllySprites(); } catch (e) { /* 缺件就不上场 */ }
     }
+    // 敌人/其余英雄骨架是后台拉的，这里等一次再 reset（首次进战斗最多多等 1~2 秒）
+    if (this.battle && this.battle.ensureEnemies) {
+      try { await this.battle.ensureEnemies(); } catch (e) { /* 缺件按空池处理 */ }
+    }
     this.battle.reset(stage, opts);
     this.scene = this.battle;
     this.audioUnlock();
