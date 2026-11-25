@@ -79,7 +79,7 @@ async function loadSpine(name) {
     fetchText(base + '.json')
   ]);
   const jsonObj = JSON.parse(jsonText);
-  const pageNames = [...atlasText.matchAll(/^([^\n]+\.png)\s*$/gm)].map(m => m[1]);
+  const pageNames = [...atlasText.matchAll(/^([^\n]+\.(?:png|webp))\s*$/gm)].map(m => m[1]);
   const pages = {};
   await Promise.all(pageNames.map(async p => {
     pages[p] = texWrap(await new Promise((res, rej) => {
