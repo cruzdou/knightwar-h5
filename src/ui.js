@@ -164,7 +164,7 @@ class PopupLayer {
     text(ctx, link.replace(/^https?:\/\//, ''), px + 40, py + 192, 13, '#9fd0ff', 'left');
     this.btn(ctx, px + 24, py + 240, pw - 48, 54, '复制链接与文案', 'copy');
     if (this.msg) text(ctx, this.msg, px + pw / 2, py + 312, 13, '#ffcf5c', 'center');
-    text(ctx, '抖音小游戏版可换成 tt.shareAppMessage（外壳已留位）', px + pw / 2, py + ph - 34, 12, '#6f8398', 'center');
+    text(ctx, (window.TT && window.TT.isMini) ? '点上面按钮可直接唤起抖音分享面板' : '抖音小游戏版可换成 tt.shareAppMessage（外壳已留位）', px + pw / 2, py + ph - 34, 12, '#6f8398', 'center');
   }
 
   // ---------- 评分 ----------
@@ -313,6 +313,12 @@ class PopupLayer {
         return;
       case 'copy': {
         const txt = SHARE_TEXT + location.href.split('#')[0];
+        // 抖音小游戏：直接唤起系统分享面板（tt.shareAppMessage），H5 走复制
+        if (window.TT && window.TT.isMini && window.TT.share()) {
+          this.msg = '已唤起抖音分享';
+          if (g) g.playSfx('sfx_buy', 0.3);
+          return;
+        }
         const done = ok2 => { this.msg = ok2 ? '已复制，去粘给朋友吧' : '复制失败，长按上面的链接手动复制'; if (g) g.playSfx(ok2 ? 'sfx_buy' : 'sfx_equipfail', 0.3); };
         this.msg = '正在复制…';
         if (navigator.clipboard && navigator.clipboard.writeText) {

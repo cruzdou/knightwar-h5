@@ -42,6 +42,8 @@ class Game {
   }
 
   async boot() {
+    // 平台适配：抖音小游戏环境下装存储壳 + 接激励视频 provider
+    try { TT.init(); } catch (e) { /* H5 下无副作用 */ }
     // 读原表里的英雄数值（以存档里选中的英雄为准）
     try {
       const chars = await fetch('data/gameCharacters.json').then(r => r.json());
