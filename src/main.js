@@ -120,7 +120,7 @@ class Game {
       const want = qs.get('stage');
       const st = want ? this.select.levels.find(l => l.name === want)
                       : this.select.levels[this.select.levels.length - 1];
-      this.startBattle(st || this.select.levels[0]);
+      await this.startBattle(st || this.select.levels[0]);
       if (qs.get('over')) {
         this.battle.state = 'over';
         this.battle.winFlag = qs.get('over') === 'win';
@@ -139,8 +139,7 @@ class Game {
       // 每日事件的「在线时长」命中：所有场景都在累加
       if (window.Daily) Daily.tick(dt);
       if (window.Popup) Popup.update(dt);
-      this.scene.update(dt);
-      this.scene.draw();
+      if (this.scene) { this.scene.update(dt); this.scene.draw(); }
       if (window.Popup) Popup.draw(this.ctx);
       requestAnimationFrame(loop);
     };

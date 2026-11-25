@@ -91,7 +91,7 @@ async function loadSpine(name) {
     await window.TT.ensureAsset(base + '.atlas');
     await window.TT.ensureAsset(base + '.json');
   }
-  const real = (window.TT && window.TT.assetPath) ? window.TT.assetPath : (x => x);
+  const real = (window.TT && window.TT.assetPath) ? (x => window.TT.assetPath(x)) : (x => x);
   const [atlasText, jsonText] = await Promise.all([
     fetchText(real(base + '.atlas')),
     fetchText(real(base + '.json'))
