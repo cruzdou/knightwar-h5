@@ -22,6 +22,48 @@ const TT = {
     try { return (this.raw && this.raw.getSystemInfoSync) ? this.raw.getSystemInfoSync() : null; } catch (e) { return null; }
   },
 
+
+  // ---------- 分包资源路径 ----------
+  // 构建脚本会注入 PKG_MAP = { 'assets/spine/Bandit.png': 'pkg_battle', ... }
+  // H5 下没有 PKG_MAP，assetPath 原样返回，行为完全不变。
+  _loadedPkgs: {},
+
+  pkgOf(path) {
+    const m = window.PKG_MAP;
+    return (m && m[path]) || null;
+  },
+
+  // 返回当前应使用的真实路径：分包已加载则加前缀
+  assetPath(path) {
+    const pkg = this.pkgOf(path);
+    if (pkg && this._loadedPkgs[pkg]) return 'subpackages/' + pkg + '/' + path;
+    return path;
+  },
+
+  // 确保 path 所属分包已下载（H5 直接 resolve）
+  ensureAsset(path) {
+    const pkg = this.pkgOf(path);
+    if (!pkg || this.isMini === false || this._loadedPkgs[pkg]) return Promise.resolve();
+    if (!this.raw || !this.raw.loadSubpackage) return Promise.resolve();
+    if (this._pkgPending && this._pkgPending[pkg]) return this._pkgPending[pkg];
+    this._pkgPending = this._pkgPending || {};
+    this._pkgPending[pkg] = new Promise(res => {
+      this.raw.loadSubpackage({
+        name: pkg,
+        success: () => { this._loadedPkgs[pkg] = true; res(true); },
+        fail: () => { res(false); }
+      });
+    });
+    return this._pkgPending[pkg];
+  },
+
+  async loadAllPkgs() {
+    const m = window.PKG_MAP || {};
+    const names = Object.keys(m).reduce((a, k) => (m[k] && a.indexOf(m[k]) < 0 ? a.concat(m[k]) : a), []);
+    await Promise.all(names.map(n => this.ensureAsset(Object.keys(m).find(k => m[k] === n))));
+    return names;
+  },
+
   // ---------- 存储 ----------
   // 小游戏里没有 localStorage，这里做一个同名同签名的内存 + tt 存储壳，
   // 让 state.js / ads.js 一行都不用改。

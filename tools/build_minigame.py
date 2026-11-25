@@ -21,6 +21,26 @@ def copy(src, dst):
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     shutil.copy2(src, dst)
 
+
+# ---------- game.js：适配层 + PKG_MAP + 业务脚本拼接 ----------
+import re
+
+def script_order():
+    html = open(os.path.join(ROOT, 'index.html'), encoding='utf-8').read()
+    return re.findall(r'<script src="([^"]+)"', html)
+
+def build_game_js(mani):
+    scripts = [f for f in script_order() if f.startswith('src/') or f.startswith('vendor/')]
+    out = []
+    out.append(open(os.path.join(ROOT, 'minigame', 'adapter.js'), encoding='utf-8').read())
+    out.append('\n/* 分包资源表：路径 -> 分包名（由 tools/build_minigame.py 生成） */\nwindow.PKG_MAP = ' +
+               json.dumps({f: n for n, info in mani['packages'].items() if n != 'main' for f in info['file_list']},
+                          ensure_ascii=False) + ';\n')
+    for f in scripts:
+        out.append('\n/* ===== ' + f + ' ===== */\n' + open(os.path.join(ROOT, f), encoding='utf-8').read())
+    open(os.path.join(OUT, 'game.js'), 'w', encoding='utf-8').write('\n'.join(out))
+    return len(scripts)
+
 def main():
     if not os.path.isfile(MANI):
         raise SystemExit('先跑 tools/minigame_manifest.py')
@@ -32,6 +52,8 @@ def main():
     packs = mani['packages']
     for name, info in packs.items():
         for f in info['file_list']:
+            # 小游戏入口是 game.js（脚本已拼接进去），这些不再单独拷贝
+            if name == 'main' and (f.startswith('src/') or f.startswith('vendor/') or f.startswith('index') or f == 'serve.js') : continue
             src = os.path.join(ROOT, f)
             dst = os.path.join(OUT, f if name == 'main' else os.path.join('subpackages', name, f))
             if f.endswith('.json') and f.startswith('data/'):
@@ -39,6 +61,7 @@ def main():
             else:
                 copy(src, dst)
 
+    n_scripts = build_game_js(mani)
     cfg = {
         'deviceOrientation': 'portrait',
         'showStatusBar': False,

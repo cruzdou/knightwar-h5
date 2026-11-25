@@ -31,7 +31,13 @@ class Game {
 
   // 等比缩放铺满窗口（竖屏）
   fit() {
-    const vw = window.innerWidth, vh = window.innerHeight;
+    // 抖音小游戏没有 window.innerWidth，用系统信息兜底
+    let vw = window.innerWidth, vh = window.innerHeight;
+    if (window.TT && window.TT.isMini) {
+      const info = window.TT.info() || {};
+      vw = info.screenWidth || info.windowWidth || W;
+      vh = info.screenHeight || info.windowHeight || H;
+    }
     const s = Math.min(vw / W, vh / H);
     const cw = W * s, ch = H * s;
     this.cv.style.width = cw + 'px';
@@ -424,16 +430,21 @@ class Game {
       sfx_die_lizard: 'assets/audio/lizard_rider die_lizard_rider die.mp3',
       sfx_die_snake: 'assets/audio/snake_die_snake_die.mp3'
     };
-    this.actx = new (window.AudioContext || window.webkitAudioContext)();
+    // 抖音小游戏没有 WebAudio：直接跳过解码，playSfx 走 tt.createInnerAudioContext 分支
+    this.actx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
     this.bufs = {};
     // 并行拉取，避免 30+ 个音效串行等待（线上首次加载的最大瓶颈）
     await Promise.all(Object.entries(files).map(async ([k, f]) => {
       try {
-        const res = await fetch(f);
+        // 抖音：音效在 pkg_audio 分包，先确保分包下载完成再取真实路径
+        if (window.TT && window.TT.ensureAsset) await window.TT.ensureAsset(f);
+        const url = (window.TT && window.TT.assetPath) ? window.TT.assetPath(f) : f;
+        const res = await fetch(url);
         if (!res.ok) return;
         this.audio[k] = await res.arrayBuffer();
       } catch (e) { /* 音频可选 */ }
     }));
+    if (!this.actx) return;   // 没有 WebAudio：音频以原始 ArrayBuffer 留在 this.audio 里备用
     for (const [k, ab] of Object.entries(this.audio)) {
       try { this.bufs[k] = await this.actx.decodeAudioData(ab.slice(0)); } catch (e) {}
     }

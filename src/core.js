@@ -39,19 +39,31 @@ function loadImage(name) {
     }, IMG_TIMEOUT);
     let triedFallback = false;
     im.onload = () => { if (done) return; done = true; clearTimeout(timer); res(im); };
+    // 抖音分包：资源可能还没下载，先确保分包就绪再用真实路径
+    const start = () => {
+      im.src = /\.png$/i.test(name) ? (ART + name.replace(/\.png$/i, '.webp')) : (ART + name);
+    };
+    const usePath = () => {
+      if (window.TT && window.TT.isMini) {
+        const p = /\.png$/i.test(name) ? (ART + name.replace(/\.png$/i, '.webp')) : (ART + name);
+        window.TT.ensureAsset(p).then(() => { im.src = window.TT.assetPath(p); }).catch(start);
+      } else start();
+    };
     im.onerror = () => {
       if (done) return;
       // 首选 webp（体积约 1/3）；个别未转换的贴图回退到原 png
       if (!triedFallback && /\.png$/i.test(name)) {
         triedFallback = true;
-        im.src = ART + name;
+        const p2 = ART + name;
+        if (window.TT && window.TT.isMini) window.TT.ensureAsset(p2).then(() => { im.src = window.TT.assetPath(p2); }).catch(() => {});
+        else im.src = p2;
         return;
       }
       done = true;
       clearTimeout(timer);
       res(BLANK_IMG);
     };
-    im.src = /\.png$/i.test(name) ? (ART + name.replace(/\.png$/i, '.webp')) : (ART + name);
+    usePath();
   });
   return imgCache[name];
 }
@@ -74,20 +86,29 @@ const SPINE_TIMEOUT = 12000;
 async function loadSpine(name) {
   if (spineCache[name]) return spineCache[name];
   const base = SPINE_DIR + name;
+  // 抖音分包：骨架整包在 pkg_battle，先确保下载完再取文件
+  if (window.TT && window.TT.ensureAsset) {
+    await window.TT.ensureAsset(base + '.atlas');
+    await window.TT.ensureAsset(base + '.json');
+  }
+  const real = (window.TT && window.TT.assetPath) ? window.TT.assetPath : (x => x);
   const [atlasText, jsonText] = await Promise.all([
-    fetchText(base + '.atlas'),
-    fetchText(base + '.json')
+    fetchText(real(base + '.atlas')),
+    fetchText(real(base + '.json'))
   ]);
   const jsonObj = JSON.parse(jsonText);
   const pageNames = [...atlasText.matchAll(/^([^\n]+\.(?:png|webp))\s*$/gm)].map(m => m[1]);
   const pages = {};
   await Promise.all(pageNames.map(async p => {
+    const full = SPINE_DIR + p;
+    if (window.TT && window.TT.ensureAsset) await window.TT.ensureAsset(full);
+    const url = (window.TT && window.TT.assetPath) ? window.TT.assetPath(full) : full;
     pages[p] = texWrap(await new Promise((res, rej) => {
       const im = new Image();
       const timer = setTimeout(() => rej(new Error('贴图超时: ' + p)), SPINE_TIMEOUT);
       im.onload = () => { clearTimeout(timer); res(im); };
       im.onerror = () => { clearTimeout(timer); rej(new Error('贴图缺失: ' + p)); };
-      im.src = SPINE_DIR + p;
+      im.src = url;
     }));
   }));
   const atlas = new SP.TextureAtlas(atlasText, p => pages[p]);
