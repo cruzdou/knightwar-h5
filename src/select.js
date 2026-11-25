@@ -101,7 +101,20 @@ class LevelSelectScene {
   }
 
   // 顶部资源条（与其它功能页共用）
-  drawTopBar() { drawTopBar(this.ctx, this.tex, Player, this.hot); }
+  drawTopBar() {
+    drawTopBar(this.ctx, this.tex, Player, this.hot);
+    // 成就入口（齿轮左边）：星星图标 + 可领小红点
+    const ctx = this.ctx, bx = W - 124, by = 12, bw = 54, bh = 54;
+    roundRect(ctx, bx, by, bw, bh, 8, '#111b26', '#3a4d62', 2);
+    if (this.tex.star) drawIcon(ctx, this.tex.star, bx + bw / 2, by + bh / 2, 0.20);
+    const n = (window.Achv ? Achv.claimable() : 0);
+    if (n > 0) {
+      ctx.beginPath(); ctx.arc(bx + bw - 12, by + 12, 8, 0, Math.PI * 2);
+      ctx.fillStyle = '#c8382f'; ctx.fill();
+      text(ctx, String(n), bx + bw - 12, by + 12, 10, '#fff', 'center');
+    }
+    this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'achv' });
+  }
 
   // 左侧：玩家卡 + 礼包列
   drawLeftColumn() {
@@ -455,6 +468,7 @@ class LevelSelectScene {
         Popup.open('pack', { key: b.key });
         return;
       }
+      if (b.act === 'achv') { this.g.playSfx('sfx_tab', 0.3); Popup.open('achv'); return; }
       if (b.act === 'msClaim') {
         const stages2 = this.curStages();
         const got = stages2.reduce((a, l) => a + Player.starsOf(l.name), 0);

@@ -268,6 +268,8 @@ const Daily = {
     else if (r.kind === 'mat') Player.addMat(r.id, r.n);
     else if (r.kind === 'chest') txt = this.openChest(r.tier);
     this.rec.signDate = dailyToday();
+    Player.signTotal = (Player.signTotal || 0) + 1;
+    Player.save();
     this.rec.signDay = this.rec.signDay >= 7 ? 1 : this.rec.signDay + 1;
     this.save();
     return txt;

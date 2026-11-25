@@ -14,6 +14,9 @@ class PlayerState {
     this.staminaTs = Date.now();  // 上一次恢复计时起点（每 3 分钟 +1）
     // 星级里程碑领取记录：{ zoneIdx: { 0:true, ... } }
     this.starClaims = {};
+    this.achvClaims = {};   // 成就领取记录 { id: true }
+    this.signTotal = 0;     // 累计签到天数（成就要用）
+    this.tutorialStep = 0;  // 新手引导进度（0 = 不显示，新档在 load 后置 1）
     this.stars = {};        // { '1-1': 3, ... }
     this.charID = 1;
     this.castleLevel = 1;
@@ -83,19 +86,23 @@ class PlayerState {
       if (typeof s.sfxOn === 'boolean') this.sfxOn = s.sfxOn;
       if (typeof s.musicOn === 'boolean') this.musicOn = s.musicOn;
       if (s.starClaims && typeof s.starClaims === 'object') this.starClaims = s.starClaims;
+      if (s.achvClaims && typeof s.achvClaims === 'object') this.achvClaims = s.achvClaims;
+      if (typeof s.signTotal === 'number') this.signTotal = s.signTotal;
+      if (typeof s.tutorialStep === 'number') this.tutorialStep = s.tutorialStep;
       if (typeof s.rated === 'boolean') this.rated = s.rated;
       if (s.packs && typeof s.packs === 'object') this.packs = s.packs;
     } catch (e) { /* 存档损坏就用默认值 */ }
     // 新档默认送 1 号盟友（Elf Archer），否则战场上一个帮手都没有
     if (!Object.keys(this.allies).length) this.allies = { 1: { lv: 1, evo: 1 } };
     if (!Array.isArray(this.squad) || !this.squad.length) this.squad = [1];
+    if (this._fresh) this.tutorialStep = 1;   // 新档自动进引导第 1 步
   }
 
   save() {
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify({
         lastSeen: (this.lastSeen = Date.now(), this.lastSeen),
-        coins: this.coins, gems: this.gems, stamina: this.stamina, staminaMax: this.staminaMax, staminaTs: this.staminaTs, musicOn: this.musicOn, starClaims: this.starClaims,
+        coins: this.coins, gems: this.gems, stamina: this.stamina, staminaMax: this.staminaMax, staminaTs: this.staminaTs, musicOn: this.musicOn, starClaims: this.starClaims, achvClaims: this.achvClaims, signTotal: this.signTotal, tutorialStep: this.tutorialStep,
         stars: this.stars, charID: this.charID, castleLevel: this.castleLevel,
         equipped: this.equipped, itemLv: this.itemLv,
         mats: this.mats, owned: this.owned,

@@ -19,6 +19,8 @@ class Game {
       if (!p) return;
       // 弹窗层最优先：打开时吃掉所有点击
       if (window.Popup && Popup.ptDown(p)) return;
+      // 新手引导：按钮优先，其余区域按“高亮放行 / 外围吞掉”规则处理
+      if (window.Tutorial && Tutorial.hit(p)) return;
       // 顶栏齿轮 → 设置（战斗中自动暂停）
       if (p.x > W - 64 && p.y < 70) {
         if (this.scene === this.battle && this.battle.state === 'play') this.battle.state = 'pause';
@@ -108,6 +110,9 @@ class Game {
     this.debug = qs.get('debug') === '1';
 
     // 离线收益：只在正常入口弹一次（?tab / ?auto 等验收入口不弹）
+    // 验收/快速试玩入口不弹引导
+    if (qs.get('tab') || qs.get('auto') || qs.get('stage')) Player.tutorialStep = 0;
+
     this.offline = Player.offlineInfo();
     if (this.offline && !qs.get('tab') && !qs.get('auto') && !qs.get('stage')) {
       Popup.open('offline', this.offline);
@@ -146,7 +151,11 @@ class Game {
       if (window.Daily) Daily.tick(dt);
       if (window.Player) Player.staminaRegen();
       if (window.Popup) Popup.update(dt);
-      if (this.scene) { this.scene.update(dt); this.scene.draw(); }
+      if (this.scene) {
+        this.scene.update(dt);
+        this.scene.draw();
+        if (window.Tutorial) { Tutorial.sync(this.scene.constructor.name); Tutorial.draw(this.ctx); }
+      }
       if (window.Popup) Popup.draw(this.ctx);
       requestAnimationFrame(loop);
     };

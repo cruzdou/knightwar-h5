@@ -56,6 +56,10 @@ class PopupLayer {
     }
     if (kind === 'stamina') return 360;
     if (kind === 'offline') return 400;
+    if (kind === 'achv') {
+      const n = (window.Achv && window.Achv.list) ? Achv.list().length : 10;
+      return 122 + n * 52;
+    }
     if (kind === 'pack') {
       const g = window.game;
       const p = g && g.packDef ? g.packDef(this.current.data.key) : null;
@@ -104,6 +108,7 @@ class PopupLayer {
     else if (kind === 'pack') this.drawPack(px, py, pw, ph, data);
     else if (kind === 'stamina') this.drawStamina(px, py, pw, ph, data);
     else if (kind === 'offline') this.drawOffline(px, py, pw, ph, data);
+    else if (kind === 'achv') this.drawAchv(px, py, pw, ph, data);
     else this.drawConfirm(px, py, pw, ph, data);
 
     ctx.restore();
@@ -261,6 +266,39 @@ class PopupLayer {
       bought ? '已购买' : (left <= 0 ? '已结束' : '购买 ' + price), 'buyPack', '#c58a1c', '#ffdf9a', !canBuy);
   }
 
+  // ---------- 成就 ----------
+  drawAchv(px, py, pw, ph) {
+    const ctx = window.game.ctx;
+    const list = (window.Achv ? Achv.list() : []);
+    const got = list.filter(a => a.claimed).length;
+    this.titleBar(ctx, px, py, pw, '成就  ACHIEVEMENTS');
+    text(ctx, '已达成 ' + list.filter(a => a.done).length + ' / ' + list.length + ' · 已领 ' + got,
+      px + pw / 2, py + 84, 13, '#8fa3b7', 'center');
+    list.slice(0, 10).forEach((a, i) => {
+      const ry = py + 100 + i * 52;
+      roundRect(ctx, px + 20, ry, pw - 40, 46, 8, a.claimed ? 'rgba(60,160,100,0.10)' : 'rgba(255,255,255,0.05)',
+        a.claimed ? '#2f6b45' : (a.done ? '#e8b548' : 'rgba(255,255,255,0.10)'), a.done && !a.claimed ? 2 : 1);
+      text(ctx, a.name, px + 36, ry + 18, 15, a.claimed ? '#8fb8a0' : '#e8eef6', 'left');
+      text(ctx, a.desc, px + 36, ry + 36, 12, '#8fa3b7', 'left');
+      // 进度
+      const bw2 = 110, bx2 = px + pw - 176;
+      roundRect(ctx, bx2, ry + 10, bw2, 6, 3, '#1c2836');
+      roundRect(ctx, bx2, ry + 10, bw2 * Math.min(1, a.cur / a.need), 6, 3, a.done ? '#7ee08a' : '#3f95e0');
+      text(ctx, a.cur + '/' + a.need, bx2 + bw2 / 2, ry + 28, 11, '#8fa3b7', 'center');
+      // 奖励 / 状态
+      if (a.claimed) {
+        text(ctx, '已领', px + pw - 46, ry + 24, 13, '#6fd39a', 'right');
+      } else if (a.done) {
+        roundRect(ctx, px + pw - 82, ry + 10, 62, 28, 7, '#c58a1c', '#ffdf9a', 1);
+        text(ctx, '领取', px + pw - 51, ry + 24, 13, '#fff', 'center', '#1a1206');
+        this.hits.push({ x: px + pw - 82, y: ry + 10, w: 62, h: 28, act: 'achvClaim', id: a.id });
+      } else {
+        text(ctx, '+' + a.gem + ' 宝石', px + pw - 46, ry + 24, 12, '#6f8398', 'right');
+      }
+    });
+    if (this.msg) text(ctx, this.msg, px + pw / 2, py + ph - 22, 13, '#ffcf5c', 'center');
+  }
+
   // ---------- 离线收益 ----------
   drawOffline(px, py, pw, ph, data) {
     const ctx = window.game.ctx;
@@ -352,6 +390,13 @@ class PopupLayer {
         const cb = this.onYes;
         this.close();
         if (cb) cb();
+        return;
+      }
+      case 'achvClaim': {
+        const got2 = window.Achv ? Achv.claim(h.id) : null;
+        if (!got2) return;
+        this.msg = '成就达成：' + got2.name + ' +' + got2.gem + ' 宝石';
+        if (window.game) window.game.playSfx('sfx_buy', 0.34);
         return;
       }
       case 'offlineTake': {
