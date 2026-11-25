@@ -58,8 +58,12 @@ class PlayerState {
   }
 
   load() {
+    const raw = localStorage.getItem(SAVE_KEY);
+    this._fresh = !raw;          // 全新档：不弹离线收益
+    this.lastSeen = Date.now();
     try {
-      const s = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
+      const s = JSON.parse(raw || '{}');
+      if (typeof s.lastSeen === 'number') this.lastSeen = s.lastSeen;
       for (const k of ['coins', 'gems', 'stamina', 'charID', 'castleLevel', 'staminaMax', 'staminaTs']) {
         if (typeof s[k] === 'number') this[k] = s[k];
       }
@@ -90,6 +94,7 @@ class PlayerState {
   save() {
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify({
+        lastSeen: (this.lastSeen = Date.now(), this.lastSeen),
         coins: this.coins, gems: this.gems, stamina: this.stamina, staminaMax: this.staminaMax, staminaTs: this.staminaTs, musicOn: this.musicOn, starClaims: this.starClaims,
         stars: this.stars, charID: this.charID, castleLevel: this.castleLevel,
         equipped: this.equipped, itemLv: this.itemLv,
@@ -100,6 +105,33 @@ class PlayerState {
         sfxOn: this.sfxOn, rated: this.rated, packs: this.packs
       }));
     } catch (e) { /* 隐私模式下忽略 */ }
+  }
+
+  // ---------- 离线收益（上限 8 小时，按城堡等级与星数给速率） ----------
+  offlineInfo() {
+    if (this._fresh) return null;
+    const gap = (Date.now() - (this.lastSeen || Date.now())) / 1000;
+    if (!(gap >= 120)) return null;                    // 少于 2 分钟不打扰
+    const sec = Math.min(8 * 3600, gap);
+    const mins = Math.floor(sec / 60);
+    let starTotal = 0;
+    for (const k in this.stars) starTotal += this.stars[k] || 0;
+    const per = 18 + (this.castleLevel || 1) * 6 + Math.min(60, starTotal * 2);
+    const coins = Math.round(per * mins);
+    const gems = Math.min(8, Math.floor(mins / 60));     // 每满 1 小时 1 宝石，封顶 8
+    return { gap, sec, mins, per, coins, gems };
+  }
+
+  claimOffline(o, mult) {
+    const m = mult || 1;
+    if (!o || o.claimed) return null;   // 同一份离线收益只能领一次（防连点/双端重复）
+    o.claimed = true;
+    const got = { coins: o.coins * m, gems: o.gems * m };
+    this.addCoins(got.coins);
+    if (got.gems) this.addGems(got.gems);
+    this.lastSeen = Date.now();
+    this.save();
+    return got;
   }
 
   // ---------- 体力（每 3 分钟恢复 1 点，离线也恢复） ----------

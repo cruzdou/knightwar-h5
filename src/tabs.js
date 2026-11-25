@@ -289,29 +289,41 @@ class TabScene {
       { key: 'artifact', lbl: '神器' },
       { key: 'material', lbl: '材料' }
     ];
-    const tw = (W - 24 - 3 * 8) / 4;
+    const tw = (W - 24 - 4 * 8 - 78) / 4;
     cats.forEach((c, i) => {
       const x = 12 + i * (tw + 8), y = 148;
       const on = i === this.cat;
       roundRect(ctx, x, y, tw, 48, 8, on ? '#2c4a70' : '#16202d', on ? '#7fc6ff' : '#33475e', 2);
-      text(ctx, c.lbl, x + tw / 2, y + 24, 17, on ? '#ffffff' : '#9fb2c6', 'center');
+      text(ctx, c.lbl, x + tw / 2, y + 24, 16, on ? '#ffffff' : '#9fb2c6', 'center');
       this.hot.push({ x, y, w: tw, h: 48, act: 'cat', idx: i });
     });
+    // 排序键（等级页内循环切换）
+    const sm = this.sortMode || 0;
+    const sLbl = ['排序', '先拥有', '等级高'][sm];
+    const sx = 12 + 4 * (tw + 8);
+    roundRect(ctx, sx, 148, 78, 48, 8, sm ? '#2c4a70' : '#16202d', sm ? '#7fc6ff' : '#33475e', 2);
+    text(ctx, sLbl, sx + 39, 172, 14, sm ? '#ffffff' : '#9fb2c6', 'center');
+    this.hot.push({ x: sx, y: 148, w: 78, h: 48, act: 'sortMode' });
 
     const cat = cats[this.cat].key;
     const list = this.items[cat] || [];
     const per = 5;
+    const mode = this.sortMode || 0;
+    const order = list.map((it, idx) => ({ it, idx }));
+    if (mode === 1) order.sort((a, b) => (Player.hasItem(b.it.itemID) ? 1 : 0) - (Player.hasItem(a.it.itemID) ? 1 : 0));
+    if (mode === 2) order.sort((a, b) => Player.lvOf(b.it.itemID) - Player.lvOf(a.it.itemID));
     const start = this.itemPage * per;
-    const rows = list.slice(start, start + per);
+    const rows = order.slice(start, start + per);
     let y = 212;
     const rh = 168;
 
-    rows.forEach((it, i) => {
+    rows.forEach((row, i) => {
+      const it = row.it, origIdx = row.idx;
       const x = 12, w = W - 24;
       roundRect(ctx, x, y, w, rh - 12, 9, '#141d29', '#33475e', 2);
       // 图标格
       roundRect(ctx, x + 12, y + 12, 96, 96, 8, '#0d141c', '#2a3644', 1);
-      const iconName = this.iconOf(cat, start + i, list[start + i]);
+      const iconName = cat === 'material' ? this.iconOf(cat, origIdx, it) : this.iconOf(cat, origIdx, it);
       const img = this.tex[iconName];
       if (img) {
         const s = Math.min(80 / img.width, 80 / img.height);
@@ -388,6 +400,15 @@ class TabScene {
         else roundRect(ctx, bx, byE, bw, bh, 8, on ? '#3f6b45' : '#e0a52a', on ? '#8ed6a0' : null, 2);
         text(ctx, on ? '已装备' : '装备', bx + bw / 2, byE + bh / 2, 15, '#fff', 'center', '#1a1206');
         this.hot.push({ x: bx, y: byE, w: bw, h: bh, act: 'equip', item: it, slot });
+
+        // 出售：已装备的不给卖，避免连身上的一起卖掉
+        const price = this.sellPrice(it);
+        const byS = y + 120;
+        const sh2 = 34;
+        roundRect(ctx, bx, byS, bw, sh2, 8, on ? '#2a3543' : '#22303d', on ? '#3d4a58' : '#5a7f9e', 1);
+        text(ctx, on ? '先卸下才能卖' : ('出售 +' + price), bx + bw / 2, byS + sh2 / 2, 13,
+          on ? '#6f8398' : '#9fd0ff', 'center');
+        if (!on) this.hot.push({ x: bx, y: byS, w: bw, h: sh2, act: 'sellItem', item: it, cat, price });
       }
       y += rh;
     });
@@ -579,6 +600,13 @@ class TabScene {
         text(ctx, '去锻造页装配', x + cw3 / 2, y + 104, 10, '#4f6072', 'center');
       }
     });
+  }
+
+  // 出售价：按原表 lvUpGold 折算，强化过的更值钱
+  sellPrice(it) {
+    const lv = Player.lvOf(it.itemID) || 1;
+    const base = it.lvUpGold || 100;
+    return Math.max(30, Math.round(base * 0.6 * (1 + 0.55 * (lv - 1))));
   }
 
   // 装备在分类列表里的下标（用于取原包图标）
@@ -883,6 +911,24 @@ class TabScene {
           const on = Player.setEquip(Player.charID, b.slot, b.item.itemID);
           this.say((on ? '已装备 ' : '已卸下 ') + b.item.name);
           this.g.playSfx(on ? 'sfx_equip' : 'sfx_close', 0.34);
+          return;
+        }
+        case 'sortMode':
+          this.sortMode = ((this.sortMode || 0) + 1) % 3;
+          this.itemPage = 0;
+          this.g.playSfx('sfx_click', 0.26);
+          return;
+        case 'sellItem': {
+          const it = b.item, price = b.price;
+          Popup.confirm('出售 ' + it.name + '？', '出售后物品消失，强化等级一并清空。\n可得 ' + price + ' 金币。', () => {
+            if (!Player.hasItem(it.itemID)) return;
+            Player.owned[it.itemID] = false;
+            if (Player.itemLv) delete Player.itemLv[it.itemID];
+            Player.addCoins(price);
+            Player.save();
+            this.say('已出售 ' + it.name + '，+' + price + ' 金币');
+            this.g.playSfx('sfx_buy', 0.3);
+          });
           return;
         }
         case 'unequip': {

@@ -55,6 +55,7 @@ class PopupLayer {
       return 168 + n * 34 + (total > 10 ? 26 : 0) + 78;
     }
     if (kind === 'stamina') return 360;
+    if (kind === 'offline') return 400;
     if (kind === 'pack') {
       const g = window.game;
       const p = g && g.packDef ? g.packDef(this.current.data.key) : null;
@@ -102,6 +103,7 @@ class PopupLayer {
     else if (kind === 'chest') this.drawChest(px, py, pw, ph, data.res);
     else if (kind === 'pack') this.drawPack(px, py, pw, ph, data);
     else if (kind === 'stamina') this.drawStamina(px, py, pw, ph, data);
+    else if (kind === 'offline') this.drawOffline(px, py, pw, ph, data);
     else this.drawConfirm(px, py, pw, ph, data);
 
     ctx.restore();
@@ -259,6 +261,42 @@ class PopupLayer {
       bought ? '已购买' : (left <= 0 ? '已结束' : '购买 ' + price), 'buyPack', '#c58a1c', '#ffdf9a', !canBuy);
   }
 
+  // ---------- 离线收益 ----------
+  drawOffline(px, py, pw, ph, data) {
+    const ctx = window.game.ctx;
+    const d = data || {};
+    const hh = Math.floor((d.sec || 0) / 3600), mm = Math.floor(((d.sec || 0) % 3600) / 60);
+    this.titleBar(ctx, px, py, pw, '欢迎回来');
+    text(ctx, '离线 ' + (hh ? hh + ' 小时 ' : '') + mm + ' 分钟，你的队伍一直在守城',
+      px + pw / 2, py + 92, 14, '#cfd8e3', 'center');
+    const rows = [
+      { icon: 'coin', lbl: '金币', v: d.coins || 0 },
+      { icon: 'gem', lbl: '宝石', v: d.gems || 0 }
+    ];
+    const g = window.game;
+    const tex = (g && g.tex) || (g && g.select && g.select.tex) || {};
+    rows.forEach((r, i) => {
+      const ry = py + 118 + i * 52;
+      roundRect(ctx, px + 40, ry, pw - 80, 44, 8, 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.10)', 1);
+      const img = tex[r.icon];
+      if (img) {
+        const s2 = Math.min(30 / img.width, 30 / img.height);
+        ctx.drawImage(img, px + 58 - img.width * s2 / 2, ry + 22 - img.height * s2 / 2, img.width * s2, img.height * s2);
+      }
+      text(ctx, r.lbl, px + 86, ry + 22, 15, '#cfd8e3', 'left');
+      text(ctx, '+' + r.v, px + pw - 60, ry + 22, 18, '#ffe9a8', 'right');
+    });
+    text(ctx, '每分钟 ' + (d.per || 0) + ' 金币 · 最长累计 8 小时', px + pw / 2, py + 232, 12, '#7f93a8', 'center');
+    const canAd = Ads.remaining() > 0;
+    if (canAd) {
+      this.btn(ctx, px + 24, py + ph - 148, pw - 48, 50, '看广告 · 双倍领取', 'offlineAd', '#c58a1c', '#ffdf9a');
+      this.btn(ctx, px + 24, py + ph - 84, pw - 48, 52, '收下', 'offlineTake', '#2f7ad6', '#8fc4ff');
+    } else {
+      this.btn(ctx, px + 24, py + ph - 96, pw - 48, 56, '收下', 'offlineTake', '#2f7ad6', '#8fc4ff');
+      text(ctx, '今日广告次数已用完', px + pw / 2, py + ph - 122, 12, '#6f8398', 'center');
+    }
+  }
+
   // ---------- 体力不足 ----------
   drawStamina(px, py, pw, ph, data) {
     const ctx = window.game.ctx;
@@ -314,6 +352,29 @@ class PopupLayer {
         const cb = this.onYes;
         this.close();
         if (cb) cb();
+        return;
+      }
+      case 'offlineTake': {
+        const o = this.current ? this.current.data : null;
+        const got = Player.claimOffline(o, 1);
+        this.close();
+        if (got && window.game && game.select && game.select.say) {
+          game.select.say('离线收益 +' + got.coins + ' 金币');
+        }
+        return;
+      }
+      case 'offlineAd': {
+        const o = this.current ? this.current.data : null;
+        Ads.show({
+          title: '离线收益双倍',
+          onDone: ok => {
+            if (!ok) { this.msg = '广告没看完，没有奖励'; return; }
+            const got = Player.claimOffline(o, 2);
+            this.close();
+            if (got && game.select && game.select.say) game.select.say('双倍离线收益 +' + got.coins + ' 金币');
+          },
+          onFail: () => { this.msg = '今天广告次数用完了'; }
+        });
         return;
       }
       case 'toggleSfx':

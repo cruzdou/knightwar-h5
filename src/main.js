@@ -107,6 +107,12 @@ class Game {
     const qs = new URLSearchParams(location.search);
     this.debug = qs.get('debug') === '1';
 
+    // 离线收益：只在正常入口弹一次（?tab / ?auto 等验收入口不弹）
+    this.offline = Player.offlineInfo();
+    if (this.offline && !qs.get('tab') && !qs.get('auto') && !qs.get('stage')) {
+      Popup.open('offline', this.offline);
+    }
+
     // ?tab=shop|craft|hero|castle|daily|ally 直接进功能页（验收用）
     if (qs.get('tab')) {
       const t = qs.get('tab');
