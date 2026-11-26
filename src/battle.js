@@ -4,13 +4,25 @@
 // ============================================================
 
 const WALL_Y = 940;        // 城墙顶边
+// 土路中心线（离线从底图提取，见 tools/build_bg_paths.py）
+let BG_PATHS = null;
+let BG_PATHS_P = null;
+function loadBgPaths() {
+  if (BG_PATHS_P) return BG_PATHS_P;
+  BG_PATHS_P = fetch('assets/bg/paths.json')
+    .then(r => r.json())
+    .then(j => { BG_PATHS = j; return j; })
+    .catch(() => { BG_PATHS = {}; return BG_PATHS; });
+  return BG_PATHS_P;
+}
+
 const HERO_X = 458;
 const HERO_FEET = 1150;    // 英雄脚底
 const HERO_H = 150;        // 英雄屏幕上高度
 const SPAWN_Y = 300;       // 怪物出生（河道下方草地，避免站在水里）
 const STOP_Y = 975;        // 推进到城墙前
-const ENEMY_H_NEAR = 132;  // 到墙时的高度
-const ENEMY_H_FAR = 74;    // 出生时的高度
+const ENEMY_H_NEAR = 104;  // 到墙时的高度
+const ENEMY_H_FAR = 56;    // 出生时的高度
 
 // 盟友（gameAllies.json 的 charID 1~9）对应的原包骨架名
 const ALLY_SKELETONS = {
@@ -38,6 +50,7 @@ class BattleScene {
   }
 
   async init() {
+    await loadBgPaths();
     // 美术：CraftPix《Castle Guards》逐帧素材（Spine 4.2 骨架 3.6 运行时读不了，改走条带帧）
     await loadAnimIndex();
     skinPreload();
@@ -250,6 +263,21 @@ class BattleScene {
     // 三技能（CD 取自 gameCharacters.json skillList）：0 穿透射击 / 1 攻速增益 / 2 范围箭雨
     const ch = (this.g.chars || []).find(c => c.charID === Player.charID);
     const sk = (ch && ch.skillList) || [];
+    // 敌人行进路径：当前分区底图对应的土路折线（没提取到就退回直线）
+    const bgIdx = String(Math.abs(((st.zone || 0) % 10) + 1));
+    const raw = BG_PATHS && BG_PATHS[bgIdx] && BG_PATHS[bgIdx].pts;
+    let pts = raw && raw.length >= 3 ? raw.slice() : [[300, SPAWN_Y], [340, 560], [360, STOP_Y]];
+    let L = 0;
+    const segs = [];
+    for (let i = 1; i < pts.length; i++) {
+      const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]) || 1;
+      segs.push({ x0: pts[i - 1][0], y0: pts[i - 1][1], x1: pts[i][0], y1: pts[i][1], len: d, start: L });
+      L += d;
+    }
+    this.pathSegs = segs;
+    this.pathLen = Math.max(1, L);
+    loadBgPaths();
+
     this.skills = [0, 1, 2].map(i => ({
       name: (sk[i] && sk[i].name) || ['Power shot', 'Windspeed', 'Rain arrow'][i],
       cd: Math.max(6, Math.min(20, Math.round((sk[i] && sk[i].coolDown) || [10, 14, 20][i]))),
@@ -318,6 +346,21 @@ class BattleScene {
     });
   }
 
+  // 取路径上距离 d 处的屏幕坐标
+  pathAt(d) {
+    const segs = this.pathSegs || [];
+    if (!segs.length) return { x: 360, y: SPAWN_Y + d };
+    if (d <= 0) return { x: segs[0].x0, y: segs[0].y0 };
+    for (const g of segs) {
+      if (d <= g.start + g.len) {
+        const t = (d - g.start) / g.len;
+        return { x: g.x0 + (g.x1 - g.x0) * t, y: g.y0 + (g.y1 - g.y0) * t };
+      }
+    }
+    const last = segs[segs.length - 1];
+    return { x: last.x1, y: last.y1 };
+  }
+
   // 按分区挑怪物（15 种骷髅按区轮流）
   poolForZone(zone) {
     const sets = [
@@ -337,13 +380,17 @@ class BattleScene {
     const info = this.pool[Math.floor(Math.random() * this.pool.length)];
     if (!info) return;   // 素材索引尚未就绪时先不出怪，避免空 info 让整帧崩
     const a = new Actor(info, { anim: info.anims.includes('Move') ? 'Move' : 'Idle' });
-    a.x = 110 + Math.random() * 500;
-    a.y = SPAWN_Y + Math.random() * 50;
+    // 沿土路出生（位置由路径给出，不再随机撒在草地/水面上）
+    a.d = (this.spawnLeft % 3) * 14;      // 同一波错开一点，避免完全重叠
+    const p0 = this.pathAt(a.d);
+    a.x = p0.x; a.y = p0.y;
+    a.lat = -22 + Math.random() * 44;   // 同一条路上左右错开，避免叠成一列
+    a.arrived = false;
     a.stopY = STOP_Y - Math.random() * 30;
     a.base = ENEMY_H_NEAR / (info.hb || info.h);
     a.hp = 90 * (this.hpK || 1) * (1 + 0.18 * (this.wave - 1));
     a.maxHp = a.hp;
-    a.speed = 24 + Math.random() * 8;
+    a.speed = 46 + Math.random() * 14;   // px/s（沿路径）
     // BOSS 关最后一波：最后一只体积放大、血量 ×4、走得慢，当小 Boss 用
     // （原包 Boss_Golem 等骨架是 mesh 权重附件，3.6 运行时渲染不全，不引用）
     if (this.isBoss && this.wave === this.waveCount && this.spawnLeft === 1) {
@@ -484,10 +531,13 @@ class BattleScene {
         continue;
       }
       alive++;
-      if (e.y < e.stopY) {
-        e.y += e.speed * d;
-        const t = Math.max(0, Math.min(1, (e.y - SPAWN_Y) / (STOP_Y - SPAWN_Y)));
+      if (!e.arrived) {
+        e.d += e.speed * d;
+        const p = this.pathAt(e.d);
+        e.x = p.x + (e.lat || 0); e.y = p.y;
+        const t = Math.max(0, Math.min(1, e.d / (this.pathLen || 1)));
         e.scale = e.base * lerp(ENEMY_H_FAR / ENEMY_H_NEAR, 1, t);
+        if (e.d >= (this.pathLen || 1)) e.arrived = true;
       } else {
         e.atkT = (e.atkT || 0) - d;
         if (e.atkT <= 0) {
