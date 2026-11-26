@@ -16,9 +16,9 @@ function loadBgPaths() {
   return BG_PATHS_P;
 }
 
-const HERO_X = 458;
-const HERO_FEET = 1150;    // 英雄脚底
-const HERO_H = 150;        // 英雄屏幕上高度
+const HERO_X = 336;
+const HERO_FEET = 1160;    // 英雄脚底
+const HERO_H = 112;        // 英雄屏幕上高度
 const SPAWN_Y = 300;       // 怪物出生（河道下方草地，避免站在水里）
 const STOP_Y = 975;        // 推进到城墙前
 const ENEMY_H_NEAR = 104;  // 到墙时的高度
@@ -194,7 +194,7 @@ class BattleScene {
     const ca = skinGet('sk_castle.webp');
     if (ca) {
       const chh = 290, cww = chh * ca.width / ca.height;
-      c.drawImage(ca, (W - cww) / 2 - 88, H - 96 - chh, cww, chh);
+      c.drawImage(ca, (W - cww) / 2 - 24, H - 96 - chh, cww, chh);
     }
 
     // 底部草地暗化，让 HUD 与人物更清楚
@@ -327,7 +327,7 @@ class BattleScene {
     // 上阵盟友（最多 3 名）：站在英雄两侧/后方，自动向最靠墙的敌人射击
     // 数值取自 gameAllies.json 该阶该级的伤害；盟友不吃伤害（简化：不会被打死）
     this.allies = [];
-    const allySlots = [{ x: 596, y: 1148 }, { x: 654, y: 1122 }, { x: 526, y: 1164 }];
+    const allySlots = [{ x: 556, y: 1150 }, { x: 612, y: 1116 }, { x: 486, y: 1168 }];
     (Player.squad || []).slice(0, 3).forEach((id, i) => {
       const info = this.ally_infos && this.ally_infos[id];
       const st = this.g.allyStats ? this.g.allyStats(id) : null;
