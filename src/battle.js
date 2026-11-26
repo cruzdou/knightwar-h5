@@ -384,7 +384,7 @@ class BattleScene {
     a.d = (this.spawnLeft % 3) * 14;      // 同一波错开一点，避免完全重叠
     const p0 = this.pathAt(a.d);
     a.x = p0.x; a.y = p0.y;
-    a.lat = -22 + Math.random() * 44;   // 同一条路上左右错开，避免叠成一列
+    a.lat = -16 + Math.random() * 32;   // 同一条路上左右错开，避免叠成一列
     a.arrived = false;
     a.stopY = STOP_Y - Math.random() * 30;
     a.base = ENEMY_H_NEAR / (info.hb || info.h);
