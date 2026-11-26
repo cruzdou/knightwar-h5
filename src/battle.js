@@ -188,8 +188,12 @@ class BattleScene {
     const avgHP = realTotal ? (st.totalBlood || 0) / realTotal : 0;
     // 平均每只血量相对第一关（Level_0_0 约 4861/只）的比值，开 0.35 次方压平曲线，免得后期打不动
     this.hpK = Math.max(0.8, Math.min(3.0, Math.pow(avgHP / 4900 || 1, 0.35)));
-    this.waveCount = Math.max(3, Math.min(6, Math.ceil(realTotal / 12)));
-    this.perWave = Math.max(3, Math.min(8, Math.round(realTotal / this.waveCount)));
+    // 节奏：前三个区（新手前 30 关）3~4 波、每波 5~6 只，后面再放开到 6 波 8 只
+    const zone = (st.zone === undefined ? 0 : st.zone);
+    const waveCap = zone <= 1 ? 3 : (zone <= 3 ? 4 : 6);
+    const perCap = zone <= 1 ? 5 : (zone <= 3 ? 6 : 8);
+    this.waveCount = Math.max(3, Math.min(waveCap, Math.ceil(realTotal / 12)));
+    this.perWave = Math.max(3, Math.min(perCap, Math.round(realTotal / this.waveCount)));
     this.totalEnemy = this.waveCount * this.perWave;
     this.coinPerKill = Math.max(1, Math.round((st.levelCoins || 30) / this.totalEnemy));
     this.isBoss = st.levelType === 'bigBoss';

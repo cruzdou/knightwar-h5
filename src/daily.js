@@ -415,7 +415,7 @@ class DailyScene {
     const ctx = this.ctx;
     const title = '每日签到 · 第 ' + Daily.rec.signDay + ' / 7 天';
     text(ctx, title, 14, 150, 19, '#ffe9a8', 'left', '#20160a');
-    text(ctx, Daily.canSign() ? '今天还没签到' : '今天已签到，明天再来', W - 16, 150, 13, '#8fa3b7', 'right');
+    text(ctx, Daily.canSign() ? '今天可签到，点下面「领取」' : '今天已签到，明天再来', W - 16, 150, 13, '#8fa3b7', 'right');
 
     const cols = 4, gap = 10;
     const cw = (W - 24 - gap * (cols - 1)) / cols, ch = 252;
@@ -477,6 +477,33 @@ class DailyScene {
       text(ctx, String(i + 1), cx, dotY, 13, signed ? '#7ce08a' : (isToday ? '#fff' : '#5c6f83'), 'center');
     }
     text(ctx, '第 7 天必得传说宝箱（宝石 + 材料 + 装备强化）', W / 2, py + 124, 12, '#ffcf5c', 'center');
+
+    // 7 天累计奖励 + 规则说明（补满下方空白区）
+    const sy = py + 162;
+    roundRect(ctx, 12, sy, W - 24, 226, 10, '#121b26', '#33475e', 1.5);
+    text(ctx, '7 天累计奖励', 28, sy + 26, 15, '#dfe9f5', 'left');
+    text(ctx, '全勤可拿', W - 28, sy + 26, 12, '#8fa3b7', 'right');
+    const chips = [
+      ['coin', '金币 +2600'],
+      ['gem', '宝石 +35'],
+      ['ring', '材料 ×3'],
+      ['chest4', '宝箱 ×2']
+    ];
+    chips.forEach((c, i) => {
+      const cx = 24 + i * 170, cy2 = sy + 44;
+      roundRect(ctx, cx, cy2, 156, 62, 9, '#0e1721', '#2a3644', 1);
+      const img = this.tex[c[0]];
+      if (img) {
+        const hh = 30, ww = hh * img.width / img.height;
+        ctx.drawImage(img, cx + 12, cy2 + 16, ww, hh);
+      }
+      text(ctx, c[1], cx + 12 + 34, cy2 + 24, 13, '#ffe9a8', 'left');
+      text(ctx, ['第 1 / 5 天', '第 3 / 6 天', '第 2 天', '第 4 / 7 天'][i], cx + 12 + 34, cy2 + 44, 11, '#7f93a8', 'left');
+    });
+    text(ctx, '• 每天登录领 1 份，跨天刷新；断签不会清掉已领的天数', 28, sy + 132, 12, '#9fb2c6', 'left');
+    text(ctx, '• 第 7 天领完自动回到第 1 天，重新开一轮', 28, sy + 154, 12, '#9fb2c6', 'left');
+    text(ctx, '• 每日任务与每日事件同样跨天重置，记得顺带领掉', 28, sy + 176, 12, '#9fb2c6', 'left');
+    text(ctx, '• 宝箱会开出装备 / 材料 / 宝石，重复装备自动转强化', 28, sy + 198, 12, '#9fb2c6', 'left');
   }
 
   // ---------- 每日任务 ----------

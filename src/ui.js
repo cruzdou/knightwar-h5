@@ -50,9 +50,11 @@ class PopupLayer {
     if (kind === 'share') return 372;
     if (kind === 'rate') return 352;
     if (kind === 'chest') {
-      const total = this.aggCount(this.current.data.res);
+      const res = this.current.data.res || {};
+      const total = this.aggCount(res);
       const n = Math.min(10, total);
-      return 168 + n * 34 + (total > 10 ? 26 : 0) + 78;
+      const tk = res.tickets ? Object.keys(res.tickets).filter(k => res.tickets[k] > 0).length : 0;
+      return 96 + n * 34 + (total > 10 ? 26 : 0) + (tk ? 30 : 0) + 96;
     }
     if (kind === 'stamina') return 360;
     if (kind === 'offline') return 400;
@@ -225,12 +227,21 @@ class PopupLayer {
       ctx.fillStyle = Chest.rarityColor(r.rarity);
       ctx.fill();
       text(ctx, Chest.rarityLabel(r.rarity), px + 58, ry + 14, 12, Chest.rarityColor(r.rarity), 'left');
-      text(ctx, r.label + (r.n > 1 ? ' x' + r.n : '').slice(0, 30), px + 116, ry + 14, 14, '#e8eef6', 'left');
+      const nm = r.label + (r.n > 1 ? (/x\d+$/.test(r.label) ? ' ×' + r.n + ' 份' : ' x' + r.n) : '');
+      text(ctx, nm.slice(0, 34), px + 116, ry + 14, 14, '#e8eef6', 'left');
     });
     const tk = Object.keys(res.tickets || {}).filter(k => res.tickets[k] > 0);
-    const tkY = py + 96 + rows.length * 34 + 12;
-    if (tk.length) text(ctx, 'Raid 票：' + tk.map(k => k + ' x' + res.tickets[k]).join('、'), px + pw / 2, tkY, 14, '#ffcf5c', 'center', '#000');
-    this.btn(ctx, px + pw / 2 - 110, py + ph - 72, 220, 48, '收下', 'close', '#2f7ad6', '#8fc4ff');
+    let cy = py + 96 + rows.length * 34;
+    if (tk.length) {
+      cy += 14;
+      text(ctx, 'Raid 票：' + tk.map(k => k + ' x' + res.tickets[k]).join('、'), px + pw / 2, cy, 14, '#ffcf5c', 'center', '#000');
+      cy += 22;
+    }
+    if (Array.from(map.keys()).length > 10) {
+      text(ctx, '另有更多奖励已直接入包', px + pw / 2, cy + 8, 12, '#8fa3b7', 'center');
+      cy += 20;
+    }
+    this.btn(ctx, px + pw / 2 - 110, cy + 16, 220, 48, '收下', 'close', '#2f7ad6', '#8fc4ff');
   }
 
   // ---------- 礼包详情（BONUS / STARTER PACK） ----------
@@ -280,11 +291,12 @@ class PopupLayer {
         a.claimed ? '#2f6b45' : (a.done ? '#e8b548' : 'rgba(255,255,255,0.10)'), a.done && !a.claimed ? 2 : 1);
       text(ctx, a.name, px + 36, ry + 18, 15, a.claimed ? '#8fb8a0' : '#e8eef6', 'left');
       text(ctx, a.desc, px + 36, ry + 36, 12, '#8fa3b7', 'left');
-      // 进度
-      const bw2 = 110, bx2 = px + pw - 176;
-      roundRect(ctx, bx2, ry + 10, bw2, 6, 3, '#1c2836');
-      roundRect(ctx, bx2, ry + 10, bw2 * Math.min(1, a.cur / a.need), 6, 3, a.done ? '#7ee08a' : '#3f95e0');
-      text(ctx, a.cur + '/' + a.need, bx2 + bw2 / 2, ry + 28, 11, '#8fa3b7', 'center');
+      // 进度：进度条在上，数字与宝石奖励并排在下，右侧留给按钮
+      const bw2 = 110, bx2 = px + pw - 210;
+      roundRect(ctx, bx2, ry + 11, bw2, 5, 2.5, '#1c2836');
+      roundRect(ctx, bx2, ry + 11, Math.max(2, bw2 * Math.min(1, a.cur / a.need)), 5, 2.5, a.done ? '#7ee08a' : '#3f95e0');
+      text(ctx, a.cur + '/' + a.need + ' · +' + a.gem + ' 宝石', bx2 + bw2, ry + 31, 11,
+        a.claimed ? '#6fd39a' : '#8fa3b7', 'right');
       // 奖励 / 状态
       if (a.claimed) {
         text(ctx, '已领', px + pw - 46, ry + 24, 13, '#6fd39a', 'right');
@@ -292,8 +304,6 @@ class PopupLayer {
         roundRect(ctx, px + pw - 82, ry + 10, 62, 28, 7, '#c58a1c', '#ffdf9a', 1);
         text(ctx, '领取', px + pw - 51, ry + 24, 13, '#fff', 'center', '#1a1206');
         this.hits.push({ x: px + pw - 82, y: ry + 10, w: 62, h: 28, act: 'achvClaim', id: a.id });
-      } else {
-        text(ctx, '+' + a.gem + ' 宝石', px + pw - 46, ry + 24, 12, '#6f8398', 'right');
       }
     });
     if (this.msg) text(ctx, this.msg, px + pw / 2, py + ph - 22, 13, '#ffcf5c', 'center');
