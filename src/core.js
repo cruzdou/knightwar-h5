@@ -450,14 +450,14 @@ function drawBottomNav(ctx, tex, active, hot) {
   const SK = { shop: 'sk_icon_shop.webp', craft: 'sk_icon_card.webp', fight: 'sk_icon_challenge.webp',
                hero: 'sk_icon_achv.webp', castle: 'sk_icon_home.webp' };
   NAV_TABS.forEach((t, i) => {
-    const cx = step * (i + 0.5), cy = y + 48;
+    const cx = step * (i + 0.5), cy = y + 44;
     const on = t.kind === active;
     if (on && !skinSlice(ctx, 'sk_tab_active1.webp', cx - 46, cy - 40, 92, 80, 24)) {
       roundRect(ctx, cx - 40, cy - 34, 80, 68, 12, 'rgba(255,214,120,0.28)', '#f0b93b', 2);
     }
     const img = skinGet(SK[t.kind]) || tex[t.img];
-    if (img) drawIconFit(ctx, img, cx, cy - 12, on ? 40 : 34, on ? 1 : 0.85);
-    text(ctx, t.lbl, cx, y + 78, 14, on ? '#ffe6a8' : '#c68b4a', 'center', on ? '#4a2108' : undefined);
+    if (img) drawIconFit(ctx, img, cx, cy - 10, on ? 44 : 38, on ? 1 : 0.85);
+    text(ctx, t.lbl, cx, y + 74, 14, on ? '#ffe6a8' : '#c68b4a', 'center', on ? '#4a2108' : undefined);
     if (hot && !on) hot.push({ x: cx - 72, y, w: 144, h: 100, act: 'nav', kind: t.kind });
   });
 }

@@ -32,7 +32,8 @@ function skinGet(file) {
 const SKIN_PRELOAD = [
   'sk_screen_bg.webp', 'sk_status_bg.webp', 'sk_top_title.webp', 'sk_bottom_hud.webp',
   'sk_castle.webp', 'sk_hp_bg.webp', 'sk_hp_fg.webp', 'sk_exp_bg.webp', 'sk_exp_fg.webp',
-  'sk_arrow.webp', 'sk_coin_icon.webp', 'sk_gem_icon.webp', 'sk_btn_pause.webp'
+  'sk_arrow.webp', 'sk_coin_icon.webp', 'sk_gem_icon.webp', 'sk_btn_pause.webp',
+  'sk_tab_active1.webp', 'sk_tab_inactive1.webp', 'sk_card_bg.webp', 'sk_card_slot.webp'
 ];
 function skinPreload() { SKIN_PRELOAD.forEach(f => skinLoad(f)); }
 
