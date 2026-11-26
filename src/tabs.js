@@ -175,7 +175,9 @@ class TabScene {
 
     this.hot.length = 0;
     drawTopBar(ctx, this.tex, Player, this.hot);
-    this['draw_' + this.kind]();
+    const drawKind = this['draw_' + this.kind];
+    if (typeof drawKind === 'function') drawKind.call(this);
+    else { this.kind = 'shop'; this.draw_shop(); }
     drawBottomNav(ctx, this.tex, this.kind, this.hot);
     drawToast(ctx, this.toast, this.toastT);
   }
