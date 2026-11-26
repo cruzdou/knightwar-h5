@@ -65,37 +65,36 @@ class BattleScene {
 
     // 贴图并行加载（每张独立兜底，慢网络下不会互相拖死）
     const li = n => loadImage(n).catch(() => null);
-    const [bgfield, bgZones, castle, castle2, arrow, gold, gem, sword, magic,
-           skillIcons, skillBorder, pause, speed, hpbar, btmbar,
-           fxRing, fxBolt, fxSwirl, fxGlow, fxStar, fxDust, fxSmoke,
-           win, lose, star, splash, play] = await Promise.all([
-      li('bg1.png'),
-      Promise.all([li('bg1.png'), li('bg2.png'), li('bg3.png'), li('bg4.png'), li('bg5.png')]),
-      li('castle_1.png'), li('castle_1_1.png'), li('bullet_arrow.png'),
-      li('UI_cur_coin.png'), li('icon_gem.png'), li('UI-btn-fight.png'), li('btn_icon_magic.png'),
-      Promise.all([li('Skill_H01_1.png'), li('Skill_H01_2.png'), li('Skill_H01_3.png')]),
-      li('Skill_border_active.png'), li('btn_icon_player_pause.png'), li('btn_icon_boot_speed.png'),
-      li('HP_bar_border.png'), li('HUD_btm_bar.png'),
-      li('ground_light03.png'), li('ground_earth03.png'), li('ground_storm.png'),
-      li('fx_glow1.png'), li('fx_star1.png'), li('fx_dust1.png'), li('fx_smoke_01_d.png'),
-      li('victory.png'), li('defeatbanner.png'), li('result_star.png'),
-      li('BG_Splash.png'), li('Play_btn.png')
-    ]);
+    // 先用皮肤图占位，原包贴图放到后台补（减少首屏请求阻塞，公网冷启动更快）
     this.tex = {
-      bgfield, bgZones, castle, castle2, arrow, gold, gem, sword, magic,
-      skillIcons, skillBorder, pause, speed, hpbar, btmbar,
-      fxRing, fxBolt, fxSwirl, fxGlow, fxStar, fxDust, fxSmoke,
-      win, lose, star, splash, play
+      arrow: skinGet('sk_arrow.webp'), gold: skinGet('sk_coin_icon.webp'),
+      gem: skinGet('sk_gem_icon.webp'), pause: skinGet('sk_btn_pause.webp'),
+      arrowFire: skinGet('sk_arrow_fire.webp'), arrowIce: skinGet('sk_arrow_ice.webp'),
+      fireball: skinGet('sk_fireball.webp')
     };
-    // 卡通皮肤覆盖：箭矢 / 金币 / 宝石 / 暂停键（有图就用新图）
-    const skinImg = n => skinGet(n);
-    if (skinImg('sk_arrow.webp')) this.tex.arrow = skinImg('sk_arrow.webp');
-    if (skinImg('sk_coin_icon.webp')) this.tex.gold = skinImg('sk_coin_icon.webp');
-    if (skinImg('sk_gem_icon.webp')) this.tex.gem = skinImg('sk_gem_icon.webp');
-    if (skinImg('sk_btn_pause.webp')) this.tex.pause = skinImg('sk_btn_pause.webp');
-    if (skinImg('sk_arrow_fire.webp')) this.tex.arrowFire = skinImg('sk_arrow_fire.webp');
-    if (skinImg('sk_arrow_ice.webp')) this.tex.arrowIce = skinImg('sk_arrow_ice.webp');
-    if (skinImg('sk_fireball.webp')) this.tex.fireball = skinImg('sk_fireball.webp');
+    const li2 = n => loadImage(n).catch(() => null);
+    this._texReady = Promise.all([
+      li2('bg1.png'),
+      Promise.all([li2('bg1.png'), li2('bg2.png'), li2('bg3.png'), li2('bg4.png'), li2('bg5.png')]),
+      li2('castle_1.png'), li2('castle_1_1.png'), li2('bullet_arrow.png'),
+      li2('UI_cur_coin.png'), li2('icon_gem.png'), li2('UI-btn-fight.png'), li2('btn_icon_magic.png'),
+      Promise.all([li2('Skill_H01_1.png'), li2('Skill_H01_2.png'), li2('Skill_H01_3.png')]),
+      li2('Skill_border_active.png'), li2('btn_icon_player_pause.png'), li2('btn_icon_boot_speed.png'),
+      li2('HP_bar_border.png'), li2('HUD_btm_bar.png'),
+      li2('ground_light03.png'), li2('ground_earth03.png'), li2('ground_storm.png'),
+      li2('fx_glow1.png'), li2('fx_star1.png'), li2('fx_dust1.png'), li2('fx_smoke_01_d.png'),
+      li2('victory.png'), li2('defeatbanner.png'), li2('result_star.png'),
+      li2('BG_Splash.png'), li2('Play_btn.png')
+    ]).then(([bgfield, bgZones, castle, castle2, arrow, gold, gem, sword, magic,
+              skillIcons, skillBorder, pause, speed, hpbar, btmbar,
+              fxRing, fxBolt, fxSwirl, fxGlow, fxStar, fxDust, fxSmoke,
+              win, lose, star, splash, play]) => {
+      Object.assign(this.tex, {
+        bgfield, bgZones, castle, castle2, sword, magic,
+        skillIcons, skillBorder, speed, hpbar, btmbar,
+        fxRing, fxBolt, fxSwirl, fxGlow, fxStar, fxDust, fxSmoke
+      });
+    }).catch(() => {});
 
     this.bg = this.buildBackground();
     this.setHero(Player.charID);
