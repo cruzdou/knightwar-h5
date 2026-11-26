@@ -397,7 +397,7 @@ function lerp(a, b, t) { return a + (b - a) * t; }
 
 // 按目标高度等比绘制图标（不同素材尺寸差异大时用它，避免一张图糊满屏）
 function drawIconFit(ctx, img, cx, cy, targetH, alpha) {
-  if (!img || !img.width || !img.naturalWidth) return;
+  if (!img || !img.width) return;
   const h = targetH, w = targetH * img.width / img.height;
   ctx.save();
   if (alpha !== undefined) ctx.globalAlpha = alpha;

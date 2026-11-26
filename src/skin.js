@@ -9,15 +9,54 @@ const SKIN_DIR = 'assets/skin/';
 const skinCache = {};      // 文件 → {img} 或 null
 const skinPending = {};
 
-function skinLoad(file) {
-  if (skinCache[file] !== undefined) return skinCache[file];
-  if (skinPending[file]) return skinPending[file];
-  skinPending[file] = new Promise(res => {
+// ---------- 图集：173 张单图先合并成 1 张，公网只发一次请求 ----------
+// 命中图集的图在首次请求时裁剪到独立 canvas，后续完全同步可用（drawImage 支持 canvas）
+const ATLAS = { started: false, ready: false, img: null, map: {}, promise: null };
+
+function atlasStart() {
+  if (ATLAS.started) return ATLAS.promise;
+  ATLAS.started = true;
+  ATLAS.promise = fetch(SKIN_DIR + 'atlas.json')
+    .then(r => r.json())
+    .then(j => new Promise(res => {
+      ATLAS.map = (j && j.files) || {};
+      const im = new Image();
+      const timer = setTimeout(() => { ATLAS.ready = false; res(null); }, 15000);
+      im.onload = () => { clearTimeout(timer); ATLAS.img = im; ATLAS.ready = true; res(im); };
+      im.onerror = () => { clearTimeout(timer); ATLAS.ready = false; res(null); };
+      im.src = SKIN_DIR + 'atlas.webp';
+    }))
+    .catch(() => { ATLAS.ready = false; return null; });
+  return ATLAS.promise;
+}
+
+// 单图兜底（图集缺失 / 未收录的大图）
+function skinLoadSingle(file) {
+  return new Promise(res => {
     const im = new Image();
     const timer = setTimeout(() => { skinCache[file] = null; res(null); }, 10000);
     im.onload = () => { clearTimeout(timer); skinCache[file] = im; res(im); };
     im.onerror = () => { clearTimeout(timer); skinCache[file] = null; res(null); };
     im.src = SKIN_DIR + file;
+  });
+}
+
+function skinCrop(file) {
+  const r = ATLAS.map[file];
+  if (!ATLAS.ready || !r) return null;
+  const cv = document.createElement('canvas');
+  cv.width = r.w; cv.height = r.h;
+  cv.getContext('2d').drawImage(ATLAS.img, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+  return cv;
+}
+
+function skinLoad(file) {
+  if (skinCache[file] !== undefined) return Promise.resolve(skinCache[file]);
+  if (skinPending[file]) return skinPending[file];
+  skinPending[file] = atlasStart().then(() => {
+    const cv = skinCrop(file);
+    if (cv) { skinCache[file] = cv; return cv; }
+    return skinLoadSingle(file);
   });
   return skinPending[file];
 }
@@ -25,7 +64,7 @@ function skinLoad(file) {
 function skinGet(file) {
   const v = skinCache[file];
   if (v === undefined) skinLoad(file);   // 首次用到再拉，减少首屏并发
-  return v && v.width && v.naturalWidth ? v : null;
+  return v && v.width ? v : null;
 }
 
 // 预加载一批（UI 主界面 + 战斗常用）
