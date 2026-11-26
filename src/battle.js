@@ -156,7 +156,7 @@ class BattleScene {
       fog.addColorStop(0, 'rgba(10,40,20,0.28)');
       fog.addColorStop(1, 'rgba(10,40,20,0)');
       c.fillStyle = fog; c.fillRect(0, 0, W, 300);
-    } else {
+    } else if (this.tex && this.tex.bgfield) {
       // 兜底：旧战场图
       const bh = WALL_Y + 30;
       const scale = Math.max(W / this.tex.bgfield.width, bh / this.tex.bgfield.height);
