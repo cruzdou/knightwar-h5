@@ -33,6 +33,7 @@ class BattleScene {
     this.matPops = [];
     this.matDrops = {};
     this.fx = [];
+    this.rain = [];      // 箭雨延迟落点队列（先瞄准再落火，跟随敌人）
     this.shake = 0;
   }
 
@@ -552,6 +553,18 @@ class BattleScene {
     for (const m of this.matPops) m.t += d;
     this.matPops = this.matPops.filter(m => m.t < 1.2);
 
+    // 箭雨落点：到点再炸，跟随当前敌人位置
+    if (this.rain && this.rain.length) {
+      for (const r of this.rain) {
+        r.t -= d;
+        if (r.t <= 0 && !r.done) {
+          r.done = true;
+          this.spawnFxSheet('fx_fire', r.x, r.y, 120, 0.7);
+        }
+      }
+      this.rain = this.rain.filter(r => !r.done);
+    }
+
     for (const f of this.fx) { f.t += d; f.life -= d; }
     this.fx = this.fx.filter(f => f.life > 0);
 
@@ -721,6 +734,17 @@ class BattleScene {
     const barY = 10, barH = 58, barX = 10, barW = W - 20;
     if (hasSkin) {
       skinPanel(ctx, barX, barY, barW, barH, { file: 'sk_status_bg.webp', m: 26 });
+      // 木纹偏暗：叠一层暖白提亮，保证深色描边文字依然可读
+      const hl = ctx.createLinearGradient(0, barY, 0, barY + barH);
+      hl.addColorStop(0, 'rgba(255,238,200,0.20)');
+      hl.addColorStop(0.55, 'rgba(255,238,200,0.06)');
+      hl.addColorStop(1, 'rgba(60,30,10,0.10)');
+      ctx.save();
+      ctx.beginPath();
+      roundRect(ctx, barX + 4, barY + 3, barW - 8, barH - 6, 10, null, null, 0);
+      ctx.clip();
+      ctx.fillStyle = hl; ctx.fillRect(barX, barY, barW, barH);
+      ctx.restore();
     } else {
       roundRect(ctx, barX, barY, barW, barH, 12, '#2a2013', '#7a4d22', 3);
     }
@@ -760,7 +784,12 @@ class BattleScene {
 
     // ===== 底部操作栏 =====
     const byY = H - 100;
-    if (!skinSlice(ctx, 'sk_bot_bar.webp', 0, byY, W, 100, 70)) {
+    if (skinSlice(ctx, 'sk_bot_bar.webp', 0, byY, W, 100, 70)) {
+      const lb = ctx.createLinearGradient(0, byY, 0, byY + 100);
+      lb.addColorStop(0, 'rgba(255,240,205,0.18)');
+      lb.addColorStop(1, 'rgba(255,240,205,0.02)');
+      ctx.fillStyle = lb; ctx.fillRect(0, byY, W, 100);
+    } else {
       roundRect(ctx, 0, byY, W, 100, 0, '#3a2716');
       ctx.fillStyle = 'rgba(255,214,140,0.6)';
       ctx.fillRect(0, byY, W, 4);
@@ -1003,8 +1032,15 @@ class BattleScene {
         this.floats.push({ x: e.x, y: e.y - 40, v: Math.round(dmg), life: 0.8 });
         if (e.hp <= 0) this.killEnemy(e);
       }
+      // 落点跟随：按「离城墙最近的 6 只」依次点燃，不足 6 只时补到城墙前
+      const sorted = alive.slice().sort((a, b) => b.y - a.y);
+      const targets = [];
       for (let k = 0; k < 6; k++) {
-        this.spawnFxSheet('fx_fire', 120 + k * 96, 300 + (k % 3) * 90, 120, 0.7);
+        const e = sorted[k];
+        targets.push(e ? { x: e.x + (k % 2 ? 16 : -16), y: e.y - 34 } : { x: 320 + (k - 2) * 70, y: STOP_Y - 70 });
+      }
+      for (let k = 0; k < targets.length; k++) {
+        this.rain.push({ x: Math.max(40, Math.min(W - 40, targets[k].x)), y: Math.max(200, Math.min(STOP_Y - 30, targets[k].y)), t: k * 0.09 });
       }
       this.fx.push({ img: this.tex.fxSwirl, x: W / 2, y: 520, r: 520, t: 0, life: 0.6, max: 0.6 });
     }
