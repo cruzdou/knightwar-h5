@@ -620,7 +620,7 @@ class BattleScene {
   // ---------- 绘制 ----------
   draw() {
     try { this._draw(); } catch (e) {
-      if (!this._drawErr) { this._drawErr = 1; console.warn('[battle.draw]', e && e.message); }
+      if (!this._drawErr) { this._drawErr = 1; console.error('[battle.draw] ' + (e && e.stack || e)); }
     }
   }
 
