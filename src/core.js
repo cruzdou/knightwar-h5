@@ -60,12 +60,19 @@ function loadImage(name) {
   imgCache[name] = new Promise(res => {
     const im = new Image();
     let done = false;
-    const timer = setTimeout(() => {
+    let retried = false;
+    const arm = (ms) => setTimeout(() => {
       if (done) return;
+      if (!retried) {
+        retried = true;
+        console.warn('图片加载超时，重试一次: ' + name);
+        try { const im2 = new Image(); im2.onload = () => { if (done) return; done = true; res(im2); }; im2.src = im.src; arm(28000); return; } catch (e) { /* fallthrough */ }
+      }
       done = true;
       console.warn('图片加载超时，用透明占位: ' + name);
       res(BLANK_IMG);
-    }, IMG_TIMEOUT);
+    }, ms);
+    const timer = arm(IMG_TIMEOUT);
     let triedFallback = false;
     im.onload = () => { if (done) return; done = true; clearTimeout(timer); res(im); };
     // 抖音分包：资源可能还没下载，先确保分包就绪再用真实路径

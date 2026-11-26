@@ -44,7 +44,7 @@ function loadSheet(unit, anim) {
   if (!meta) return Promise.resolve(null);
   sheetCache[key] = new Promise(res => {
     const im = new Image();
-    const timer = setTimeout(() => { console.warn('动画条带超时: ' + meta.file); res(null); }, 12000);
+    const timer = setTimeout(() => { console.warn('动画条带超时: ' + meta.file); res(null); }, 24000);
     im.onload = () => {
       clearTimeout(timer);
       const obj = { img: im, w: ANIM_INDEX[unit].w, h: ANIM_INDEX[unit].h, frames: meta.frames };
