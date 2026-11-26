@@ -50,11 +50,11 @@ class LevelSelectScene {
       green: 'ribbon_bg_green.png',
       lock: 'stage_frame_icon_lock.png'
     };
-    // 并行加载首屏贴图（串行时线上每张都要等 CDN，首屏会很慢）
-    await Promise.all(Object.entries(names).map(async ([k, f]) => {
-      try { t[k] = await loadImage(f); } catch (e) { t[k] = null; }
-    }));
+    // 先上屏，原包贴图后台补（皮肤图已覆盖首屏主要元素，公网冷启动明显更快）
     this.tex = t;
+    this._texReady = Promise.all(Object.entries(names).map(async ([k, f]) => {
+      try { t[k] = await loadImage(f); } catch (e) { t[k] = null; }
+    })).catch(() => {});
     this.scene = 'select';
   }
 
