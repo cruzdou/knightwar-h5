@@ -36,7 +36,7 @@ class PlayerState {
     this.heroEvo = {};
     // 盟友：{ allyID: { lv, evo } }（取 gameAllies.json）；squad 为上场顺序（最多 3）
     this.allies = {};
-    this.squad = [1];
+    this.squad = [1, 2, 3];
     // 宝箱保底计数：{ 'boxID:slot': {m,h,s} }
     this.chestPity = {};
     // Raid 票（TreasureBox.json 的 raidTicketXxx 掉落）
@@ -99,7 +99,7 @@ class PlayerState {
     } catch (e) { /* 存档损坏就用默认值 */ }
     // 新档默认送 1 号盟友（Elf Archer），否则战场上一个帮手都没有
     if (!Object.keys(this.allies).length) this.allies = { 1: { lv: 1, evo: 1 } };
-    if (!Array.isArray(this.squad) || !this.squad.length) this.squad = [1];
+    if (!Array.isArray(this.squad) || !this.squad.length) this.squad = [1, 2, 3];
     if (this._fresh) this.tutorialStep = 1;   // 新档自动进引导第 1 步
   }
 

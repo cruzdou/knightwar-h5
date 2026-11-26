@@ -331,7 +331,7 @@ class BattleScene {
     // 上阵盟友（最多 3 名）：站在英雄两侧/后方，自动向最靠墙的敌人射击
     // 数值取自 gameAllies.json 该阶该级的伤害；盟友不吃伤害（简化：不会被打死）
     this.allies = [];
-    const allySlots = [{ x: 492, y: 1148 }, { x: 604, y: 1142 }, { x: 246, y: 1146 }];
+    const allySlots = [{ x: 120, y: 1088 }, { x: 460, y: 1086 }, { x: 540, y: 1084 }];
     (Player.squad || []).slice(0, 3).forEach((id, i) => {
       const info = this.ally_infos && this.ally_infos[id];
       const st = this.g.allyStats ? this.g.allyStats(id) : null;
