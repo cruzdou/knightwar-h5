@@ -24,28 +24,15 @@ function skinLoad(file) {
 
 function skinGet(file) {
   const v = skinCache[file];
+  if (v === undefined) skinLoad(file);   // 首次用到再拉，减少首屏并发
   return v && v.width && v.naturalWidth ? v : null;
 }
 
 // 预加载一批（UI 主界面 + 战斗常用）
 const SKIN_PRELOAD = [
-  'sk_panel_box.webp', 'sk_panel_light.webp', 'sk_btn_green.webp', 'sk_btn_green_p.webp',
-  'sk_btn_blue.webp', 'sk_btn_blue_p.webp', 'sk_btn_orange.webp', 'sk_btn_orange_p.webp',
-  'sk_btn_close.webp', 'sk_btn_close_p.webp', 'sk_screen_bg.webp', 'sk_status_bg.webp',
-  'sk_top_title.webp', 'sk_stage_bar.webp', 'sk_gem_bar.webp', 'sk_bot_bar.webp',
-  'sk_home_slot.webp', 'sk_card_slot.webp', 'sk_card_bg.webp', 'sk_shop_box1.webp',
-  'sk_shop_box2.webp', 'sk_shop_blue.webp', 'sk_shop_blue_p.webp', 'sk_shop_green.webp',
-  'sk_shop_green_p.webp', 'sk_small_green.webp', 'sk_small_green_p.webp',
-  'sk_btn_play.webp', 'sk_btn_play_p.webp', 'sk_star_empty.webp', 'sk_star_filled.webp',
-  'sk_icon_home.webp', 'sk_icon_shop.webp', 'sk_icon_challenge.webp', 'sk_icon_achv.webp',
-  'sk_icon_card.webp', 'sk_gem_icon.webp', 'sk_coin_icon.webp',
-  'sk_hp_bg.webp', 'sk_hp_fg.webp', 'sk_exp_bg.webp', 'sk_exp_fg.webp',
-  'sk_bottom_hud.webp', 'sk_castle.webp', 'sk_btn_pause.webp', 'sk_btn_pause_p.webp',
-  'sk_achv_bar_bg.webp', 'sk_achv_bar_fg.webp', 'sk_achv_done.webp', 'sk_achv_undone.webp',
-  'sk_upgrade_box.webp', 'sk_paused_box.webp', 'sk_bonus_box.webp', 'sk_booster_box.webp',
-  'sk_lose_box.webp', 'sk_wind_box.webp', 'sk_arrow.webp', 'sk_arrow_fire.webp',
-  'sk_arrow_ice.webp', 'sk_fireball.webp', 'sk_tab_active1.webp', 'sk_tab_inactive1.webp',
-  'sk_screen_bg.webp'
+  'sk_screen_bg.webp', 'sk_status_bg.webp', 'sk_top_title.webp', 'sk_bottom_hud.webp',
+  'sk_castle.webp', 'sk_hp_bg.webp', 'sk_hp_fg.webp', 'sk_exp_bg.webp', 'sk_exp_fg.webp',
+  'sk_arrow.webp', 'sk_coin_icon.webp', 'sk_gem_icon.webp', 'sk_btn_pause.webp'
 ];
 function skinPreload() { SKIN_PRELOAD.forEach(f => skinLoad(f)); }
 
