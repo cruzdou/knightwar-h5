@@ -445,8 +445,8 @@ function drawBottomNav(ctx, tex, active, hot) {
       roundRect(ctx, cx - 40, cy - 34, 80, 68, 12, 'rgba(255,214,120,0.28)', '#f0b93b', 2);
     }
     const img = skinGet(SK[t.kind]) || tex[t.img];
-    if (img) drawIconFit(ctx, img, cx, cy - 8, on ? 44 : 38, on ? 1 : 0.85);
-    text(ctx, t.lbl, cx, y + 82, 14, on ? '#ffe6a8' : '#8a6a3c', 'center', on ? '#4a2108' : undefined);
+    if (img) drawIconFit(ctx, img, cx, cy - 12, on ? 40 : 34, on ? 1 : 0.85);
+    text(ctx, t.lbl, cx, y + 78, 14, on ? '#ffe6a8' : '#c68b4a', 'center', on ? '#4a2108' : undefined);
     if (hot && !on) hot.push({ x: cx - 72, y, w: 144, h: 100, act: 'nav', kind: t.kind });
   });
 }

@@ -413,7 +413,7 @@ class BattleScene {
     }
     // 死亡特效：尘土 + 星点
     const cy = e.y - e.info.h * e.scale * 0.45;
-    this.fx.push({ img: this.tex.fxDust, x: e.x, y: cy, r: 96, t: 0, life: 0.55, max: 0.55, rot: 0 });
+    this.spawnFxSheet('fx_hit1', e.x, cy, 104, 0.62);
     this.fx.push({ img: this.tex.fxStar, x: e.x, y: cy, r: 60, t: 0, life: 0.4, max: 0.4, rot: 0.6 });
   }
 
@@ -619,6 +619,18 @@ class BattleScene {
     // 技能特效（垫在角色下面）
     for (const f of this.fx) {
       const p = 1 - f.life / f.max;
+      if (f.sheetUnit) {
+        const sh = sheetCache[f.sheetUnit + '|loop'];
+        const obj = sh && sh.__v;
+        if (!obj) continue;
+        const idx = Math.min(obj.frames - 1, Math.floor(f.t * (obj.fps || 15)));
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, f.life / f.max);
+        const dw = f.r, dh = dw * obj.h / obj.w;
+        ctx.drawImage(obj.img, idx * obj.w, 0, obj.w, obj.h, f.x - dw / 2, f.y - dh / 2, dw, dh);
+        ctx.restore();
+        continue;
+      }
       ctx.save();
       ctx.globalAlpha = Math.max(0, f.life / f.max) * 0.9;
       ctx.translate(f.x, f.y);
@@ -713,8 +725,8 @@ class BattleScene {
 
     // 金币（右侧）
     const coinImg = this.tex.gold;
-    if (coinImg && coinImg.width > 1) drawIcon(ctx, coinImg, barX + barW - 34, barY + barH / 2, 0.5);
-    text(ctx, String(this.coins), barX + barW - 62, barY + barH / 2, 24, '#fff3c4', 'right', '#5a3410');
+    if (coinImg && coinImg.width > 1) drawIconFit(ctx, coinImg, barX + barW - 26, barY + barH / 2, 34);
+    text(ctx, String(this.coins), barX + barW - 48, barY + barH / 2, 22, '#3a2208', 'right');
 
     // ===== 四段推进小条 =====
     const pipY = barY + barH + 6, pipH = 10;
@@ -764,7 +776,7 @@ class BattleScene {
       } else {
         roundRect(ctx, sx, sy, ss, ss, 10, 'rgba(30,22,12,0.88)', ready ? '#79a24a' : '#3c4a38', 2);
       }
-      const skIco = skinGet('sk_booster' + (i + 1) + '.webp') || this.tex.skillIcons[i];
+      const skIco = skinGet('sk_booster' + (i + 1) + '.webp') || (this.tex.skillIcons || [])[i];
       drawIcon(ctx, skIco, sx + ss / 2, sy + ss / 2 - 6, 0.5);
       if (!ready) text(ctx, String(Math.ceil(sk.t)), sx + ss / 2, sy + ss / 2, 22, '#ffd9a0', 'center', '#20140a');
       text(ctx, sk.name.length > 10 ? sk.name.slice(0, 10) : sk.name, sx + ss / 2, sy + ss - 10, 10, '#3a2208', 'center');
@@ -928,6 +940,13 @@ class BattleScene {
     }
   }
 
+
+  // 逐帧特效（Castle Guards 的 fx_fire / fx_heal / fx_hit1 / fx_hit2）
+  spawnFxSheet(unit, x, y, size, life) {
+    loadSheet(unit, 'loop');
+    this.fx.push({ sheetUnit: unit, x, y, r: size, t: 0, life, max: life });
+  }
+
   // 技能 0：穿透射击（一条竖线上的敌人全部受击并被击退）
   // 技能 1：攻速增益（6 秒内射速 ×1.6）
   // 技能 2：范围箭雨（城墙前一片区域集体受击）
@@ -948,9 +967,10 @@ class BattleScene {
         this.floats.push({ x: e.x, y: e.y - 40, v: Math.round(dmg), life: 0.8, crit: true });
         if (e.hp <= 0) this.killEnemy(e);
       }
-      this.fx.push({ img: this.tex.fxBolt, x: HERO_X, y: HERO_FEET - HERO_H * 0.55, r: 420, t: 0, life: 0.42, max: 0.42 });
+      this.spawnFxSheet('fx_hit2', HERO_X, HERO_FEET - HERO_H * 0.62, 300, 0.5);
     } else if (i === 1) {
       this.rageT = 6;
+      this.spawnFxSheet('fx_heal', HERO_X, HERO_FEET - HERO_H * 0.5, 210, 1.1);
       this.fx.push({ img: this.tex.fxRing, x: HERO_X, y: HERO_FEET - HERO_H * 0.5, r: 260, t: 0, life: 0.6, max: 0.6 });
       this.fx.push({ img: this.tex.fxGlow, x: HERO_X, y: HERO_FEET - HERO_H * 0.75, r: 90, t: 0, life: 0.9, max: 0.9 });
     } else {
@@ -961,10 +981,7 @@ class BattleScene {
         if (e.hp <= 0) this.killEnemy(e);
       }
       for (let k = 0; k < 6; k++) {
-        this.fx.push({
-          img: this.tex.fxStar, x: 120 + k * 96, y: 260 + (k % 3) * 90,
-          r: 60, t: 0, life: 0.55, max: 0.55, rot: Math.random() * 3
-        });
+        this.spawnFxSheet('fx_fire', 120 + k * 96, 300 + (k % 3) * 90, 120, 0.7);
       }
       this.fx.push({ img: this.tex.fxSwirl, x: W / 2, y: 520, r: 520, t: 0, life: 0.6, max: 0.6 });
     }

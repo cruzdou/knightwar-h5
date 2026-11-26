@@ -192,9 +192,18 @@ class TabScene {
 
   title(txt, sub) {
     const ctx = this.ctx, x = 12, y = 84;
-    roundRect(ctx, x, y, W - 24, 52, 9, '#3f2d19', '#6d5a2c', 2);
-    text(ctx, txt, x + 16, y + 26, 20, '#ffe9a8', 'left', '#3a2408');
-    if (sub) text(ctx, sub, W - 28, y + 26, 13, '#d9b98a', 'right');
+    const rb = skinGet('sk_top_title.webp');
+    if (rb) {
+      const ww = 214, hh = ww * rb.height / rb.width;   // 木牌缎带
+      const rx = x + (W - 24 - ww) / 2, ry = y + 2;
+      ctx.drawImage(rb, rx, ry, ww, hh);
+      text(ctx, txt, rx + ww / 2, ry + hh / 2, 17, '#fff8e1', 'center', '#7a3204');
+      if (sub) text(ctx, sub, W - 26, y + 54, 11, '#e8cfa0', 'right', '#2b1d10');
+    } else {
+      roundRect(ctx, x, y, W - 24, 52, 9, '#3f2d19', '#6d5a2c', 2);
+      text(ctx, txt, x + 18, y + 26, 20, '#ffe9a8', 'left', '#3a2408');
+      if (sub) text(ctx, sub, W - 28, y + 26, 13, '#d9b98a', 'right');
+    }
   }
 
   // ================= 商店 =================
@@ -220,45 +229,44 @@ class TabScene {
     products.forEach((p, i) => {
       const x = x0 + (i % 2) * (cw + gap);
       const y = y0 + Math.floor(i / 2) * (ch + gap);
-      roundRect(ctx, x, y, cw, ch, 10, '#3f2d19', '#9a6630', 2);
-      const lg = ctx.createLinearGradient(x, y, x, y + ch);
-      lg.addColorStop(0, 'rgba(255,210,120,0.10)');
-      lg.addColorStop(1, 'rgba(0,0,0,0)');
-      roundRect(ctx, x + 1, y + 1, cw - 2, ch - 2, 9, lg);
+      if (!skinSlice(ctx, i % 2 ? 'sk_shop_box2.webp' : 'sk_shop_box1.webp', x, y, cw, ch, 40)) {
+        roundRect(ctx, x, y, cw, ch, 10, '#3f2d19', '#9a6630', 2);
+      }
 
       const img = this.tex[p.art];
       if (img) {
-        const hh = 92, ww = Math.min(cw - 60, hh * img.width / img.height);
-        ctx.drawImage(img, x + (cw - ww) / 2, y + 8, ww, hh);
+        const hh = 84, ww = Math.min(cw - 60, hh * img.width / img.height);
+        ctx.drawImage(img, x + (cw - ww) / 2, y + 58, ww, hh);
       }
       const top = Chest.topRarity(p.box);
       const topC = Chest.rarityColor(
         top === '传说' ? 'super' : top === '史诗' ? 'hard' : top === '稀有' ? 'medium' : 'normal');
-      roundRect(ctx, x + 10, y + 10, 74, 20, 5, 'rgba(0,0,0,0.55)', topC, 1);
-      text(ctx, '可出' + top, x + 47, y + 20, 11, topC, 'center');
+      roundRect(ctx, x + cw - 84, y + 12, 74, 20, 5, 'rgba(0,0,0,0.45)', topC, 1);
+      text(ctx, '可出' + top, x + cw - 47, y + 22, 11, '#fff3c4', 'center');
 
-      text(ctx, p.name, x + cw / 2, y + 120, 16, '#fff6dd', 'center', '#2b1d10');
+      text(ctx, p.name, x + cw / 2, y + 36, 15, '#ffffff', 'center', '#3a2208');
       // 内容小字：装备箱 3 槽 / 盟友箱是盟友卡
       const isAlly = p.id === 10 || p.id === 11;
-      text(ctx, Chest.desc(p.id), x + cw / 2, y + 142, 12, '#d9b98a', 'center');
+      text(ctx, Chest.desc(p.id), x + cw / 2, y + 156, 12, '#7a4a20', 'center');
 
       const pr = Chest.price(p.box, 1);
       const ic = this.tex[pr.cur === 'gem' ? 'gem' : 'coin'];
-      drawIcon(ctx, ic, x + cw / 2 - 30, y + 166, 0.5);
-      text(ctx, String(pr.v), x + cw / 2 - 12, y + 166, 18, '#ffe9a8', 'left', '#3a2408');
+      drawIcon(ctx, ic, x + cw / 2 - 34, y + 182, 0.36);
+      text(ctx, String(pr.v), x + cw / 2 - 16, y + 182, 18, '#3a2208', 'left');
       // 10 连小按钮（价格取 x10）
       const pr10 = Chest.price(p.box, 10);
       if (pr10.v > 0) {
-        const bw10 = 78, bh10 = 26, bx10 = x + cw - bw10 - 8, by10 = y + 154;
-        roundRect(ctx, bx10, by10, bw10, bh10, 6, '#482f13', '#c68b4a', 1);
-        text(ctx, '10× ' + pr10.v + (pr10.cur === 'coin' ? '金' : '宝石'), bx10 + bw10 / 2, by10 + bh10 / 2, 11, '#ffe6a8', 'center');
+        const bw10 = 82, bh10 = 24, bx10 = x + 10, by10 = y + 12;
+        if (!skinHBar(ctx, 'sk_gem_bar.webp', bx10, by10, bw10, bh10, 0.5)) roundRect(ctx, bx10, by10, bw10, bh10, 6, '#482f13', '#c68b4a', 1);
+        text(ctx, '10× ' + pr10.v + (pr10.cur === 'coin' ? '金' : '宝石'), bx10 + bw10 / 2, by10 + bh10 / 2, 11, '#fff3c4', 'center', '#4a2408');
         this.hot.push({ x: bx10, y: by10, w: bw10, h: bh10, act: 'buyChest', id: p.id, n: 10 });
       }
 
-      const bw = cw - 40, bh = 42, bx = x + 20, by = y + ch - 50;
-      if (this.tex.btnY) ctx.drawImage(this.tex.btnY, bx, by, bw, bh);
-      else roundRect(ctx, bx, by, bw, bh, 8, '#e0a52a');
-      text(ctx, 'OPEN', bx + bw / 2, by + bh / 2, 17, '#fff', 'center', '#1a1206');
+      const bw = cw - 44, bh = 46, bx = x + 22, by = y + ch - 62;
+      if (!skinButton(ctx, bx, by, bw, bh, 'orange', false, 'OPEN', { size: 17 })) {
+        roundRect(ctx, bx, by, bw, bh, 8, '#e0a52a');
+        text(ctx, 'OPEN', bx + bw / 2, by + bh / 2, 17, '#fff', 'center', '#1a1206');
+      }
       this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'buyChest', id: p.id, n: 1 });
     });
 
@@ -334,7 +342,9 @@ class TabScene {
       const x = 12, w = W - 24;
       roundRect(ctx, x, y, w, rh - 12, 9, '#3f2d19', '#9a6630', 2);
       // 图标格
-      roundRect(ctx, x + 12, y + 12, 96, 96, 8, '#1c120a', '#443117', 1);
+      if (!skinSlice(ctx, 'sk_card_slot.webp', x + 12, y + 12, 96, 96, 26)) {
+        roundRect(ctx, x + 12, y + 12, 96, 96, 8, '#1c120a', '#443117', 1);
+      }
       const iconName = cat === 'material' ? this.iconOf(cat, origIdx, it) : this.iconOf(cat, origIdx, it);
       const img = this.tex[iconName];
       if (img) {
@@ -379,8 +389,10 @@ class TabScene {
         if (recipe) {
           const byC = y + 18;
           const can = Player.canSpendMats(recipe.listCraftItems);
-          roundRect(ctx, bx, byC, bw, bh, 8, can ? '#b8762a' : '#54401f', can ? '#ffb44e' : '#705228', 2);
-          text(ctx, can ? '合成' : '材料不足', bx + bw / 2, byC + bh / 2, 14, can ? '#fff' : '#e8cfa0', 'center', '#0c1016');
+          if (!skinButton(ctx, bx, byC, bw, bh, can ? 'orange' : 'smallGreen', false, can ? '合成' : '材料不足', { size: 15 })) {
+            roundRect(ctx, bx, byC, bw, bh, 8, can ? '#b8762a' : '#54401f', can ? '#ffb44e' : '#705228', 2);
+            text(ctx, can ? '合成' : '材料不足', bx + bw / 2, byC + bh / 2, 14, '#fff', 'center', '#0c1016');
+          }
           this.hot.push({ x: bx, y: byC, w: bw, h: bh, act: 'craft', recipe, cat });
         } else {
           text(ctx, '材料不可装备', bx + bw / 2, y + 60, 12, '#b5926a', 'center');
@@ -389,8 +401,10 @@ class TabScene {
         // 未打造：只有一个「打造」按钮，材料够了才能点
         const byU = y + 18;
         const can = recipe && Player.canSpendMats(recipe.listCraftItems || []);
-        roundRect(ctx, bx, byU, bw, bh, 8, can ? '#c58a1c' : '#54401f', can ? '#ffdf9a' : '#705228', 2);
-        text(ctx, can ? '打造' : '材料不足', bx + bw / 2, byU + bh / 2, 15, can ? '#fff' : '#e8cfa0', 'center', '#1a1206');
+        if (!skinButton(ctx, bx, byU, bw, bh, can ? 'orange' : 'smallGreen', false, can ? '打造' : '材料不足', { size: 15 })) {
+          roundRect(ctx, bx, byU, bw, bh, 8, can ? '#c58a1c' : '#54401f', can ? '#ffdf9a' : '#705228', 2);
+          text(ctx, can ? '打造' : '材料不足', bx + bw / 2, byU + bh / 2, 15, '#fff', 'center', '#1a1206');
+        }
         if (can) this.hot.push({ x: bx, y: byU, w: bw, h: bh, act: 'craft', recipe, cat, item: it });
         text(ctx, '打造后可强化 / 穿戴', bx + bw / 2, y + 82, 11, '#b5926a', 'center');
       } else {
@@ -399,18 +413,17 @@ class TabScene {
         const cost = it.lvUpGold || 0;
         const full = lv >= maxLv;
         const noUp = !cost;
-        if (this.tex.btnB && !full && !noUp) ctx.drawImage(this.tex.btnB, bx, byU, bw, bh);
-        else roundRect(ctx, bx, byU, bw, bh, 8, (full || noUp) ? '#54401f' : '#b8762a');
-        text(ctx, full ? '已满级' : (noUp ? '不可强化' : ('升级 ' + cost)), bx + bw / 2, byU + bh / 2, 15, '#fff', 'center', '#0c1016');
+        if (!skinButton(ctx, bx, byU, bw, bh, (full || noUp) ? 'smallGreen' : 'green', false,
+            full ? '已满级' : (noUp ? '不可强化' : ('升级 ' + cost)), { size: 15 }))
+          roundRect(ctx, bx, byU, bw, bh, 8, (full || noUp) ? '#54401f' : '#b8762a');
         if (!full && !noUp) this.hot.push({ x: bx, y: byU, w: bw, h: bh, act: 'upgrade', item: it, cat });
 
         // 装备 / 已装备
         const byE = y + 72;
         const slot = cat;                       // weapon / armor / artifact 与装备格同名
         const on = Player.equippedOf(Player.charID)[slot] === it.itemID;
-        if (this.tex.btnY && !on) ctx.drawImage(this.tex.btnY, bx, byE, bw, bh);
-        else roundRect(ctx, bx, byE, bw, bh, 8, on ? '#456025' : '#e0a52a', on ? '#a0c055' : null, 2);
-        text(ctx, on ? '已装备' : '装备', bx + bw / 2, byE + bh / 2, 15, '#fff', 'center', '#1a1206');
+        if (!skinButton(ctx, bx, byE, bw, bh, on ? 'smallGreen' : 'orange', false, on ? '已装备' : '装备', { size: 15 }))
+          roundRect(ctx, bx, byE, bw, bh, 8, on ? '#456025' : '#e0a52a', on ? '#a0c055' : null, 2);
         this.hot.push({ x: bx, y: byE, w: bw, h: bh, act: 'equip', item: it, slot });
 
         // 出售：已装备的不给卖，避免连身上的一起卖掉
@@ -462,9 +475,11 @@ class TabScene {
     }
     const av = this.hero && this.tex[HERO_AVATARS[this.hero.charID]];
     if (av) {
-      const hh = 330, ww = hh * av.width / av.height;
+      let hh = 330, ww = hh * av.width / av.height;
+      if (ww > pw - 24) { ww = pw - 24; hh = ww * av.height / av.width; }
+      if (hh > ph - 60) { hh = ph - 60; ww = hh * av.width / av.height; }
       ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(av, px + (pw - ww) / 2, py + (ph - hh) / 2 - 30, ww, hh);
+      ctx.drawImage(av, px + (pw - ww) / 2, py + (ph - hh) / 2 + 6, ww, hh);
     } else if (this.actor) {
       this.actor.draw(ctx, this.renderer);
     } else {
@@ -527,9 +542,8 @@ class TabScene {
             roundRect(ctx, bxt, by, bwt, bh, 7, '#31200f', '#443117', 1);
             text(ctx, '已满级', bxt + bwt / 2, by + bh / 2, 12, '#b5926a', 'center');
           } else {
-            roundRect(ctx, bxt, by, bwt, bh, 7, Player.coins >= cost ? '#e0a52a' : '#54401f',
-              Player.coins >= cost ? '#ffdf9a' : '#705228', 1);
-            text(ctx, '训练 ' + cost, bxt + bwt / 2, by + bh / 2, 12, Player.coins >= cost ? '#fff' : '#e8cfa0', 'center', '#1a1206');
+            if (!skinButton(ctx, bxt, by, bwt, bh, Player.coins >= cost ? 'smallGreen' : 'shopGreen', false, '训练 ' + cost, { size: 12 }))
+              roundRect(ctx, bxt, by, bwt, bh, 7, Player.coins >= cost ? '#e0a52a' : '#54401f', '#ffdf9a', 1);
             this.hot.push({ x: bxt, y: by, w: bwt, h: bh, act: 'heroUp', char: h });
           }
           // 进化（花表里的 goldEvolution / gemEvolution，逐阶 8 阶）
@@ -540,9 +554,8 @@ class TabScene {
           } else {
             const ec = this.evoCostOf(h.charID);
             const can = Player.coins >= ec.gold && Player.gems >= ec.gem;
-            roundRect(ctx, bxx, by, bxw, bh, 7, can ? '#b8762a' : '#31200f', can ? '#ffb645' : '#443117', 1);
-            text(ctx, '进化', bxx + bxw / 2, by + 8, 12, can ? '#fff' : '#b5926a', 'center');
-            text(ctx, ec.gold + '+' + ec.gem + '宝', bxx + bxw / 2, by + 21, 9, can ? '#ffd571' : '#886a34', 'center');
+            if (!skinButton(ctx, bxx, by, bxw, bh, can ? 'smallGreen' : 'shopGreen', false, '进化 ' + ec.gold + '+' + ec.gem + '宝', { size: 10 }))
+              roundRect(ctx, bxx, by, bxw, bh, 7, can ? '#b8762a' : '#31200f', '#443117', 1);
             if (can) this.hot.push({ x: bxx, y: by, w: bxw, h: bh, act: 'heroEvo', char: h });
           }
         } else {
@@ -563,8 +576,8 @@ class TabScene {
         const maxLv = s.maxLevel || 160, cost = s.goldUpgrade || 200;
         const bw = 96, bh = 22, bx = sx + sw - bw - 14, by = y - 11;
         if (lv >= maxLv) {
-          roundRect(ctx, bx, by, bw, bh, 5, '#31200f', '#443117', 1);
-          text(ctx, '满级', bx + bw / 2, by + bh / 2, 11, '#b5926a', 'center');
+          if (!skinButton(ctx, bx, by, bw, bh, 'smallGreen', false, '满级', { size: 11 }))
+            roundRect(ctx, bx, by, bw, bh, 5, '#31200f', '#443117', 1);
         } else {
           const can = Player.coins >= cost;
           roundRect(ctx, bx, by, bw, bh, 5, can ? '#b8762a' : '#31200f',
@@ -667,21 +680,22 @@ class TabScene {
     ctx.save();
     roundRect(ctx, px + 3, py + 3, pw - 6, ph - 6, 10, null, null, 0);
     ctx.clip();
-    if (this.tex.castleArt) {
-      const iw = pw - 6, ih = iw * this.tex.castleArt.height / this.tex.castleArt.width;
-      ctx.drawImage(this.tex.castleArt, px + 3, py + 3 + (ph - 6 - ih) * 0.5, iw, ih);
+    const gg = ctx.createLinearGradient(0, py, 0, py + ph);
+    gg.addColorStop(0, '#a7d979');
+    gg.addColorStop(0.62, '#7cc04b');
+    gg.addColorStop(1, '#55992f');
+    ctx.fillStyle = gg; ctx.fillRect(px + 3, py + 3, pw - 6, ph - 6);
+    const cArt = skinGet('sk_castle.webp') || this.tex.castleArt;
+    if (cArt) {
+      const iw = pw - 40, ih = iw * cArt.height / cArt.width;
+      const dh = Math.min(ph - 40, ih), dw = dh * cArt.width / cArt.height;
+      ctx.drawImage(cArt, px + (pw - dw) / 2, py + (ph - dh) / 2, dw, dh);
     }
     const fade = ctx.createLinearGradient(0, py, 0, py + ph);
-    fade.addColorStop(0, 'rgba(8,12,18,0.65)');
-    fade.addColorStop(0.6, 'rgba(8,12,18,0.25)');
-    fade.addColorStop(1, 'rgba(8,12,18,0.75)');
+    fade.addColorStop(0, 'rgba(32,18,8,0.55)');
+    fade.addColorStop(0.55, 'rgba(32,18,8,0.10)');
+    fade.addColorStop(1, 'rgba(32,18,8,0.65)');
     ctx.fillStyle = fade; ctx.fillRect(px + 3, py + 3, pw - 6, ph - 6);
-    if (this.tex.wall) {
-      const ww = pw - 40, wh = ww * this.tex.wall.height / this.tex.wall.width;
-      ctx.globalAlpha = 0.26;
-      ctx.drawImage(this.tex.wall, px + 20, py + ph - wh - 26, ww, wh);
-      ctx.globalAlpha = 1;
-    }
     ctx.restore();
 
     const lvl = Player.castleLevel;
@@ -705,10 +719,9 @@ class TabScene {
     const next = c ? (c.listLevelUp || []).find(x => x.level === lvl + 1) : null;
     const bw = W - 24, bh = 62, bx = 12, by = py + ph + 12;
     if (next) {
-      if (this.tex.btnY) ctx.drawImage(this.tex.btnY, bx, by, bw, bh);
-      else roundRect(ctx, bx, by, bw, bh, 10, '#e0a52a');
-      text(ctx, '升到 Lv ' + next.level + '   ' + next.coinUpgrade + ' 金币' +
-        (next.gemUpgrade ? ' / ' + next.gemUpgrade + ' 宝石' : ''), bx + bw / 2, by + bh / 2, 19, '#fff', 'center', '#1a1206');
+      if (!skinButton(ctx, bx, by, bw, bh, 'play', false, '升到 Lv ' + next.level + '   ' + next.coinUpgrade + ' 金币' +
+        (next.gemUpgrade ? ' / ' + next.gemUpgrade + ' 宝石' : ''), { size: 18 }))
+        roundRect(ctx, bx, by, bw, bh, 10, '#e0a52a');
       this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'castleUp', next });
     } else {
       roundRect(ctx, bx, by, bw, bh, 10, '#402c13', '#5c4420', 2);
