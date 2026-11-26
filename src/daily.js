@@ -357,9 +357,9 @@ class DailyScene {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, W, H);
     const bg = ctx.createLinearGradient(0, 0, 0, H);
-    bg.addColorStop(0, '#0a1018');
-    bg.addColorStop(0.5, '#0d1520');
-    bg.addColorStop(1, '#070b11');
+    bg.addColorStop(0, '#2b1d10');
+    bg.addColorStop(0.5, '#332413');
+    bg.addColorStop(1, '#241708');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 
@@ -377,10 +377,10 @@ class DailyScene {
   drawBack() {
     const ctx = this.ctx;
     const x = W - 52, y = 14, w = 42, h = 46;
-    roundRect(ctx, x, y, w, h, 9, '#182534', '#3f6a8f', 2);
+    roundRect(ctx, x, y, w, h, 9, '#34220d', '#8f6122', 2);
     const img = this.tex.arrowBack;
     if (img) drawIcon(ctx, img, x + w / 2, y + h / 2, 0.34);
-    else text(ctx, '←', x + w / 2, y + h / 2, 20, '#9fd0ff', 'center');
+    else text(ctx, '←', x + w / 2, y + h / 2, 20, '#ffe6a8', 'center');
     this.hot.push({ x, y, w, h, act: 'back' });
   }
 
@@ -394,8 +394,8 @@ class DailyScene {
     ];
     defs.forEach((d, i) => {
       const x = 12 + i * (w + gap), on = this.tab === d.k;
-      roundRect(ctx, x, y, w, h, 9, on ? '#1d2f44' : '#141d29', on ? '#7fc6ff' : '#33475e', 2);
-      text(ctx, d.lbl, x + w / 2, y + h / 2, 17, on ? '#ffffff' : '#9fb2c6', 'center', '#0a1018');
+      roundRect(ctx, x, y, w, h, 9, on ? '#442b0f' : '#3f2d19', on ? '#ffb645' : '#9a6630', 2);
+      text(ctx, d.lbl, x + w / 2, y + h / 2, 17, on ? '#ffffff' : '#e8cfa0', 'center', '#2b1d10');
       this.hot.push({ x, y, w, h, act: 'tab', tab: d.k });
       // 该页签今日可领数量
       const n = Daily.sectionClaimable(d.k);
@@ -414,8 +414,8 @@ class DailyScene {
   drawSign() {
     const ctx = this.ctx;
     const title = '每日签到 · 第 ' + Daily.rec.signDay + ' / 7 天';
-    text(ctx, title, 14, 150, 19, '#ffe9a8', 'left', '#20160a');
-    text(ctx, Daily.canSign() ? '今天可签到，点下面「领取」' : '今天已签到，明天再来', W - 16, 150, 13, '#8fa3b7', 'right');
+    text(ctx, title, 14, 150, 19, '#ffe9a8', 'left', '#3a2408');
+    text(ctx, Daily.canSign() ? '今天可签到，点下面「领取」' : '今天已签到，明天再来', W - 16, 150, 13, '#d9b98a', 'right');
 
     const cols = 4, gap = 10;
     const cw = (W - 24 - gap * (cols - 1)) / cols, ch = 252;
@@ -428,9 +428,9 @@ class DailyScene {
       const signed = day < Daily.rec.signDay || (Daily.rec.signDay === 1 && !Daily.canSign() && day === 7);
       const isToday = Daily.canSign() && Daily.rec.signDay === day;
       // 第 3 行只有 3 张卡，宽度对齐上一行
-      roundRect(ctx, x, y, cw, ch, 10, isToday ? '#1d2a3a' : '#141d29',
-        isToday ? '#ffcf5c' : (signed ? '#2f5e3c' : '#33475e'), isToday ? 2.5 : 2);
-      text(ctx, 'DAY ' + day, x + cw / 2, y + 22, 13, isToday ? '#ffcf5c' : '#8fa3b7', 'center');
+      roundRect(ctx, x, y, cw, ch, 10, isToday ? '#3a260f' : '#3f2d19',
+        isToday ? '#ffcf5c' : (signed ? '#3c541c' : '#9a6630'), isToday ? 2.5 : 2);
+      text(ctx, 'DAY ' + day, x + cw / 2, y + 22, 13, isToday ? '#ffcf5c' : '#d9b98a', 'center');
       const icon = r.kind === 'coin' ? 'coin'
         : r.kind === 'gem' ? 'gem'
           : r.kind === 'mat' ? 'ring'
@@ -440,7 +440,7 @@ class DailyScene {
         const hh = 92, ww = Math.min(cw - 30, hh * img.width / img.height);
         ctx.drawImage(img, x + (cw - ww) / 2, y + 52, ww, hh);
       }
-      text(ctx, r.txt, x + cw / 2, y + 168, 15, '#e8eef6', 'center', '#0a1018');
+      text(ctx, r.txt, x + cw / 2, y + 168, 15, '#fff6dd', 'center', '#2b1d10');
       const bw = cw - 34, bh = 38, bx = x + 17, by = y + ch - 52;
       if (isToday) {
         if (this.tex.btnY) ctx.drawImage(this.tex.btnY, bx, by, bw, bh);
@@ -448,20 +448,20 @@ class DailyScene {
         text(ctx, '领取', bx + bw / 2, by + bh / 2, 15, '#fff', 'center', '#1a1206');
         this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'sign' });
       } else {
-        roundRect(ctx, bx, by, bw, bh, 7, signed ? '#25452f' : '#1a2431', null, 0);
-        text(ctx, signed ? '已领取' : '未解锁', bx + bw / 2, by + bh / 2, 13, signed ? '#7ce08a' : '#5c6f83', 'center');
+        roundRect(ctx, bx, by, bw, bh, 7, signed ? '#2f3e16' : '#31200f', null, 0);
+        text(ctx, signed ? '已领取' : '未解锁', bx + bw / 2, by + bh / 2, 13, signed ? '#8ac94a' : '#836632', 'center');
       }
     });
 
     // 说明
     const note = '签到进度一天一次，第 7 天领完后回到第 1 天循环；每日任务与事件在跨天后重置进度。';
-    text(ctx, note, W / 2, H - 148, 12, '#6f8398', 'center');
+    text(ctx, note, W / 2, H - 148, 12, '#b5926a', 'center');
 
     // 本期签到进度条（7 个圆点：已领 / 今天 / 未到）
     const py = 176 + 2 * (252 + gap) + 12;
-    roundRect(ctx, 12, py, W - 24, 150, 10, '#141d29', '#33475e', 1.5);
-    text(ctx, '本期签到进度', 28, py + 24, 15, '#dfe9f5', 'left');
-    text(ctx, (Daily.rec.signDay - 1) + '/7 天已签', W - 28, py + 24, 13, '#8fa3b7', 'right');
+    roundRect(ctx, 12, py, W - 24, 150, 10, '#3f2d19', '#9a6630', 1.5);
+    text(ctx, '本期签到进度', 28, py + 24, 15, '#f5d67a', 'left');
+    text(ctx, (Daily.rec.signDay - 1) + '/7 天已签', W - 28, py + 24, 13, '#d9b98a', 'right');
     const dotY = py + 76, stepX = (W - 80) / 6;
     for (let i = 0; i < 7; i++) {
       const cx = 40 + i * stepX;
@@ -469,20 +469,20 @@ class DailyScene {
       const isToday = i + 1 === Daily.rec.signDay;
       ctx.beginPath();
       ctx.arc(cx, dotY, 16, 0, Math.PI * 2);
-      ctx.fillStyle = signed ? '#2f5e3c' : (isToday ? '#e0a52a' : '#1a2431');
+      ctx.fillStyle = signed ? '#3c541c' : (isToday ? '#e0a52a' : '#31200f');
       ctx.fill();
-      ctx.strokeStyle = signed ? '#7ce08a' : (isToday ? '#ffdf9a' : '#2a3644');
+      ctx.strokeStyle = signed ? '#8ac94a' : (isToday ? '#ffdf9a' : '#443117');
       ctx.lineWidth = 2;
       ctx.stroke();
-      text(ctx, String(i + 1), cx, dotY, 13, signed ? '#7ce08a' : (isToday ? '#fff' : '#5c6f83'), 'center');
+      text(ctx, String(i + 1), cx, dotY, 13, signed ? '#8ac94a' : (isToday ? '#fff' : '#836632'), 'center');
     }
     text(ctx, '第 7 天必得传说宝箱（宝石 + 材料 + 装备强化）', W / 2, py + 124, 12, '#ffcf5c', 'center');
 
     // 7 天累计奖励 + 规则说明（补满下方空白区）
     const sy = py + 162;
-    roundRect(ctx, 12, sy, W - 24, 226, 10, '#121b26', '#33475e', 1.5);
-    text(ctx, '7 天累计奖励', 28, sy + 26, 15, '#dfe9f5', 'left');
-    text(ctx, '全勤可拿', W - 28, sy + 26, 12, '#8fa3b7', 'right');
+    roundRect(ctx, 12, sy, W - 24, 226, 10, '#26180a', '#9a6630', 1.5);
+    text(ctx, '7 天累计奖励', 28, sy + 26, 15, '#f5d67a', 'left');
+    text(ctx, '全勤可拿', W - 28, sy + 26, 12, '#d9b98a', 'right');
     const chips = [
       ['coin', '金币 +2600'],
       ['gem', '宝石 +35'],
@@ -491,36 +491,36 @@ class DailyScene {
     ];
     chips.forEach((c, i) => {
       const cx = 24 + i * 170, cy2 = sy + 44;
-      roundRect(ctx, cx, cy2, 156, 62, 9, '#0e1721', '#2a3644', 1);
+      roundRect(ctx, cx, cy2, 156, 62, 9, '#21140a', '#443117', 1);
       const img = this.tex[c[0]];
       if (img) {
         const hh = 30, ww = hh * img.width / img.height;
         ctx.drawImage(img, cx + 12, cy2 + 16, ww, hh);
       }
       text(ctx, c[1], cx + 12 + 34, cy2 + 24, 13, '#ffe9a8', 'left');
-      text(ctx, ['第 1 / 5 天', '第 3 / 6 天', '第 2 天', '第 4 / 7 天'][i], cx + 12 + 34, cy2 + 44, 11, '#7f93a8', 'left');
+      text(ctx, ['第 1 / 5 天', '第 3 / 6 天', '第 2 天', '第 4 / 7 天'][i], cx + 12 + 34, cy2 + 44, 11, '#c3a172', 'left');
     });
-    text(ctx, '• 每天登录领 1 份，跨天刷新；断签不会清掉已领的天数', 28, sy + 132, 12, '#9fb2c6', 'left');
-    text(ctx, '• 第 7 天领完自动回到第 1 天，重新开一轮', 28, sy + 154, 12, '#9fb2c6', 'left');
-    text(ctx, '• 每日任务与每日事件同样跨天重置，记得顺带领掉', 28, sy + 176, 12, '#9fb2c6', 'left');
-    text(ctx, '• 宝箱会开出装备 / 材料 / 宝石，重复装备自动转强化', 28, sy + 198, 12, '#9fb2c6', 'left');
+    text(ctx, '• 每天登录领 1 份，跨天刷新；断签不会清掉已领的天数', 28, sy + 132, 12, '#e8cfa0', 'left');
+    text(ctx, '• 第 7 天领完自动回到第 1 天，重新开一轮', 28, sy + 154, 12, '#e8cfa0', 'left');
+    text(ctx, '• 每日任务与每日事件同样跨天重置，记得顺带领掉', 28, sy + 176, 12, '#e8cfa0', 'left');
+    text(ctx, '• 宝箱会开出装备 / 材料 / 宝石，重复装备自动转强化', 28, sy + 198, 12, '#e8cfa0', 'left');
   }
 
   // ---------- 每日任务 ----------
   drawQuests() {
     const ctx = this.ctx;
-    text(ctx, '每日任务 · 原包 7 组条件与奖励', 14, 150, 17, '#ffe9a8', 'left', '#20160a');
+    text(ctx, '每日任务 · 原包 7 组条件与奖励', 14, 150, 17, '#ffe9a8', 'left', '#3a2408');
     const doneAll = Daily.allQuestDoneCount(), totalAll = Daily.allQuestTotal();
-    text(ctx, doneAll + '/' + totalAll + ' 已完成', W - 16, 150, 13, '#9fb2c6', 'right');
+    text(ctx, doneAll + '/' + totalAll + ' 已完成', W - 16, 150, 13, '#e8cfa0', 'right');
 
     let y = 172;
     Daily.quests.forEach((q, gi) => {
       const items = q.listQuestType || [];
       const rowH = 30 + items.length * 54;
       // 组外框
-      roundRect(ctx, 12, y, W - 24, rowH, 10, '#141d29', '#33475e', 1.5);
-      text(ctx, (gi + 1) + '. ' + (DAILY_QUEST_CN[q.id] || q.name), 26, y + 18, 15, '#dfe9f5', 'left');
-      text(ctx, q.description || '', 26 + 106, y + 18, 11, '#6f8398', 'left');
+      roundRect(ctx, 12, y, W - 24, rowH, 10, '#3f2d19', '#9a6630', 1.5);
+      text(ctx, (gi + 1) + '. ' + (DAILY_QUEST_CN[q.id] || q.name), 26, y + 18, 15, '#f5d67a', 'left');
+      text(ctx, q.description || '', 26 + 106, y + 18, 11, '#b5926a', 'left');
 
       items.forEach((t, ki) => {
         const ry = y + 28 + ki * 54;
@@ -531,33 +531,33 @@ class DailyScene {
         const need = isAll ? Daily.allQuestTotal() : (t.RequestValue1 || 0);
         const done = isAll ? Daily.allQuestDone() : Daily.questDone(t);
 
-        roundRect(ctx, 24, ry, W - 48, 46, 8, claimed ? '#16241c' : (done ? '#1b2a1f' : '#0f1720'),
-          claimed ? '#2f5e3c' : (done ? '#4c8a52' : '#2a3644'), 1);
+        roundRect(ctx, 24, ry, W - 48, 46, 8, claimed ? '#1c200d' : (done ? '#1b2a1f' : '#20140a'),
+          claimed ? '#3c541c' : (done ? '#527c2d' : '#443117'), 1);
         // 目标文字
         const needTxt = isAll ? '领完其它全部任务' : t.questType + ' ' + need +
           (t.questType === 'Upgrade' ? ['（英雄）', '（盟友）', '（装备）', '', '（技能）'][t.TargetID] || '' : '');
-        text(ctx, needTxt, 36, ry + 12, 12, '#9fb2c6', 'left');
+        text(ctx, needTxt, 36, ry + 12, 12, '#e8cfa0', 'left');
         // 进度条
         const pct = need > 0 ? Math.min(1, val / need) : (done ? 1 : 0);
-        roundRect(ctx, 36, ry + 26, 260, 7, 3.5, '#0b1118', '#26313d', 1);
-        if (pct > 0) roundRect(ctx, 36, ry + 26, Math.max(4, 260 * pct), 7, 3.5, done ? '#4c8a52' : '#3f95e0');
-        text(ctx, Math.min(val, need) + '/' + need, 306, ry + 12, 12, '#8fa3b7', 'left');
+        roundRect(ctx, 36, ry + 26, 260, 7, 3.5, '#180f0a', '#3d2d14', 1);
+        if (pct > 0) roundRect(ctx, 36, ry + 26, Math.max(4, 260 * pct), 7, 3.5, done ? '#527c2d' : '#d99a2b');
+        text(ctx, Math.min(val, need) + '/' + need, 306, ry + 12, 12, '#d9b98a', 'left');
         // 奖励
         const rw = (t.RewardItems || []).map(r => (r.items && r.items.itemID === -3 ? '宝石' : '金币') + ' +' + (r.numb || 1)).join(' ');
         text(ctx, rw, 380, ry + 12, 13, '#ffe9a8', 'left');
         // 领取按钮
         const bw = 96, bh = 30, bx = W - 24 - 12 - bw, by = ry + 8;
         if (claimed) {
-          roundRect(ctx, bx, by, bw, bh, 7, '#1a2a20', null, 0);
-          text(ctx, '已领取', bx + bw / 2, by + bh / 2, 13, '#7ce08a', 'center');
+          roundRect(ctx, bx, by, bw, bh, 7, '#20250f', null, 0);
+          text(ctx, '已领取', bx + bw / 2, by + bh / 2, 13, '#8ac94a', 'center');
         } else if (done) {
           if (this.tex.btnY) ctx.drawImage(this.tex.btnY, bx, by, bw, bh);
           else roundRect(ctx, bx, by, bw, bh, 7, '#e0a52a');
           text(ctx, '领取', bx + bw / 2, by + bh / 2, 15, '#fff', 'center', '#1a1206');
           this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'claimQuest', gi, ki });
         } else {
-          roundRect(ctx, bx, by, bw, bh, 7, '#1a2431', '#2a3644', 1);
-          text(ctx, '进行中', bx + bw / 2, by + bh / 2, 13, '#6f8398', 'center');
+          roundRect(ctx, bx, by, bw, bh, 7, '#31200f', '#443117', 1);
+          text(ctx, '进行中', bx + bw / 2, by + bh / 2, 13, '#b5926a', 'center');
         }
       });
       y += rowH + 8;
@@ -567,15 +567,15 @@ class DailyScene {
   // ---------- 每日事件 ----------
   drawEvents() {
     const ctx = this.ctx;
-    text(ctx, '每日事件 · 概率来自 DailyEvent.json 四档', 14, 150, 16, '#ffe9a8', 'left', '#20160a');
-    text(ctx, '普通/稀有/史诗/传说', W - 16, 150, 12, '#8fa3b7', 'right');
+    text(ctx, '每日事件 · 概率来自 DailyEvent.json 四档', 14, 150, 16, '#ffe9a8', 'left', '#3a2408');
+    text(ctx, '普通/稀有/史诗/传说', W - 16, 150, 12, '#d9b98a', 'right');
 
     let y = 172;
     Daily.events.forEach((g, gi) => {
       const tiers = g.listEventType || [];
       const boxH = 172;
-      roundRect(ctx, 12, y, W - 24, boxH, 10, '#141d29', '#33475e', 1.5);
-      text(ctx, (gi + 1) + '. ' + (DAILY_EVENT_CN[g.id] || g.name), 26, y + 20, 15, '#dfe9f5', 'left');
+      roundRect(ctx, 12, y, W - 24, boxH, 10, '#3f2d19', '#9a6630', 1.5);
+      text(ctx, (gi + 1) + '. ' + (DAILY_EVENT_CN[g.id] || g.name), 26, y + 20, 15, '#f5d67a', 'left');
       const cw = (W - 24 - 24 - 3 * 8) / 4, ch = 128;
       tiers.slice(0, 4).forEach((t, ti) => {
         const x = 24 + ti * (cw + 8), ty = y + 36;
@@ -583,36 +583,36 @@ class DailyScene {
         const claimed = !!Daily.rec.eventClaims[key];
         const val = Daily.eventValue(t), need = t.RequestValue1 || 1;
         const done = Daily.eventDone(t);
-        roundRect(ctx, x, ty, cw, ch, 8, claimed ? '#16241c' : (done ? '#1b2a1f' : '#0f1720'),
-          claimed ? '#2f5e3c' : (done ? '#4c8a52' : '#2a3644'), 1);
-        text(ctx, t.name || '', x + cw / 2, ty + 18, 11, '#9fb2c6', 'center');
+        roundRect(ctx, x, ty, cw, ch, 8, claimed ? '#1c200d' : (done ? '#1b2a1f' : '#20140a'),
+          claimed ? '#3c541c' : (done ? '#527c2d' : '#443117'), 1);
+        text(ctx, t.name || '', x + cw / 2, ty + 18, 11, '#e8cfa0', 'center');
         // 进度（在线时长按分钟显示）
         const isTime = t.eventType === 'Time';
         const vTxt = isTime ? (Math.floor(val / 60) + '/' + Math.floor(need / 60) + ' 分钟') : (Math.min(val, need) + '/' + need);
-        text(ctx, vTxt, x + cw / 2, ty + 42, 13, done ? '#7ce08a' : '#8fa3b7', 'center');
+        text(ctx, vTxt, x + cw / 2, ty + 42, 13, done ? '#8ac94a' : '#d9b98a', 'center');
         // 概率条
         const pr = '普' + (t.commonPrizeRate || 0) + ' 稀' + (t.rarePrizeRate || 0) + '\n史' + (t.epicPrizeRate || 0) + ' 传' + (t.legendDaryPrizeRate || 0);
         const lines = pr.split('\n');
-        lines.forEach((l, li) => text(ctx, l, x + cw / 2, ty + 64 + li * 15, 10, '#6f8398', 'center'));
+        lines.forEach((l, li) => text(ctx, l, x + cw / 2, ty + 64 + li * 15, 10, '#b5926a', 'center'));
         // 按钮
         const bw = cw - 20, bh = 32, bx = x + 10, by = ty + ch - 42;
         if (claimed) {
-          roundRect(ctx, bx, by, bw, bh, 7, '#1a2a20', null, 0);
-          text(ctx, '已领取', bx + bw / 2, by + bh / 2, 12, '#7ce08a', 'center');
+          roundRect(ctx, bx, by, bw, bh, 7, '#20250f', null, 0);
+          text(ctx, '已领取', bx + bw / 2, by + bh / 2, 12, '#8ac94a', 'center');
         } else if (done) {
           if (this.tex.btnY) ctx.drawImage(this.tex.btnY, bx, by, bw, bh);
           else roundRect(ctx, bx, by, bw, bh, 7, '#e0a52a');
           text(ctx, '开箱', bx + bw / 2, by + bh / 2, 13, '#fff', 'center', '#1a1206');
           this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'claimEvent', gi, ti });
         } else {
-          roundRect(ctx, bx, by, bw, bh, 7, '#1a2431', '#2a3644', 1);
-          text(ctx, '进行中', bx + bw / 2, by + bh / 2, 12, '#6f8398', 'center');
+          roundRect(ctx, bx, by, bw, bh, 7, '#31200f', '#443117', 1);
+          text(ctx, '进行中', bx + bw / 2, by + bh / 2, 12, '#b5926a', 'center');
         }
       });
       y += boxH + 10;
     });
     text(ctx, '首领 = 每关最后一波的放大 BOSS；困难关卡按 ListAllLevel 的 levelMode=Hard 计。',
-      W / 2, H - 142, 11, '#6f8398', 'center');
+      W / 2, H - 142, 11, '#b5926a', 'center');
   }
 
   // ---------- 输入 ----------

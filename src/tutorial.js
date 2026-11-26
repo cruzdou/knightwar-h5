@@ -63,7 +63,7 @@ const Tutorial = {
     const b = c.box();
     // 全屏压暗 + 高亮挖洞
     ctx.save();
-    ctx.fillStyle = 'rgba(3,7,12,0.62)';
+    ctx.fillStyle = 'rgba(24,14,6,0.62)';
     const hx = b.x - 6, hy = b.y - 6, hw = b.w + 12, hh = b.h + 12;
     // 用四块压暗矩形拼出亮区（clearRect 会把底下场景一起擦成透明）
     ctx.fillRect(0, 0, W, Math.max(0, hy));
@@ -80,14 +80,18 @@ const Tutorial = {
     // 说明气泡：高亮在上半屏就放下面，反之放上面
     const bw = W - 60, bh = 154;
     const bx = 30, by = (b.y + b.h / 2 < H / 2) ? (b.y + b.h + 26) : Math.max(70, b.y - bh - 26);
-    roundRect(ctx, bx, by, bw, bh, 12, 'rgba(10,16,24,0.96)', '#e8b548', 2);
+    roundRect(ctx, bx, by, bw, bh, 12, 'rgba(48,28,13,0.96)', '#e8b548', 2);
+    const lg = ctx.createLinearGradient(0, by, 0, by + bh);
+    lg.addColorStop(0, 'rgba(255,214,140,0.10)');
+    lg.addColorStop(1, 'rgba(0,0,0,0.18)');
+    roundRect(ctx, bx + 2, by + 2, bw - 4, bh - 4, 10, lg);
     text(ctx, '新手引导  ' + this.step + '/' + TUT_STEPS.length, bx + 20, by + 24, 12, '#ffcf5c', 'left');
-    text(ctx, c.text, bx + 20, by + 56, 14, '#e8eef6', 'left');
+    text(ctx, c.text, bx + 20, by + 56, 14, '#fff6dd', 'left', '#2b1204');
     // 按钮
-    roundRect(ctx, bx + bw - 210, by + bh - 52, 90, 36, 8, '#22303d', '#5a7f9e', 1);
-    text(ctx, '跳过', bx + bw - 165, by + bh - 34, 13, '#9fd0ff', 'center');
-    roundRect(ctx, bx + bw - 108, by + bh - 52, 92, 36, 8, '#c58a1c', '#ffdf9a', 1);
-    text(ctx, this.step >= TUT_STEPS.length ? '开始玩' : '下一步', bx + bw - 62, by + bh - 34, 13, '#fff', 'center', '#1a1206');
+    if (!skinButton(ctx, bx + bw - 210, by + bh - 52, 90, 36, 'green', false, '跳过', { size: 15 })) roundRect(ctx, bx + bw - 210, by + bh - 52, 90, 36, 8, '#2f7d32', '#8fd08a', 1);
+    if (!skinGet('sk_btn_green.webp')) text(ctx, '跳过', bx + bw - 165, by + bh - 34, 13, '#9fd0ff', 'center');
+    if (!skinButton(ctx, bx + bw - 108, by + bh - 52, 92, 36, 'orange', false, this.step >= TUT_STEPS.length ? '开始玩' : '下一步', { size: 15 })) roundRect(ctx, bx + bw - 108, by + bh - 52, 92, 36, 8, '#c58a1c', '#ffdf9a', 1);
+    if (!skinGet('sk_btn_orange.webp')) text(ctx, this.step >= TUT_STEPS.length ? '开始玩' : '下一步', bx + bw - 62, by + bh - 34, 13, '#fff', 'center', '#1a1206');
     this._btn = { skip: { x: bx + bw - 210, y: by + bh - 52, w: 90, h: 36 }, next: { x: bx + bw - 108, y: by + bh - 52, w: 92, h: 36 } };
   },
 

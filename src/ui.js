@@ -88,19 +88,25 @@ class PopupLayer {
     const px = (W - pw) / 2, py = (H - ph) / 2;
 
     ctx.save();
-    ctx.fillStyle = 'rgba(4,8,12,' + (0.82 * e) + ')';
+    ctx.fillStyle = 'rgba(24,14,6,' + (0.78 * e) + ')';
     ctx.fillRect(0, 0, W, H);
     ctx.globalAlpha = e;
     ctx.translate(W / 2, H / 2);
     ctx.scale(sc, sc);
     ctx.translate(-W / 2, -H / 2);
 
-    // 面板
-    const lg = ctx.createLinearGradient(px, py, px, py + ph);
-    lg.addColorStop(0, '#16222f');
-    lg.addColorStop(1, '#0d151e');
-    roundRect(ctx, px, py, pw, ph, 14, lg, '#5a7ea6', 2);
-    ctx.fillStyle = 'rgba(120,170,235,0.10)';
+    // 面板：卡通木框（缺图回退深色渐变）
+    if (!skinSlice(ctx, 'sk_panel_box.webp', px, py, pw, ph, 56)) {
+      const lg = ctx.createLinearGradient(px, py, px, py + ph);
+      lg.addColorStop(0, '#452f1a');
+      lg.addColorStop(1, '#2b1d10');
+      roundRect(ctx, px, py, pw, ph, 14, lg, '#c68b4a', 2);
+    } else {
+      // 内层压深一点，保证白字清晰
+      ctx.fillStyle = 'rgba(34,16,10,0.38)';
+      ctx.fillRect(px + 16, py + 16, pw - 32, ph - 32);
+    }
+    ctx.fillStyle = 'rgba(235,153,72,0.10)';
     ctx.fillRect(px + 20, py + 92, pw - 40, 2);
 
     if (kind === 'settings') this.drawSettings(px, py, pw, ph);
@@ -121,15 +127,28 @@ class PopupLayer {
     text(ctx, txt, px + pw / 2, py + 44, 22, '#ffe9a8', 'center', '#000');
     // 关闭按钮（右上角）
     const bx = px + pw - 52, by = py + 18, bw = 40, bh = 40;
-    roundRect(ctx, bx, by, bw, bh, 8, 'rgba(255,255,255,0.06)', 'rgba(255,255,255,0.18)', 1);
-    text(ctx, '×', bx + bw / 2, by + bh / 2, 22, '#cfd8e3', 'center');
+    if (!skinIcon(ctx, 'sk_btn_close.webp', bx + 4, by + 4, 32)) {
+      roundRect(ctx, bx, by, bw, bh, 8, 'rgba(40,24,10,0.55)', '#c68b4a', 1);
+      text(ctx, '×', bx + bw / 2, by + bh / 2, 22, '#ffe6a8', 'center');
+    }
     this.hits.push({ x: bx, y: by, w: bw, h: bh, act: 'close' });
   }
 
   btn(ctx, x, y, w, h, label, act, color, edge, disabled) {
-    const c = disabled ? '#3a4654' : (color || '#2f7ad6');
-    roundRect(ctx, x, y, w, h, 10, c, disabled ? '#4a5a70' : (edge || '#8fc4ff'), 2);
-    text(ctx, label, x + w / 2, y + h / 2, 16, disabled ? '#9fb2c6' : '#fff', 'center');
+    const style = disabled ? 'smallGreen'
+      : (String(color || '').indexOf('c58a1c') >= 0 ? 'orange'
+        : (String(color || '').indexOf('c0392b') >= 0 ? 'orange' : 'green'));
+    const ok = skinButton(ctx, x, y, w, h, style, false, label, { size: 17, stroke: '#3a1c08' });
+    if (disabled) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(40,24,10,0.55)';
+      roundRect(ctx, x, y, w, h, 12, 'rgba(40,24,10,0.55)');
+      ctx.restore();
+      text(ctx, label, x + w / 2, y + h / 2, 16, '#c3a172', 'center');
+    } else if (!ok) {
+      roundRect(ctx, x, y, w, h, 10, color || '#3a6f2f', edge || '#f2d79a', 2);
+      text(ctx, label, x + w / 2, y + h / 2, 16, '#fff', 'center');
+    }
     if (!disabled) this.hits.push({ x, y, w, h, act });
   }
 
@@ -147,19 +166,19 @@ class PopupLayer {
     rows.forEach((r, i) => {
       const ry = py + 110 + i * 74;
       roundRect(ctx, px + 24, ry, pw - 48, 62, 9, 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.10)', 1);
-      text(ctx, r.lbl, px + 46, ry + 22, 17, '#e8eef6', 'left');
-      text(ctx, r.sub, px + 46, ry + 44, 13, '#8fa3b7', 'left');
+      text(ctx, r.lbl, px + 46, ry + 22, 17, '#fff6dd', 'left');
+      text(ctx, r.sub, px + 46, ry + 44, 13, '#d9b98a', 'left');
       // 右侧开关/箭头
       if (r.act === 'toggleSfx' || r.act === 'toggleMusic') {
         const on = r.act === 'toggleSfx' ? Player.sfxOn : Player.musicOn;
         const tx = px + pw - 96, ty = ry + 16;
-        roundRect(ctx, tx, ty, 60, 30, 15, on ? '#2f7ad6' : '#2a3543', on ? '#8fc4ff' : '#4a5a70', 1);
+        roundRect(ctx, tx, ty, 60, 30, 15, on ? '#d67019' : '#433017', on ? '#ffb44e' : '#705228', 1);
         ctx.beginPath();
         ctx.arc(tx + (on ? 45 : 15), ty + 15, 11, 0, Math.PI * 2);
-        ctx.fillStyle = '#e8eef6';
+        ctx.fillStyle = '#fff6dd';
         ctx.fill();
       } else {
-        text(ctx, '›', px + pw - 46, ry + 31, 20, '#9fd0ff', 'center');
+        text(ctx, '›', px + pw - 46, ry + 31, 20, '#ffe6a8', 'center');
       }
       this.hits.push({ x: px + 24, y: ry, w: pw - 48, h: 62, act: r.act });
     });
@@ -171,28 +190,28 @@ class PopupLayer {
     const ctx = window.game.ctx;
     this.titleBar(ctx, px, py, pw, '分享  SHARE');
     const link = location.href.split('#')[0];
-    text(ctx, '把这句话连链接一起发给朋友：', px + 34, py + 118, 14, '#8fa3b7', 'left');
+    text(ctx, '把这句话连链接一起发给朋友：', px + 34, py + 118, 14, '#d9b98a', 'left');
     roundRect(ctx, px + 24, py + 132, pw - 48, 92, 9, 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.10)', 1);
-    text(ctx, SHARE_TEXT, px + 40, py + 158, 14, '#e8eef6', 'left');
-    text(ctx, link.replace(/^https?:\/\//, ''), px + 40, py + 192, 13, '#9fd0ff', 'left');
+    text(ctx, SHARE_TEXT, px + 40, py + 158, 14, '#fff6dd', 'left');
+    text(ctx, link.replace(/^https?:\/\//, ''), px + 40, py + 192, 13, '#ffe6a8', 'left');
     this.btn(ctx, px + 24, py + 240, pw - 48, 54, '复制链接与文案', 'copy');
     if (this.msg) text(ctx, this.msg, px + pw / 2, py + 312, 13, '#ffcf5c', 'center');
-    text(ctx, (window.TT && window.TT.isMini) ? '点上面按钮可直接唤起抖音分享面板' : '抖音小游戏版可换成 tt.shareAppMessage（外壳已留位）', px + pw / 2, py + ph - 34, 12, '#6f8398', 'center');
+    text(ctx, (window.TT && window.TT.isMini) ? '点上面按钮可直接唤起抖音分享面板' : '抖音小游戏版可换成 tt.shareAppMessage（外壳已留位）', px + pw / 2, py + ph - 34, 12, '#b5926a', 'center');
   }
 
   // ---------- 评分 ----------
   drawRate(px, py, pw, ph) {
     const ctx = window.game.ctx;
     this.titleBar(ctx, px, py, pw, '评分  RATE US');
-    text(ctx, '这版重建离原包手感还差多少？', px + pw / 2, py + 108, 15, '#8fa3b7', 'center');
+    text(ctx, '这版重建离原包手感还差多少？', px + pw / 2, py + 108, 15, '#d9b98a', 'center');
     for (let i = 0; i < 5; i++) {
       const cx = px + pw / 2 - 120 + i * 60, cy = py + 170;
       const on = i < this.stars;
-      text(ctx, '★', cx, cy, 34, on ? '#ffcf5c' : '#3a4654', 'center', on ? '#000' : null);
+      text(ctx, '★', cx, cy, 34, on ? '#ffcf5c' : '#54401f', 'center', on ? '#000' : null);
       this.hits.push({ x: cx - 28, y: cy - 28, w: 56, h: 56, act: 'star', n: i + 1 });
     }
     text(ctx, this.stars ? (this.stars + ' 星') : '点星星打分', px + pw / 2, py + 216, 14, '#ffcf5c', 'center');
-    this.btn(ctx, px + 90, py + 250, pw - 180, 52, Player.rated ? '已评过，可再改' : '提交评分', 'submitRate', this.stars ? '#2f7ad6' : '#3a4654', null, !this.stars);
+    this.btn(ctx, px + 90, py + 250, pw - 180, 52, Player.rated ? '已评过，可再改' : '提交评分', 'submitRate', this.stars ? '#d67019' : '#54401f', null, !this.stars);
     if (this.msg) text(ctx, this.msg, px + pw / 2, py + 322, 13, '#ffcf5c', 'center');
   }
 
@@ -201,8 +220,8 @@ class PopupLayer {
     const ctx = window.game.ctx;
     this.titleBar(ctx, px, py, pw, data.title || '确认');
     const lines = String(data.body || '').split('\n');
-    lines.slice(0, 4).forEach((l, i) => text(ctx, l, px + pw / 2, py + 120 + i * 28, 15, '#cfd8e3', 'center'));
-    this.btn(ctx, px + 60, py + ph - 92, (pw - 140) / 2, 54, '取消', 'close', '#4a5a70', '#9fb2c6');
+    lines.slice(0, 4).forEach((l, i) => text(ctx, l, px + pw / 2, py + 120 + i * 28, 15, '#e3c671', 'center'));
+    this.btn(ctx, px + 60, py + ph - 92, (pw - 140) / 2, 54, '取消', 'close', '#705228', '#e8cfa0');
     this.btn(ctx, px + 80 + (pw - 140) / 2, py + ph - 92, (pw - 140) / 2, 54, '确定', 'yes', '#c0392b', '#ff8a7a');
   }
 
@@ -211,7 +230,7 @@ class PopupLayer {
     const ctx = window.game.ctx;
     if (!res) return;
     this.titleBar(ctx, px, py, pw, res.boxName);
-    text(ctx, '×' + res.count + ' · 共 ' + res.rewards.length + ' 件', px + pw / 2, py + 78, 13, '#8fa3b7', 'center');
+    text(ctx, '×' + res.count + ' · 共 ' + res.rewards.length + ' 件', px + pw / 2, py + 78, 13, '#d9b98a', 'center');
 
     const map = new Map();
     for (const r of res.rewards) {
@@ -228,7 +247,7 @@ class PopupLayer {
       ctx.fill();
       text(ctx, Chest.rarityLabel(r.rarity), px + 58, ry + 14, 12, Chest.rarityColor(r.rarity), 'left');
       const nm = r.label + (r.n > 1 ? (/x\d+$/.test(r.label) ? ' ×' + r.n + ' 份' : ' x' + r.n) : '');
-      text(ctx, nm.slice(0, 34), px + 116, ry + 14, 14, '#e8eef6', 'left');
+      text(ctx, nm.slice(0, 34), px + 116, ry + 14, 14, '#fff6dd', 'left');
     });
     const tk = Object.keys(res.tickets || {}).filter(k => res.tickets[k] > 0);
     let cy = py + 96 + rows.length * 34;
@@ -238,10 +257,10 @@ class PopupLayer {
       cy += 22;
     }
     if (Array.from(map.keys()).length > 10) {
-      text(ctx, '另有更多奖励已直接入包', px + pw / 2, cy + 8, 12, '#8fa3b7', 'center');
+      text(ctx, '另有更多奖励已直接入包', px + pw / 2, cy + 8, 12, '#d9b98a', 'center');
       cy += 20;
     }
-    this.btn(ctx, px + pw / 2 - 110, cy + 16, 220, 48, '收下', 'close', '#2f7ad6', '#8fc4ff');
+    this.btn(ctx, px + pw / 2 - 110, cy + 16, 220, 48, '收下', 'close', '#d67019', '#ffb44e');
   }
 
   // ---------- 礼包详情（BONUS / STARTER PACK） ----------
@@ -251,7 +270,7 @@ class PopupLayer {
     const p = g.packDef(data.key);
     if (!p) return;
     this.titleBar(ctx, px, py, pw, p.name);
-    text(ctx, p.desc, px + pw / 2, py + 74, 13, '#8fa3b7', 'center');
+    text(ctx, p.desc, px + pw / 2, py + 74, 13, '#d9b98a', 'center');
 
     const names = { coin: '金币', gem: '宝石' };
     const rows = p.items.map(it => {
@@ -264,14 +283,14 @@ class PopupLayer {
     rows.forEach((r, i) => {
       const ry = py + 104 + i * 32;
       roundRect(ctx, px + 32, ry, pw - 64, 26, 6, 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.08)', 1);
-      text(ctx, '•  ' + r, px + 48, ry + 13, 14, '#e8eef6', 'left');
+      text(ctx, '•  ' + r, px + 48, ry + 13, 14, '#fff6dd', 'left');
     });
 
     const left = Player.packLeft(data.key, p.hours);
     const bought = Player.packState(data.key, p.hours).bought;
     const price = p.gem + ' 宝石';
     text(ctx, '价格 ' + price + '    当前 ' + Player.gems + ' 宝石', px + pw / 2, py + 104 + rows.length * 32 + 18, 13,
-      Player.gems >= p.gem ? '#9fe6a8' : '#ff9a8a', 'center');
+      Player.gems >= p.gem ? '#a8cf5f' : '#ff9a8a', 'center');
     const canBuy = !bought && left > 0 && Player.gems >= p.gem;
     this.btn(ctx, px + 60, py + ph - 84, pw - 120, 54,
       bought ? '已购买' : (left <= 0 ? '已结束' : '购买 ' + price), 'buyPack', '#c58a1c', '#ffdf9a', !canBuy);
@@ -284,22 +303,22 @@ class PopupLayer {
     const got = list.filter(a => a.claimed).length;
     this.titleBar(ctx, px, py, pw, '成就  ACHIEVEMENTS');
     text(ctx, '已达成 ' + list.filter(a => a.done).length + ' / ' + list.length + ' · 已领 ' + got,
-      px + pw / 2, py + 84, 13, '#8fa3b7', 'center');
+      px + pw / 2, py + 84, 13, '#d9b98a', 'center');
     list.slice(0, 10).forEach((a, i) => {
       const ry = py + 100 + i * 52;
-      roundRect(ctx, px + 20, ry, pw - 40, 46, 8, a.claimed ? 'rgba(60,160,100,0.10)' : 'rgba(255,255,255,0.05)',
-        a.claimed ? '#2f6b45' : (a.done ? '#e8b548' : 'rgba(255,255,255,0.10)'), a.done && !a.claimed ? 2 : 1);
-      text(ctx, a.name, px + 36, ry + 18, 15, a.claimed ? '#8fb8a0' : '#e8eef6', 'left');
-      text(ctx, a.desc, px + 36, ry + 36, 12, '#8fa3b7', 'left');
+      roundRect(ctx, px + 20, ry, pw - 40, 46, 8, a.claimed ? 'rgba(100,144,36,0.10)' : 'rgba(255,255,255,0.05)',
+        a.claimed ? '#45601c' : (a.done ? '#e8b548' : 'rgba(255,255,255,0.10)'), a.done && !a.claimed ? 2 : 1);
+      text(ctx, a.name, px + 36, ry + 18, 15, a.claimed ? '#a0a555' : '#fff6dd', 'left');
+      text(ctx, a.desc, px + 36, ry + 36, 12, '#d9b98a', 'left');
       // 进度：进度条在上，数字与宝石奖励并排在下，右侧留给按钮
       const bw2 = 110, bx2 = px + pw - 210;
-      roundRect(ctx, bx2, ry + 11, bw2, 5, 2.5, '#1c2836');
-      roundRect(ctx, bx2, ry + 11, Math.max(2, bw2 * Math.min(1, a.cur / a.need)), 5, 2.5, a.done ? '#7ee08a' : '#3f95e0');
+      roundRect(ctx, bx2, ry + 11, bw2, 5, 2.5, '#2f2113');
+      roundRect(ctx, bx2, ry + 11, Math.max(2, bw2 * Math.min(1, a.cur / a.need)), 5, 2.5, a.done ? '#8ac94b' : '#d99a2b');
       text(ctx, a.cur + '/' + a.need + ' · +' + a.gem + ' 宝石', bx2 + bw2, ry + 31, 11,
-        a.claimed ? '#6fd39a' : '#8fa3b7', 'right');
+        a.claimed ? '#9abd42' : '#d9b98a', 'right');
       // 奖励 / 状态
       if (a.claimed) {
-        text(ctx, '已领', px + pw - 46, ry + 24, 13, '#6fd39a', 'right');
+        text(ctx, '已领', px + pw - 46, ry + 24, 13, '#9abd42', 'right');
       } else if (a.done) {
         roundRect(ctx, px + pw - 82, ry + 10, 62, 28, 7, '#c58a1c', '#ffdf9a', 1);
         text(ctx, '领取', px + pw - 51, ry + 24, 13, '#fff', 'center', '#1a1206');
@@ -316,7 +335,7 @@ class PopupLayer {
     const hh = Math.floor((d.sec || 0) / 3600), mm = Math.floor(((d.sec || 0) % 3600) / 60);
     this.titleBar(ctx, px, py, pw, '欢迎回来');
     text(ctx, '离线 ' + (hh ? hh + ' 小时 ' : '') + mm + ' 分钟，你的队伍一直在守城',
-      px + pw / 2, py + 92, 14, '#cfd8e3', 'center');
+      px + pw / 2, py + 92, 14, '#e3c671', 'center');
     const rows = [
       { icon: 'coin', lbl: '金币', v: d.coins || 0 },
       { icon: 'gem', lbl: '宝石', v: d.gems || 0 }
@@ -331,17 +350,17 @@ class PopupLayer {
         const s2 = Math.min(30 / img.width, 30 / img.height);
         ctx.drawImage(img, px + 58 - img.width * s2 / 2, ry + 22 - img.height * s2 / 2, img.width * s2, img.height * s2);
       }
-      text(ctx, r.lbl, px + 86, ry + 22, 15, '#cfd8e3', 'left');
+      text(ctx, r.lbl, px + 86, ry + 22, 15, '#e3c671', 'left');
       text(ctx, '+' + r.v, px + pw - 60, ry + 22, 18, '#ffe9a8', 'right');
     });
-    text(ctx, '每分钟 ' + (d.per || 0) + ' 金币 · 最长累计 8 小时', px + pw / 2, py + 232, 12, '#7f93a8', 'center');
+    text(ctx, '每分钟 ' + (d.per || 0) + ' 金币 · 最长累计 8 小时', px + pw / 2, py + 232, 12, '#c3a172', 'center');
     const canAd = Ads.remaining() > 0;
     if (canAd) {
       this.btn(ctx, px + 24, py + ph - 148, pw - 48, 50, '看广告 · 双倍领取', 'offlineAd', '#c58a1c', '#ffdf9a');
-      this.btn(ctx, px + 24, py + ph - 84, pw - 48, 52, '收下', 'offlineTake', '#2f7ad6', '#8fc4ff');
+      this.btn(ctx, px + 24, py + ph - 84, pw - 48, 52, '收下', 'offlineTake', '#d67019', '#ffb44e');
     } else {
-      this.btn(ctx, px + 24, py + ph - 96, pw - 48, 56, '收下', 'offlineTake', '#2f7ad6', '#8fc4ff');
-      text(ctx, '今日广告次数已用完', px + pw / 2, py + ph - 122, 12, '#6f8398', 'center');
+      this.btn(ctx, px + 24, py + ph - 96, pw - 48, 56, '收下', 'offlineTake', '#d67019', '#ffb44e');
+      text(ctx, '今日广告次数已用完', px + pw / 2, py + ph - 122, 12, '#b5926a', 'center');
     }
   }
 
@@ -352,14 +371,14 @@ class PopupLayer {
     const g = window.game;
     this.titleBar(ctx, px, py, pw, '体力不足');
     text(ctx, '进关卡需要 ' + cost + ' 点体力，现在只有 ' + Player.stamina + '/' + Player.staminaMax,
-      px + pw / 2, py + 104, 15, '#cfd8e3', 'center');
+      px + pw / 2, py + 104, 15, '#e3c671', 'center');
     const nxt = Player.staminaNextIn();
     const mm = Math.floor(nxt / 60000), ss = Math.floor((nxt % 60000) / 1000);
     text(ctx, '下一点体力：' + (Player.stamina >= Player.staminaMax ? '已满' : (mm + ':' + String(ss).padStart(2, '0'))),
-      px + pw / 2, py + 134, 13, '#8fa3b7', 'center');
+      px + pw / 2, py + 134, 13, '#d9b98a', 'center');
     const ready = Ads.remaining() > 0;
     this.btn(ctx, px + 48, py + 168, pw - 96, 54,
-      ready ? '看广告 · 回满体力' : '今日广告次数已用完', 'staminaAd', '#2f7ad6', '#8fc4ff', !ready);
+      ready ? '看广告 · 回满体力' : '今日广告次数已用完', 'staminaAd', '#d67019', '#ffb44e', !ready);
     const canBuy = Player.gems >= 50;
     this.btn(ctx, px + 48, py + 234, pw - 96, 54,
       '50 宝石 · 回满体力（现有 ' + Player.gems + '）', 'staminaBuy', '#c58a1c', '#ffdf9a', !canBuy);

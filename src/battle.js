@@ -5,9 +5,9 @@
 
 const WALL_Y = 940;        // 城墙顶边
 const HERO_X = 360;
-const HERO_FEET = 1060;    // 英雄脚底
+const HERO_FEET = 1012;    // 英雄脚底
 const HERO_H = 145;        // 英雄屏幕上高度
-const SPAWN_Y = 150;       // 怪物出生（远端）
+const SPAWN_Y = 300;       // 怪物出生（河道下方草地，避免站在水里）
 const STOP_Y = 975;        // 推进到城墙前
 const ENEMY_H_NEAR = 118;  // 到墙时的高度
 const ENEMY_H_FAR = 64;    // 出生时的高度
@@ -37,37 +37,31 @@ class BattleScene {
   }
 
   async init() {
-    // 主角走存档里选中的英雄（1 Mel / 2 Maximus / 3 Sam / 4 Crimson）
-    // 首屏只等「当前英雄」一个骨架，其余英雄和敌人全部放后台，别把启动吊在 17 个骨架上
+    // 美术：CraftPix《Castle Guards》逐帧素材（Spine 4.2 骨架 3.6 运行时读不了，改走条带帧）
+    await loadAnimIndex();
+    skinPreload();
+    // 等首屏必需的皮肤图与战场背景，避免第一帧是旧美术
+    await Promise.all([skinLoad('sk_castle.webp'), bgLoadAsync(1), bgLoadAsync(2),
+      skinLoad('sk_arrow.webp'), skinLoad('sk_coin_icon.webp'), skinLoad('sk_gem_icon.webp'),
+      skinLoad('sk_btn_pause.webp'), skinLoad('sk_arrow_fire.webp'),
+      skinLoad('sk_arrow_ice.webp'), skinLoad('sk_fireball.webp')]);
+
+    // 主角：按 charID 取四阶兵种帧（1 骑士 / 2 战士 / 3 法师 / 4 处刑者）
     this.hero_infos = {};
-    const heroes = Object.entries(HERO_SKELETONS);
     const curID = Player.charID;
-    const curName = HERO_SKELETONS[curID] || HERO_SKELETONS[1];
-    this.hero_info = await loadSpine(curName).catch(() => null);
-    if (this.hero_info) this.hero_infos[curID] = this.hero_info;
-    if (!this.hero_info) this.hero_info = await loadSpine('Elf_Archer').catch(() => null);
-    this._heroReady = Promise.allSettled(heroes.map(async ([id, name]) => {
-      if (this.hero_infos[id]) return;
-      try { this.hero_infos[id] = await loadSpine(name); } catch (e) { /* 骨架缺件时跳过 */ }
-    }));
+    this.hero_info = heroFrameInfo(curID, 0);
+    this.hero_infos[curID] = this.hero_info;
+    [1, 2, 3, 4].forEach(id => { this.hero_infos[id] = heroFrameInfo(id, 0); });
 
-    // 换英雄时可能还没拉到，这里提供等待入口
-
-    // 只取「渲染完整」的骨架当敌人（其余骨架缺件，先不进池）
-    const pool = ['Goblin', 'Gnoll', 'Bandit', 'Thorn', 'Wolf', 'Ent',
-                  'Anubis', 'Ice_Mage', 'FireMage', 'Lizard_Rider',
-                  'Giant_Spiders', 'Shadow_Archer', 'Hero_04_Ingame',
-                  'Devil_Turtle', 'Sand_Warrios', 'Seraph'];
-    this.enemy_pool = [];
+    // 敌人：15 个骷髅兵种，按分区轮流上场
     this.enemy_infos = {};
-    this._enemyReady = Promise.allSettled(pool.map(async n => {
-      try {
-        const info = await loadSpine(n);
-        this.enemy_infos[n] = info;
-      } catch (e) { /* 缺图集跳过 */ }
-    })).then(() => {
-      for (const n of pool) if (this.enemy_infos[n]) this.enemy_pool.push(this.enemy_infos[n]);
-    });
+    this.enemy_pool = [];
+    for (let i = 1; i <= 15; i++) {
+      const fi = frameInfo('e' + i);
+      if (fi) { fi.name = 'E' + i; this.enemy_infos['E' + i] = fi; this.enemy_pool.push(fi); }
+    }
+    this._enemyReady = Promise.resolve();
+    this._heroReady = Promise.resolve();
 
     // 贴图并行加载（每张独立兜底，慢网络下不会互相拖死）
     const li = n => loadImage(n).catch(() => null);
@@ -93,21 +87,31 @@ class BattleScene {
       fxRing, fxBolt, fxSwirl, fxGlow, fxStar, fxDust, fxSmoke,
       win, lose, star, splash, play
     };
+    // 卡通皮肤覆盖：箭矢 / 金币 / 宝石 / 暂停键（有图就用新图）
+    const skinImg = n => skinGet(n);
+    if (skinImg('sk_arrow.webp')) this.tex.arrow = skinImg('sk_arrow.webp');
+    if (skinImg('sk_coin_icon.webp')) this.tex.gold = skinImg('sk_coin_icon.webp');
+    if (skinImg('sk_gem_icon.webp')) this.tex.gem = skinImg('sk_gem_icon.webp');
+    if (skinImg('sk_btn_pause.webp')) this.tex.pause = skinImg('sk_btn_pause.webp');
+    if (skinImg('sk_arrow_fire.webp')) this.tex.arrowFire = skinImg('sk_arrow_fire.webp');
+    if (skinImg('sk_arrow_ice.webp')) this.tex.arrowIce = skinImg('sk_arrow_ice.webp');
+    if (skinImg('sk_fireball.webp')) this.tex.fireball = skinImg('sk_fireball.webp');
 
     this.bg = this.buildBackground();
     this.setHero(Player.charID);
     this.reset();
   }
 
-  // 上阵盟友的骨架按需拉取（换阵容后第一次战斗前调用）
+  // 上阵盟友的帧素材（换阵容后第一次战斗前调用）
   async ensureAllySprites() {
     if (!this.ally_infos) this.ally_infos = {};
+    await loadAnimIndex();
     const ids = (Player.squad || []).slice(0, 3);
-    const miss = ids.filter(id => !this.ally_infos[id] && ALLY_SKELETONS[id]);
-    if (!miss.length) return;
-    await Promise.allSettled(miss.map(async id => {
-      try { this.ally_infos[id] = await loadSpine(ALLY_SKELETONS[id]); } catch (e) { /* 缺件不上场 */ }
-    }));
+    for (const id of ids) {
+      if (this.ally_infos[id]) continue;
+      const cls = ALLY_ARMY[id] || 'archer';
+      this.ally_infos[id] = frameInfo(cls + '_lv0') || frameInfo('archer_lv0');
+    }
   }
 
   // 换主角骨架（按 charID）
@@ -118,20 +122,22 @@ class BattleScene {
   }
 
   setHero(charID) {
-    const info = this.hero_infos[charID] || this.hero_info;
+    // 兵种四阶帧：按英雄等级分档（1-10 → Lv0，11-20 → Lv1，21-30 → Lv2，31+ → Lv3）
+    const lv = (Player.heroLvOf ? Player.heroLvOf(charID) : 1) || 1;
+    const tier = lv >= 31 ? 3 : (lv >= 21 ? 2 : (lv >= 11 ? 1 : 0));
+    const info = heroFrameInfo(charID, tier);
     if (!info) return;
     this.hero_info = info;
-    this.hero = new Actor(info, { anim: info.anims.includes('Idle') ? 'Idle' : info.anims[0] });
+    this.hero = new Actor(info, { anim: 'Idle' });
     this.hero.x = HERO_X;
     this.hero.y = HERO_FEET;
     this.hero.scale = HERO_H / info.h;
   }
 
-  // 每个分区的战场背景（原包 bg1~bg5，按分区轮换）
+  // 每个分区的战场背景（Castle Guards 的 10 张卡通战场轮换）
   bgFor(zone) {
-    const list = this.tex.bgZones || [this.tex.bgfield];
-    const ok = list.filter(Boolean);
-    return ok[Math.abs(zone || 0) % ok.length] || this.tex.bgfield;
+    const n = Math.abs((zone || 0) % 10) + 1;
+    return bgGet(n) || bgGet(1);
   }
 
   // ---------- 静态背景（画一次） ----------
@@ -140,37 +146,37 @@ class BattleScene {
     cv.width = W; cv.height = H;
     const c = cv.getContext('2d');
 
-    // 1) 原版战场背景：按分区取 bg1~bg5，等比铺满战场区
     const bgm = this.bgFor(this.stageData && this.stageData.zone);
-    const bh = WALL_Y + 30;
-    const scale = Math.max(W / bgm.width, bh / bgm.height);
-    const dw = bgm.width * scale, dh = bgm.height * scale;
-    c.drawImage(bgm, (W - dw) / 2, bh - dh, dw, dh);
+    if (bgm) {
+      // 卡通战场整屏铺满（等比 cover）
+      const scale = Math.max(W / bgm.width, H / bgm.height);
+      const dw = bgm.width * scale, dh = bgm.height * scale;
+      c.drawImage(bgm, (W - dw) / 2, (H - dh) / 2, dw, dh);
+      // 远端轻微压暗，保留卡通亮度
+      const fog = c.createLinearGradient(0, 0, 0, 300);
+      fog.addColorStop(0, 'rgba(10,40,20,0.28)');
+      fog.addColorStop(1, 'rgba(10,40,20,0)');
+      c.fillStyle = fog; c.fillRect(0, 0, W, 300);
+    } else if (this.tex.bgfield) {
+      // 兜底：旧战场图
+      const bh = WALL_Y + 30;
+      const scale = Math.max(W / this.tex.bgfield.width, bh / this.tex.bgfield.height);
+      const dw = this.tex.bgfield.width * scale, dh = this.tex.bgfield.height * scale;
+      c.drawImage(this.tex.bgfield, (W - dw) / 2, bh - dh, dw, dh);
+    }
 
-    // 2) 远端压暗
-    const fog = c.createLinearGradient(0, 0, 0, WALL_Y * 0.5);
-    fog.addColorStop(0, 'rgba(14,26,10,0.5)');
-    fog.addColorStop(1, 'rgba(14,26,10,0)');
-    c.fillStyle = fog; c.fillRect(0, 0, W, WALL_Y * 0.5);
+    // 己方城楼（卡通城堡）：贴底居中，英雄/盟友站它前面
+    const ca = skinGet('sk_castle.webp');
+    if (ca) {
+      const chh = 320, cww = chh * ca.width / ca.height;
+      c.drawImage(ca, (W - cww) / 2, H - 96 - chh, cww, chh);
+    }
 
-    // 3) 两侧压暗（原版两侧灌木阴影）
-    const sideL = c.createLinearGradient(0, 0, 140, 0);
-    sideL.addColorStop(0, 'rgba(6,16,6,0.7)');
-    sideL.addColorStop(1, 'rgba(6,16,6,0)');
-    c.fillStyle = sideL; c.fillRect(0, 0, 140, WALL_Y);
-    const sideR = c.createLinearGradient(W, 0, W - 140, 0);
-    sideR.addColorStop(0, 'rgba(6,16,6,0.7)');
-    sideR.addColorStop(1, 'rgba(6,16,6,0)');
-    c.fillStyle = sideR; c.fillRect(W - 140, 0, 140, WALL_Y);
-
-    // 4) 城墙：原包两套皮肤（castle_1 / castle_1_1），后半段分区换第二套
-    const castleArt = ((this.stageData && this.stageData.zone) >= 5 && this.tex.castle2) ? this.tex.castle2 : this.tex.castle;
-    const cw = W + 40, ch = cw * castleArt.height / castleArt.width;
-    c.drawImage(castleArt, (W - cw) / 2, WALL_Y - 6, cw, ch);
-
-    // 5) 城墙下暗部
-    c.fillStyle = '#111820';
-    c.fillRect(0, WALL_Y - 6 + ch, W, H - WALL_Y + 6 - ch);
+    // 底部草地暗化，让 HUD 与人物更清楚
+    const bot = c.createLinearGradient(0, H - 300, 0, H);
+    bot.addColorStop(0, 'rgba(0,0,0,0)');
+    bot.addColorStop(1, 'rgba(0,0,0,0.22)');
+    c.fillStyle = bot; c.fillRect(0, H - 300, W, 300);
     return cv;
   }
 
@@ -300,14 +306,14 @@ class BattleScene {
     });
   }
 
-  // 按分区挑怪物（只用渲染完整的骨架）
+  // 按分区挑怪物（15 种骷髅按区轮流）
   poolForZone(zone) {
     const sets = [
-      ['Goblin', 'Wolf', 'Gnoll', 'Bandit'],
-      ['Thorn', 'Giant_Spiders', 'Ent', 'Devil_Turtle'],
-      ['Anubis', 'Shadow_Archer', 'Hero_04_Ingame', 'Gnoll'],
-      ['Ice_Mage', 'FireMage', 'Lizard_Rider', 'Seraph'],
-      ['Bandit', 'Anubis', 'Sand_Warrios', 'Thorn']
+      ['E1', 'E2', 'E3', 'E4'],
+      ['E5', 'E6', 'E7', 'E8'],
+      ['E9', 'E10', 'E11', 'E12'],
+      ['E13', 'E14', 'E15', 'E1'],
+      ['E3', 'E6', 'E9', 'E12']
     ];
     const names = sets[(zone || 0) % sets.length];
     const out = names.map(n => this.enemy_infos[n]).filter(Boolean);
@@ -380,7 +386,7 @@ class BattleScene {
   killEnemy(e) {
     e.dying = true;
     e.dieT = 0.7;
-    if (e.info.anims.includes('Die')) e.state.setAnimation(0, 'Die', false);
+    if (e.info.anims.includes('Die')) e.once('Die', 'Idle');
     this.kills++;
     // 每日任务/事件的真实计数源（boss 只算 spawnEnemy 里放大标记的那一只）
     if (window.Daily) {
@@ -484,7 +490,7 @@ class BattleScene {
           this.g.playSfx('sfx_wallstone', 0.32);
           if (this.castleHP <= 0) this.gameOver(false);
         }
-        if (e.info.anims.includes('Attack_01')) e.state.setAnimation(0, 'Attack_01', false);
+        if (e.info.anims.includes('Attack_01')) e.once('Attack', 'Walk');
       }
     }
 
@@ -675,83 +681,94 @@ class BattleScene {
     ctx.fillRect(x, y, w * Math.max(0, e.hp / e.maxHp), h);
   }
 
-  // ---------- HUD（对齐原版 1080×1920 布局） ----------
+  // ---------- HUD（卡通皮肤） ----------
   drawHud() {
     const ctx = this.ctx;
+    const hasSkin = !!skinGet('sk_status_bg.webp');
 
-    // ===== 顶部状态条 =====
-    const barY = 14, barH = 52, barX = 12, barW = W - 24;
-    roundRect(ctx, barX, barY, barW, barH, 7, '#1d2632');
-
-    // 红色 Stage 段（约 42%）
-    const redW = barW * 0.42;
-    roundRect(ctx, barX, barY, redW, barH, 7, '#a4121a');
-    text(ctx, 'Stage ' + this.stage, barX + 14, barY + barH / 2, 28, '#ffffff', 'left', '#5d0a0e');
-    // Raid 标记（放在红色 Stage 段右侧，避免压住下方小图标）
-    if (this.raid) {
-      const bx = barX + redW - 96, by = barY + 12;
-      roundRect(ctx, bx, by, 84, 28, 6, '#3a2b10', '#ffcf5c', 1);
-      text(ctx, 'RAID ×' + (this.raid.mult || 2), bx + 42, by + 14, 13, '#ffcf5c', 'center');
+    // ===== 顶部状态条：木质底板 + 城墙血槽 + 金币 =====
+    const barY = 10, barH = 58, barX = 10, barW = W - 20;
+    if (hasSkin) {
+      skinPanel(ctx, barX, barY, barW, barH, { file: 'sk_status_bg.webp', m: 26 });
+    } else {
+      roundRect(ctx, barX, barY, barW, barH, 12, '#2a2013', '#7a4d22', 3);
     }
 
-    // 绿色城墙血条（42% → 75%）
-    const gx = barX + redW + 6, gw = barW * 0.75 - redW - 6;
-    roundRect(ctx, gx, barY, gw, barH, 5, '#28361c');
-    roundRect(ctx, gx, barY, gw * (this.castleHP / this.castleMax), barH, 5, '#5d8729');
+    // Stage 文本
+    text(ctx, 'Stage ' + this.stage, barX + 16, barY + barH / 2, 26, '#3a2208', 'left');
 
-    // 城墙血量数字
-    text(ctx, String(Math.round(this.castleHP)), barX + barW * 0.70, barY + barH / 2, 32, '#ffffff', 'center', '#141a12');
+    // 城墙血槽（中段）
+    const hpx = barX + 128, hpy = barY + 16, hpw = barW * 0.46;
+    skinBar(ctx, hpx, hpy, hpw, 26, this.castleHP / this.castleMax, 'sk_hp_bg.webp', 'sk_hp_fg.webp');
+    if (!hasSkin) {
+      text(ctx, String(Math.round(this.castleHP)), hpx + hpw / 2, hpy + 13, 20, '#fff', 'center', '#141a12');
+    } else {
+      text(ctx, String(Math.round(this.castleHP)), hpx + hpw / 2, hpy + 14, 18, '#fff8e1', 'center', '#5a3410');
+    }
 
-    // 金币（右上角，数字在图标左侧）
-    drawIcon(ctx, this.tex.gold, W - 34, barY + barH / 2, 0.8);
-    text(ctx, String(this.coins), W - 72, barY + barH / 2, 28, '#ffe07a', 'right', '#3a2a08');
+    // Raid 标记
+    if (this.raid) {
+      const bx = hpx + hpw + 10, by = barY + 15;
+      skinButton(ctx, bx, by, 78, 30, 'smallGreen', false, 'RAID×' + (this.raid.mult || 2), { size: 14 });
+    }
+
+    // 金币（右侧）
+    const coinImg = this.tex.gold;
+    if (coinImg && coinImg.width > 1) drawIcon(ctx, coinImg, barX + barW - 34, barY + barH / 2, 0.5);
+    text(ctx, String(this.coins), barX + barW - 62, barY + barH / 2, 24, '#fff3c4', 'right', '#5a3410');
 
     // ===== 四段推进小条 =====
-    const pipY = barY + barH + 8, pipH = 9;
-    const pipGap = 5, pipW = (barW * 0.72 - pipGap * 3) / 4;
+    const pipY = barY + barH + 6, pipH = 10;
+    const pipGap = 6, pipW = (barW * 0.7 - pipGap * 3) / 4;
     for (let i = 0; i < 4; i++) {
       const on = i < this.wave;
-      roundRect(ctx, barX + i * (pipW + pipGap), pipY, pipW, pipH, 4,
-        on ? (i === 3 ? '#2f6fb0' : '#f0c23a') : '#243044');
+      roundRect(ctx, barX + i * (pipW + pipGap), pipY, pipW, pipH, 5,
+        on ? (i === 3 ? '#3f8fd0' : '#f2b93b') : 'rgba(30,24,14,0.55)',
+        on ? 'rgba(255,240,190,0.7)' : 'rgba(255,255,255,0.12)', 2);
     }
 
     // ===== 底部操作栏 =====
-    const byY = H - 96;
-    roundRect(ctx, 0, byY, W, 96, 0, '#1a2333');
-    ctx.fillStyle = 'rgba(120,170,235,0.55)';
-    ctx.fillRect(0, byY, W, 2);
+    const byY = H - 100;
+    if (!skinSlice(ctx, 'sk_bot_bar.webp', 0, byY, W, 100, 70)) {
+      roundRect(ctx, 0, byY, W, 100, 0, '#3a2716');
+      ctx.fillStyle = 'rgba(255,214,140,0.6)';
+      ctx.fillRect(0, byY, W, 4);
+    }
 
-    const cy = byY + 50;
-    // 左：武器 / 宝石
-    this.btn(ctx, 56, cy, 30, this.tex.sword, 0.42, '#2f6fb0');
-    this.btn(ctx, 128, cy, 30, this.tex.gem, 0.62, '#2f6fb0');
+    const cy = byY + 52;
+    this.btn(ctx, 56, cy, 26, this.tex.sword, 0.42, '#2f5d24');
+    this.btn(ctx, 122, cy, 26, this.tex.gem, 0.58, '#2f5d24');
 
-    // 中：英雄血条（带原版外框）
-    const hx = 172, hw = W - 172 - 168, hy = cy - 21, hh = 42;
-    roundRect(ctx, hx - 7, hy - 7, hw + 14, hh + 14, 16, '#d8b055');
-    roundRect(ctx, hx - 3, hy - 3, hw + 6, hh + 6, 12, '#7a5a24');
-    roundRect(ctx, hx, hy, hw, hh, 9, '#3a0b0b');
-    roundRect(ctx, hx, hy, hw * (this.heroHP / this.heroMax), hh, 9, '#b3202a');
-    text(ctx, String(Math.round(this.heroHP)), hx + hw / 2, hy + hh / 2, 24, '#ffffff', 'center', '#520a0a');
+    // 中：英雄血条
+    const hx = 178, hw = W - 178 - 176, hy = cy - 20, hh = 40;
+    skinBar(ctx, hx, hy, hw, hh, this.heroHP / this.heroMax, 'sk_hp_bg.webp', 'sk_hp_fg.webp');
+    text(ctx, String(Math.round(this.heroHP)), hx + hw / 2, hy + hh / 2, 22, '#fff8e1', 'center', '#5a1414');
 
     // 右：加速 / 暂停
-    this.btn(ctx, W - 120, cy, 30, this.tex.speed, 0.55, '#2f6fb0');
-    this.btn(ctx, W - 56, cy, 30, this.tex.pause, 0.55, '#c0272d');
+    this.btn(ctx, W - 118, cy, 26, this.tex.speed, 0.5, '#2f5d24');
+    this.btn(ctx, W - 54, cy, 26, this.tex.pause, 0.46, '#8f2a1a');
 
-    // 左下三个技能格（图标用原包 Skill_H01_1~3）
-    const ss = 70, sy = H - 210, gap = 8;
+    // 左下三个技能格（卡槽底板）
+    const ss = 72, sy = H - 216, gap = 8;
     (this.skills || []).forEach((sk, i) => {
       const sx = 14 + i * (ss + gap);
       const ready = sk.t <= 0;
-      roundRect(ctx, sx, sy, ss, ss, 10, 'rgba(12,22,16,0.82)', ready ? '#79a24a' : '#3c4a38', 2);
-      drawIcon(ctx, this.tex.skillIcons[i], sx + ss / 2, sy + ss / 2 - 4, 0.52);
-      if (!ready) {
-        const k = sk.t / sk.cd;
-        ctx.fillStyle = 'rgba(0,0,0,0.58)';
-        ctx.fillRect(sx + 2, sy + 2 + (ss - 4) * (1 - k), ss - 4, (ss - 4) * k);
-        text(ctx, String(Math.ceil(sk.t)), sx + ss / 2, sy + ss / 2, 20, '#ffd9a0', 'center', '#20140a');
+      if (skinGet('sk_card_slot.webp')) {
+        skinSlice(ctx, 'sk_card_slot.webp', sx, sy, ss, ss, 26);
+        if (!ready) {
+          ctx.save();
+          ctx.globalAlpha = 0.55;
+          ctx.fillStyle = '#1b1206';
+          ctx.fillRect(sx + 3, sy + 3 + (ss - 6) * (1 - Math.min(1, sk.t / sk.cd)), ss - 6, (ss - 6) * Math.min(1, sk.t / sk.cd));
+          ctx.restore();
+        }
+      } else {
+        roundRect(ctx, sx, sy, ss, ss, 10, 'rgba(30,22,12,0.88)', ready ? '#79a24a' : '#3c4a38', 2);
       }
-      text(ctx, sk.name.length > 10 ? sk.name.slice(0, 10) : sk.name, sx + ss / 2, sy + ss - 10, 9, '#cfe0b8', 'center');
+      const skIco = skinGet('sk_booster' + (i + 1) + '.webp') || this.tex.skillIcons[i];
+      drawIcon(ctx, skIco, sx + ss / 2, sy + ss / 2 - 6, 0.5);
+      if (!ready) text(ctx, String(Math.ceil(sk.t)), sx + ss / 2, sy + ss / 2, 22, '#ffd9a0', 'center', '#20140a');
+      text(ctx, sk.name.length > 10 ? sk.name.slice(0, 10) : sk.name, sx + ss / 2, sy + ss - 10, 10, '#3a2208', 'center');
     });
   }
 
@@ -772,59 +789,77 @@ class BattleScene {
 
   drawPause() {
     const ctx = this.ctx;
-    ctx.fillStyle = 'rgba(0,0,0,0.62)';
+    ctx.fillStyle = 'rgba(20,12,4,0.62)';
     ctx.fillRect(0, 0, W, H);
-    text(ctx, '已暂停', W / 2, H / 2 - 90, 40, '#fff', 'center', '#000');
-    this.bigBtn(W / 2, H / 2 - 10, 240, 66, '继续战斗', '#2f7ad6', '#8fc4ff');
-    this.bigBtn(W / 2, H / 2 + 76, 240, 66, '返回关卡', '#4a5a70', '#9fb2c6');
+    if (!skinSlice(ctx, 'sk_paused_box.webp', 70, H / 2 - 190, W - 140, 320, 60)) {
+      roundRect(ctx, 70, H / 2 - 190, W - 140, 320, 20, 'rgba(40,28,14,0.95)', '#c68b4a', 4);
+    }
+    text(ctx, '已暂停', W / 2, H / 2 - 110, 40, '#ffd98a', 'center', '#4a2408');
+    this.bigBtn(W / 2, H / 2 - 10, 240, 66, '继续战斗', 'green');
+    this.bigBtn(W / 2, H / 2 + 76, 240, 66, '返回关卡', 'blue');
   }
 
-  bigBtn(cx, cy, w, h, label, bg, edge) {
+  bigBtn(cx, cy, w, h, label, style) {
     const ctx = this.ctx;
-    roundRect(ctx, cx - w / 2, cy - h / 2, w, h, 12, bg, edge, 2);
-    text(ctx, label, cx, cy, 26, '#fff', 'center', '#0c1016');
+    const st = style || 'green';
+    if (!skinButton(ctx, cx - w / 2, cy - h / 2, w, h, st, false, label, { size: 26, stroke: '#3a1c08' })) {
+      roundRect(ctx, cx - w / 2, cy - h / 2, w, h, 12, '#3a6f2f', '#f2d79a', 2);
+      text(ctx, label, cx, cy, 26, '#fff', 'center', '#0c1016');
+    }
   }
 
   drawResult() {
     const ctx = this.ctx;
-    ctx.fillStyle = 'rgba(0,0,0,0.72)';
+    ctx.fillStyle = 'rgba(20,12,4,0.72)';
     ctx.fillRect(0, 0, W, H);
-    const img = this.winFlag ? this.tex.win : this.tex.lose;
-    const iw = 460, ih = iw * img.height / img.width;
-    ctx.drawImage(img, (W - iw) / 2, H * 0.20, iw, ih);
-    text(ctx, 'Stage ' + this.stage, W / 2, H * 0.20 + ih + 26, 26, '#ffe9a8', 'center', '#000');
-    text(ctx, this.winFlag ? '通关 · 击杀 ' + this.kills + ' · 金币 +' + this.coins
-      : '城墙被攻破 · 击杀 ' + this.kills, W / 2, H * 0.20 + ih + 62, 20, '#fff', 'center', '#000');
-    // 本局掉落材料
+    const top = H * 0.14;
+    if (!skinSlice(ctx, 'sk_panel_box.webp', 56, top, W - 112, 560, 60)) {
+      roundRect(ctx, 56, top, W - 112, 560, 20, 'rgba(40,28,14,0.95)', '#c68b4a', 4);
+    }
+    // 标题缎带
+    if (skinGet('sk_top_title.webp')) {
+      ctx.drawImage(skinGet('sk_top_title.webp'), W / 2 - 190, top - 66, 380, 102);
+    }
+    text(ctx, this.winFlag ? '胜 利' : '失 败', W / 2, top + 8, 40,
+      this.winFlag ? '#ffe08a' : '#ffb0a0', 'center', '#5a2c0a');
+
+    text(ctx, 'Stage ' + this.stage, W / 2, top + 78, 26, '#ffe9a8', 'center', '#4a2408');
+    text(ctx, this.winFlag ? '击杀 ' + this.kills + ' · 金币 +' + this.coins
+      : '城墙被攻破 · 击杀 ' + this.kills, W / 2, top + 116, 20, '#fff6dd', 'center', '#4a2408');
+    // 掉落材料
     const drops = Object.keys(this.matDrops || {});
     if (drops.length) {
       const txt = '掉落：' + drops.map(id => this.matName(id) + ' x' + this.matDrops[id]).join('、');
-      text(ctx, txt.slice(0, 42), W / 2, H * 0.20 + ih + 88, 14, '#9fe6a8', 'center', '#000');
+      text(ctx, txt.slice(0, 42), W / 2, top + 148, 14, '#9fe6a8', 'center', '#2a3a12');
     }
+    // 星级
     if (this.winFlag && this.gainedStars) {
       const n = this.gainedStars;
       for (let i = 0; i < 3; i++) {
-        if (this.tex.star) drawIcon(ctx, this.tex.star, W / 2 - 40 + i * 40, H * 0.20 + ih + 104, 0.16, i < n ? 1 : 0.35);
+        const file = i < n ? 'sk_star_filled.webp' : 'sk_star_empty.webp';
+        if (!skinIcon(ctx, file, W / 2 - 78 + i * 56, top + 172, 48, i < n ? 1 : 0.75)) {
+          if (this.tex.star) drawIcon(ctx, this.tex.star, W / 2 - 40 + i * 40, top + 186, 0.16, i < n ? 1 : 0.35);
+        }
       }
     }
-    // 结算追加奖励（星级宝石 / 保底材料 / Boss 首通票）
     (this.bonusRewards || []).slice(0, 3).forEach((r, i) => {
-      text(ctx, r.slice(0, 40), W / 2, H * 0.20 + ih + 132 + i * 20, 13, '#ffcf5c', 'center', '#000');
+      text(ctx, r.slice(0, 40), W / 2, top + 232 + i * 22, 13, '#ffcf5c', 'center', '#4a2408');
     });
-    this.bigBtn(W / 2, H * 0.62, 260, 70, '再来一局', '#2f7ad6', '#8fc4ff');
-    this.bigBtn(W / 2, H * 0.62 + 90, 260, 70, '返回关卡', '#4a5a70', '#9fb2c6');
-    // 广告位：胜利双倍金币 / 失败复活（各一次，可换成真实激励视频）
+
+    this.bigBtn(W / 2, H * 0.62, 260, 70, '再来一局', 'green');
+    this.bigBtn(W / 2, H * 0.62 + 90, 260, 70, '返回关卡', 'blue');
+    // 广告位：胜利双倍金币 / 失败复活
     const adY = H * 0.62 + 180;
     if (this.winFlag) {
       const usable = !this.doubled && Ads.remaining() > 0;
       this.bigBtn(W / 2, adY, 260, 62, this.doubled ? '已领取双倍' : (usable ? '看广告 · 双倍金币' : '今日广告已用完'),
-        usable ? '#c58a1c' : '#3a4654', usable ? '#ffdf9a' : '#4a5a70');
+        usable ? 'orange' : 'smallGreen');
     } else {
       const usable = !this.revived && Ads.remaining() > 0;
       this.bigBtn(W / 2, adY, 260, 62, this.revived ? '已复活过' : (usable ? '看广告 · 原地复活' : '今日广告已用完'),
-        usable ? '#c58a1c' : '#3a4654', usable ? '#ffdf9a' : '#4a5a70');
+        usable ? 'orange' : 'smallGreen');
     }
-    text(ctx, '广告剩余 ' + Ads.remaining() + '/' + Ads.dailyMax, W / 2, adY + 52, 13, '#8fa3b7', 'center');
+    text(ctx, '广告剩余 ' + Ads.remaining() + '/' + Ads.dailyMax, W / 2, adY + 52, 13, '#f0ddb4', 'center');
   }
 
   // 结算页广告位：胜利领双倍金币 / 失败原地复活（每局各一次）

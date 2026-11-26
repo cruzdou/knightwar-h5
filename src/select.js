@@ -69,13 +69,21 @@ class LevelSelectScene {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, W, H);
 
-    // 背景：暗色垂直渐变
-    const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#0a1018');
-    g.addColorStop(0.5, '#0d1520');
-    g.addColorStop(1, '#070b11');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, W, H);
+    // 背景：卡通木纹底（缺图时回退暗色渐变）
+    const wood = skinGet('sk_screen_bg.webp');
+    if (wood) {
+      const sc = Math.max(W / wood.width, H / wood.height);
+      ctx.drawImage(wood, (W - wood.width * sc) / 2, (H - wood.height * sc) / 2, wood.width * sc, wood.height * sc);
+      ctx.fillStyle = 'rgba(60,30,12,0.18)';
+      ctx.fillRect(0, 0, W, H);
+    } else {
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, '#2b1d10');
+      g.addColorStop(0.5, '#332413');
+      g.addColorStop(1, '#241708');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+    }
 
     this.hot.length = 0;
     this.drawTopBar();
@@ -96,7 +104,7 @@ class LevelSelectScene {
     if (!t || Date.now() > t.until) return;
     const ctx = this.ctx, w = Math.min(W - 80, 26 + t.txt.length * 13), h = 40;
     const x = (W - w) / 2, y = H - 200;
-    roundRect(ctx, x, y, w, h, 20, 'rgba(12,20,30,0.92)', '#e8b548', 1);
+    roundRect(ctx, x, y, w, h, 20, 'rgba(30,18,8,0.92)', '#e8b548', 1);
     text(ctx, t.txt, W / 2, y + h / 2, 14, '#ffe9a8', 'center');
   }
 
@@ -105,7 +113,7 @@ class LevelSelectScene {
     drawTopBar(this.ctx, this.tex, Player, this.hot);
     // 成就入口（齿轮左边）：星星图标 + 可领小红点
     const ctx = this.ctx, bx = W - 124, by = 12, bw = 54, bh = 54;
-    roundRect(ctx, bx, by, bw, bh, 8, '#111b26', '#3a4d62', 2);
+    roundRect(ctx, bx, by, bw, bh, 8, '#3a2a18', '#8a5a2a', 2);
     if (this.tex.star) drawIcon(ctx, this.tex.star, bx + bw / 2, by + bh / 2, 0.20);
     const n = (window.Achv ? Achv.claimable() : 0);
     if (n > 0) {
@@ -121,17 +129,17 @@ class LevelSelectScene {
     const ctx = this.ctx, x = SEL.left.x, w = SEL.left.w;
     // 玩家卡
     let y = SEL.castle.y, h = 88;
-    roundRect(ctx, x, y, w, h, 8, '#141d29', '#2c3f52', 2);
+    roundRect(ctx, x, y, w, h, 8, '#3f2d19', '#8a5a2a', 2);
     ctx.save();
     ctx.beginPath(); ctx.arc(x + 34, y + 40, 24, 0, Math.PI * 2); ctx.clip();
-    ctx.fillStyle = '#1d2b3a'; ctx.fillRect(x + 8, y + 14, 50, 50);
+    ctx.fillStyle = '#4a331d'; ctx.fillRect(x + 8, y + 14, 50, 50);
     ctx.restore();
     if (this.tex.lock) drawIcon(ctx, this.tex.lock, x + 34, y + 40, 0.4);
-    text(ctx, 'Guest', x + 64, y + 28, 17, '#e8eef6');
-    text(ctx, 'Lv 1', x + 64, y + 50, 14, '#9fb2c6');
-    roundRect(ctx, x + 64, y + 62, w - 72, 10, 5, '#1c2836');
-    roundRect(ctx, x + 64, y + 62, (w - 72) * (46 / 200), 10, 5, '#3f95e0');
-    text(ctx, '46/200', x + w - 10, y + 84, 11, '#7f93a8', 'right');
+    text(ctx, 'Guest', x + 64, y + 28, 17, '#fff6dd');
+    text(ctx, 'Lv 1', x + 64, y + 50, 14, '#e8cfa0');
+    roundRect(ctx, x + 64, y + 62, w - 72, 10, 5, '#2f2113');
+    roundRect(ctx, x + 64, y + 62, (w - 72) * (46 / 200), 10, 5, '#d99a2b');
+    text(ctx, '46/200', x + w - 10, y + 84, 11, '#c3a172', 'right');
 
     // 礼包卡
     y = SEL.castle.y + 96;
@@ -159,7 +167,7 @@ class LevelSelectScene {
 
   packCard(x, y, w, h, title, sub, tag, act, key) {
     const ctx = this.ctx;
-    roundRect(ctx, x, y, w, h, 8, '#16202d', '#33475e', 2);
+    roundRect(ctx, x, y, w, h, 8, '#452f1a', '#9a6630', 2);
     const lg = ctx.createLinearGradient(x, y, x, y + 30);
     lg.addColorStop(0, 'rgba(255,190,80,0.35)');
     lg.addColorStop(1, 'rgba(255,190,80,0)');
@@ -171,7 +179,7 @@ class LevelSelectScene {
     } else if (this.tex.chest) {
       drawIcon(ctx, this.tex.chest, x + w / 2, y + 52, 0.34);
     }
-    text(ctx, sub, x + w / 2, y + 84, 13, '#a8bccf', 'center');
+    text(ctx, sub, x + w / 2, y + 84, 13, '#e0c79a', 'center');
     roundRect(ctx, x + w - 34, y + 4, 28, 15, 4, '#3a2b10', '#ffcf5c', 1);
     text(ctx, tag, x + w - 20, y + 12, 9, '#ffcf5c', 'center');
     // 可点的卡：盟友页 / 礼包详情 / Raid 页
@@ -183,8 +191,8 @@ class LevelSelectScene {
     const ctx = this.ctx, x = SEL.mid.x, w = SEL.mid.w, y = SEL.castle.y, h = SEL.castle.h;
 
     // 外框
-    roundRect(ctx, x, y, w, h, 12, '#0b1219', '#6d5a2c', 3);
-    roundRect(ctx, x + 4, y + 4, w - 8, h - 8, 10, '#0e1822');
+    roundRect(ctx, x, y, w, h, 12, '#19100a', '#6d5a2c', 3);
+    roundRect(ctx, x + 4, y + 4, w - 8, h - 8, 10, '#22150a');
 
     // 城堡画面（原版 castle_1 双塔，底对齐）
     if (this.tex.castle) {
@@ -194,9 +202,9 @@ class LevelSelectScene {
       ctx.clip();
       ctx.drawImage(this.tex.castle, x + 4, y + h - ch + 20, cw, ch);
       const fade = ctx.createLinearGradient(0, y + 4, 0, y + h);
-      fade.addColorStop(0, 'rgba(8,12,18,0.75)');
-      fade.addColorStop(0.55, 'rgba(8,12,18,0.25)');
-      fade.addColorStop(1, 'rgba(8,12,18,0.05)');
+      fade.addColorStop(0, 'rgba(26,15,7,0.78)');
+      fade.addColorStop(0.55, 'rgba(26,15,7,0.30)');
+      fade.addColorStop(1, 'rgba(26,15,7,0.05)');
       ctx.fillStyle = fade; ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
       ctx.restore();
     }
@@ -205,12 +213,16 @@ class LevelSelectScene {
     const stages = this.curStages();
     const starsGot = stages.reduce((s, l) => s + Player.starsOf(l.name), 0);
     const rw = 260, rh = rw * (this.tex.ribbon ? this.tex.ribbon.height / this.tex.ribbon.width : 0.36);
-    if (this.tex.ribbon) {
+    const skinRibbon = window.skinGet && skinGet('sk_top_title.webp');
+    if (skinRibbon) {
+      const rh2 = rw * skinRibbon.height / skinRibbon.width;
+      ctx.drawImage(skinRibbon, x + (w - rw) / 2, y + 16, rw, rh2);
+    } else if (this.tex.ribbon) {
       ctx.drawImage(this.tex.ribbon, x + (w - rw) / 2, y + 16, rw, rh);
     } else {
-      roundRect(ctx, x + (w - rw) / 2, y + 20, rw, 44, 8, '#4b2a7a');
+      roundRect(ctx, x + (w - rw) / 2, y + 20, rw, 44, 8, '#7a2629');
     }
-    text(ctx, stages[0] ? stages[0].zoneName : 'Mirkwood', x + w / 2, y + 16 + rh * 0.46, 22, '#ffe9a8', 'center', '#2a1440');
+    text(ctx, stages[0] ? stages[0].zoneName : 'Mirkwood', x + w / 2, y + 16 + rh * 0.46, 22, '#ffe9a8', 'center', '#401217');
 
     // 星星计数 5/30
     const sy = y + 16 + rh + 26;
@@ -221,15 +233,15 @@ class LevelSelectScene {
     const ay = y + h - 44;
     this.arrowBtn(x + 16, ay, -1, this.zoneIdx > 0);
     this.arrowBtn(x + w - 16, ay, 1, this.zoneIdx < this.zones.length - 1);
-    text(ctx, (this.zoneIdx + 1) + ' / ' + this.zones.length, x + w / 2, ay, 14, '#8fa3b7', 'center');
+    text(ctx, (this.zoneIdx + 1) + ' / ' + this.zones.length, x + w / 2, ay, 14, '#d9b98a', 'center');
 
     // 左侧锁门提示（原版：骷髅门）
-    text(ctx, stages.length + ' 个关卡', x + 16, y + h - 22, 12, '#8fa3b7', 'left');
+    text(ctx, stages.length + ' 个关卡', x + 16, y + h - 22, 12, '#d9b98a', 'left');
   }
 
   arrowBtn(cx, cy, dir, on, act) {
     const ctx = this.ctx;
-    roundRect(ctx, cx - 20, cy - 20, 40, 40, 20, on ? 'rgba(47,111,176,0.85)' : 'rgba(30,40,54,0.8)', '#2c3f52', 2);
+    roundRect(ctx, cx - 20, cy - 20, 40, 40, 20, on ? 'rgba(176,99,28,0.85)' : 'rgba(54,36,18,0.8)', '#8a5a2a', 2);
     if (this.tex.arrowPrev) {
       ctx.save();
       ctx.translate(cx, cy);
@@ -252,14 +264,14 @@ class LevelSelectScene {
     const nEvent = ready ? Daily.sectionClaimable('event') : 0;
     let y = SEL.castle.y;
     this.rightCard(x, y, w, 88, 'VIP only', 'crown', '#c8a13c'); y += 96;
-    this.rightCard(x, y, w, 88, 'Daily Gift', 'chest', '#4f8fd0', { act: 'daily', tab: 'sign' }, nSign); y += 96;
-    this.rightCard(x, y, w, 88, 'Quest', 'book', '#4f8fd0', { act: 'daily', tab: 'quest' }, nQuest); y += 96;
+    this.rightCard(x, y, w, 88, 'Daily Gift', 'chest', '#d0832b', { act: 'daily', tab: 'sign' }, nSign); y += 96;
+    this.rightCard(x, y, w, 88, 'Quest', 'book', '#d0832b', { act: 'daily', tab: 'quest' }, nQuest); y += 96;
     this.rightCard(x, y, w, 88, 'Event', 'green', '#6aa84f', { act: 'daily', tab: 'event' }, nEvent);
   }
 
   rightCard(x, y, w, h, label, icon, color, tap, dot) {
     const ctx = this.ctx;
-    roundRect(ctx, x, y, w, h, 8, '#141d29', color, 2);
+    roundRect(ctx, x, y, w, h, 8, '#3f2d19', color, 2);
     const lg = ctx.createLinearGradient(x, y, x, y + h);
     lg.addColorStop(0, 'rgba(255,255,255,0.06)');
     lg.addColorStop(1, 'rgba(0,0,0,0.2)');
@@ -267,7 +279,7 @@ class LevelSelectScene {
     roundRect(ctx, x + 1, y + 1, w - 2, h - 2, 7, lg);
     const img = this.tex[icon];
     if (img) drawIcon(ctx, img, x + w / 2, y + 34, icon === 'green' ? 0.40 : 0.46);
-    text(ctx, label, x + w / 2, y + h - 14, 13, '#dfe9f5', 'center', '#0a1018');
+    text(ctx, label, x + w / 2, y + h - 14, 13, '#f5d67a', 'center', '#2b1d10');
     // 可领数量小红点
     if (dot > 0) {
       ctx.beginPath();
@@ -290,14 +302,14 @@ class LevelSelectScene {
   drawMilestones() {
     const ctx = this.ctx;
     const x = SEL.mid.x, w = SEL.mid.w, y = SEL.castle.y + SEL.castle.h + 12;
-    text(ctx, 'STAR MILESTONE', x, y - 2, 11, '#7f93a8', 'left');
+    text(ctx, 'STAR MILESTONE', x, y - 2, 11, '#c3a172', 'left');
 
     const stages = this.curStages();
     const starsGot = stages.reduce((s2, l) => s2 + Player.starsOf(l.name), 0);
     const starsMax = Math.max(1, stages.length * 3);
     const zone = this.zoneIdx;
     const needs = this.milestoneNeeds(stages);
-    text(ctx, '★ ' + starsGot + ' / ' + starsMax, x + w, y - 2, 11, '#8fa3b7', 'right');
+    text(ctx, '★ ' + starsGot + ' / ' + starsMax, x + w, y - 2, 11, '#d9b98a', 'right');
     const rewards = [
       { kind: 'coin', n: 800 },
       { kind: 'gem', n: 15 },
@@ -312,22 +324,22 @@ class LevelSelectScene {
       const reached = starsGot >= need;
       const claimed = Player.starClaimed(zone, i);
       const claimable = reached && !claimed;
-      const bg = claimable ? '#2a2110' : (claimed ? '#141d17' : '#131b25');
-      const edge = claimable ? '#e8b548' : (claimed ? '#2f6b45' : '#28323e');
+      const bg = claimable ? '#2a2110' : (claimed ? '#141d17' : '#25180b');
+      const edge = claimable ? '#e8b548' : (claimed ? '#45601c' : '#3e2e16');
       roundRect(ctx, cx, y + 10, cw, 44, 7, bg, edge, claimable ? 2 : 1);
       const img = r.kind === 'coin' ? this.tex.coin : this.tex.gem;
       if (img) drawIcon(ctx, img, cx + 18, y + 32, 0.38, reached ? 1 : 0.5);
-      text(ctx, need + '★', cx + 40, y + 24, 12, claimable ? '#ffe9a8' : '#8fa3b7', 'left');
+      text(ctx, need + '★', cx + 40, y + 24, 12, claimable ? '#ffe9a8' : '#d9b98a', 'left');
       text(ctx, claimed ? '已领' : (claimable ? '可领取' : '+' + r.n), cx + cw - 10, y + 42, 12,
-        claimed ? '#6fd39a' : (claimable ? '#ffcf5c' : '#6f8398'), 'right');
+        claimed ? '#9abd42' : (claimable ? '#ffcf5c' : '#b5926a'), 'right');
       if (claimable) this.hot.push({ x: cx, y: y + 10, w: cw, h: 44, act: 'msClaim', idx: i, zone, need, kind: r.kind, n: r.n });
     });
 
     // 进度条（按本区 30 星）
     const by = y + 58;
-    roundRect(ctx, x, by, w, 8, 4, '#16202d', '#2c3f52', 1);
+    roundRect(ctx, x, by, w, 8, 4, '#452f1a', '#8a5a2a', 1);
 
-    roundRect(ctx, x, by, w * Math.min(1, starsGot / starsMax), 8, 4, '#3f95e0');
+    roundRect(ctx, x, by, w * Math.min(1, starsGot / starsMax), 8, 4, '#d99a2b');
   }
 
   // 关卡卡片列表
@@ -351,7 +363,7 @@ class LevelSelectScene {
       const isNext = idx === latest;
       const gold = isNext || st.levelType === 'bigBoss';
 
-      roundRect(ctx, x, y, w, h, 9, gold ? '#1d2233' : '#161d27', gold ? '#c8a13c' : '#33475e', gold ? 2.5 : 2);
+      roundRect(ctx, x, y, w, h, 9, gold ? '#331f0f' : '#271a0d', gold ? '#c8a13c' : '#9a6630', gold ? 2.5 : 2);
       if (gold) {
         const lg = ctx.createLinearGradient(x, y, x + w, y + h);
         lg.addColorStop(0, 'rgba(255,200,90,0.14)');
@@ -363,12 +375,12 @@ class LevelSelectScene {
       const tiles = [this.tex.coin, this.tex.gem, this.tex.anvil, this.tex.book];
       tiles.forEach((img, k) => {
         const tx = x + 12 + (k % 2) * 34, ty = y + 22 + Math.floor(k / 2) * 36;
-        roundRect(ctx, tx, ty, 28, 28, 5, '#0e151d', '#2a3644', 1);
+        roundRect(ctx, tx, ty, 28, 28, 5, '#1d120a', '#443117', 1);
         if (img) drawIcon(ctx, img, tx + 14, ty + 14, 0.28, 0.9);
       });
 
       // 关卡名 + 星级
-      text(ctx, st.name, x + 96, y + 28, 22, gold ? '#ffe9a8' : '#dbe6f2', 'left', '#0c1016');
+      text(ctx, st.name, x + 96, y + 28, 22, gold ? '#ffe9a8' : '#f2d378', 'left', '#0c1016');
       const gotStars = Player.starsOf(st.name);
       let sx = x + 96;
       for (let s = 0; s < 3; s++) {
@@ -376,7 +388,7 @@ class LevelSelectScene {
         if (img) drawIcon(ctx, img, sx + 9, y + 62, 0.115, s < gotStars ? 1 : 0.6);
         sx += 20;
       }
-      text(ctx, st.totalEnemy + ' 敌 · ' + st.levelCoins + ' 金币', x + 96, y + 90, 11, '#8fa3b7', 'left');
+      text(ctx, st.totalEnemy + ' 敌 · ' + st.levelCoins + ' 金币', x + 96, y + 90, 11, '#d9b98a', 'left');
       if (st.levelType !== 'Normal') {
         text(ctx, st.levelType === 'bigBoss' ? 'BOSS' : 'MINI', x + 96 + 62, y + 28, 10, '#ff7a6a', 'left');
       }
@@ -387,7 +399,7 @@ class LevelSelectScene {
       if (btnImg) {
         ctx.drawImage(btnImg, bx, by, bw, bh);
       } else {
-        roundRect(ctx, bx, by, bw, bh, 8, isNext ? '#e0a52a' : '#2f6fb0');
+        roundRect(ctx, bx, by, bw, bh, 8, isNext ? '#e0a52a' : '#b8762a');
       }
       text(ctx, isNext ? 'Battle' : 'Replay', bx + bw / 2, by + bh / 2, 17, '#ffffff', 'center', '#1a1206');
 
@@ -401,7 +413,7 @@ class LevelSelectScene {
       const onPrev = this.page > 0, onNext = this.page < this.pageCount() - 1;
       this.arrowBtn(x + 30, py, -1, onPrev, 'pagePrev');
       this.arrowBtn(x + w - 30, py, 1, onNext, 'pageNext');
-      text(ctx, (this.page + 1) + ' / ' + this.pageCount(), x + w / 2, py, 14, '#8fa3b7', 'center');
+      text(ctx, (this.page + 1) + ' / ' + this.pageCount(), x + w / 2, py, 14, '#d9b98a', 'center');
       y = py + 34;
     }
 
@@ -415,7 +427,7 @@ class LevelSelectScene {
 
   drawUnlock(x, y, w, h) {
     const ctx = this.ctx;
-    roundRect(ctx, x, y, w, h, 10, '#101a24', '#28323e', 2);
+    roundRect(ctx, x, y, w, h, 10, '#24170a', '#3e2e16', 2);
     const nz = this.zones[this.zoneIdx + 1];
     // 底图（放在文字下面）
     if (this.tex.castle) {
@@ -426,11 +438,11 @@ class LevelSelectScene {
       ctx.restore();
     }
     if (this.tex.lock) drawIcon(ctx, this.tex.lock, x + w / 2, y + 40, 0.5, 0.9);
-    text(ctx, nz ? '下一分区' : '全部通关', x + w / 2, y + 86, 18, '#ffe9a8', 'center', '#101820');
-    text(ctx, nz ? (ZONE_NAMES[nz] || ('Zone ' + (nz + 1))) : '已抵达最后一站', x + w / 2, y + 114, 14, '#9fb2c6', 'center');
+    text(ctx, nz ? '下一分区' : '全部通关', x + w / 2, y + 86, 18, '#ffe9a8', 'center', '#20150a');
+    text(ctx, nz ? (ZONE_NAMES[nz] || ('Zone ' + (nz + 1))) : '已抵达最后一站', x + w / 2, y + 114, 14, '#e8cfa0', 'center');
     if (nz) {
       const need = this.curStages().length;
-      text(ctx, '完成本分区 ' + need + ' 关后进入', x + w / 2, y + 138, 11, '#6f8398', 'center');
+      text(ctx, '完成本分区 ' + need + ' 关后进入', x + w / 2, y + 138, 11, '#b5926a', 'center');
     }
   }
 

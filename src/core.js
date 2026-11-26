@@ -204,22 +204,37 @@ function measurePose(sk) {
   return { minX, maxX, minY, maxY };
 }
 
-// 一个可绘制的 Spine 角色实例
+// 一个可绘制的角色实例：Spine 骨架 或 逐帧条带（Castle Guards 素材）
 class Actor {
   constructor(info, opts = {}) {
     this.info = info;
+    this.x = 0; this.y = 0; this.scale = 1;
+    this.alpha = 1;
+    this.flip = false;
+    // ---- 逐帧单位 ----
+    if (info && info.kind === 'frames') {
+      this.fx = { anim: null, t: 0, loop: true, base: null, once: false };
+      if (opts.anim) this.play(opts.anim, true);
+      return;
+    }
     this.sk = new SP.Skeleton(info.data);
     this.sk.setSkin(data0(info));
     this.sk.setToSetupPose();
     this.state = new SP.AnimationState(new SP.AnimationStateData(info.data));
-    this.x = 0; this.y = 0; this.scale = 1;
-    this.alpha = 1;
-    this.flip = false;
     this.queue = [];          // 一次性动画结束后要恢复的动画
     if (opts.anim) this.play(opts.anim, true);
   }
 
   play(name, loop) {
+    if (this.info && this.info.kind === 'frames') {
+      const key = ANIM_ALIAS[name] || (this.info.frames[name] ? name : null);
+      if (!key || !this.info.frames[key]) return;
+      if (this.fx.anim === key && this.fx.loop === !!loop) return;
+      this.fx.anim = key; this.fx.loop = !!loop; this.fx.t = 0; this.fx.once = false;
+      this.fx.base = !!loop ? key : (this.fx.base || key);
+      loadSheet(this.info.unit, key);
+      return;
+    }
     const anim = this.info.anims.includes(name) ? name : this.info.anims[0];
     this.current = anim;
     this.state.setAnimation(0, anim, !!loop);
@@ -227,18 +242,71 @@ class Actor {
 
   // 播一次性动画，结束后回到 base
   once(name, base) {
+    if (this.info && this.info.kind === 'frames') {
+      const key = ANIM_ALIAS[name] || (this.info.frames[name] ? name : null);
+      if (!key || !this.info.frames[key]) return;
+      const bk = ANIM_ALIAS[base] || (this.info.frames[base] ? base : 'idle');
+      this.fx.anim = key; this.fx.loop = false; this.fx.t = 0; this.fx.once = true;
+      this.fx.base = (bk && this.info.frames[bk]) ? bk : 'idle';
+      loadSheet(this.info.unit, key);
+      return;
+    }
     if (!this.info.anims.includes(name)) return;
     this.state.setAnimation(0, name, false);
     this.state.addAnimation(0, base, true, 0);
   }
 
   update(dt) {
+    if (this.info && this.info.kind === 'frames') {
+      if (!this.fx.anim) return;
+      const meta = this.info.frames[this.fx.anim];
+      const n = meta ? meta.frames : 1;
+      this.fx.t += dt * (this.info.fps || 15);
+      if (this.fx.t >= n) {
+        if (this.fx.loop) this.fx.t %= n;
+        else {
+          // 一次性动画结束：回基础动画
+          const base = this.fx.base || 'idle';
+          this.fx.t = 0; this.fx.anim = base; this.fx.loop = true; this.fx.once = false;
+          if (this.info.frames[base]) loadSheet(this.info.unit, base);
+        }
+      }
+      return;
+    }
     this.state.update(dt);
     this.state.apply(this.sk);
     this.sk.updateWorldTransform();
   }
 
   draw(ctx, renderer) {
+    if (this.info && this.info.kind === 'frames') {
+      const key = this.fx.anim || 'idle';
+      const sheet = sheetCache[this.info.unit + '|' + key];
+      // 条带尚未就绪时用已缓存的 idle 顶一下，避免空帧闪烁
+      const ready = sheet && sheet.__v ? sheet.__v : null;
+      const idle = sheetCache[this.info.unit + '|idle'];
+      const use = ready || (idle && idle.__v);
+      if (use) {
+        const s = this.scale, fw = this.info.w, fh = this.info.h;
+        const n = use.frames;
+        const f = Math.min(n - 1, Math.max(0, Math.floor(this.fx.t || 0)));
+        const dw = fw * s, dh = fh * s;
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        if (this.flip) {
+          ctx.translate(this.x, 0);
+          ctx.scale(-1, 1);
+          ctx.drawImage(use.img, f * fw, 0, fw, fh, -dw / 2, this.y - dh, dw, dh);
+        } else {
+          ctx.drawImage(use.img, f * fw, 0, fw, fh, this.x - dw / 2, this.y - dh, dw, dh);
+        }
+        ctx.restore();
+        return;
+      }
+      // 都还没加载好：先触发载入，本帧不画
+      if (!sheet) loadSheet(this.info.unit, key);
+      return;
+    }
     const s = this.scale;
     const roots = rootBones(this.sk);
     // 3.6 的 JS 运行时不用 skeleton.scaleX/Y，缩放必须挂在顶层骨骼上
@@ -316,26 +384,40 @@ function drawIcon(ctx, img, cx, cy, scale, alpha) {
 
 function lerp(a, b, t) { return a + (b - a) * t; }
 
+// 按目标高度等比绘制图标（不同素材尺寸差异大时用它，避免一张图糊满屏）
+function drawIconFit(ctx, img, cx, cy, targetH, alpha) {
+  if (!img || !img.width) return;
+  const h = targetH, w = targetH * img.width / img.height;
+  ctx.save();
+  if (alpha !== undefined) ctx.globalAlpha = alpha;
+  ctx.drawImage(img, cx - w / 2, cy - h / 2, w, h);
+  ctx.restore();
+}
+
 // ---------- 公共外框：顶部资源条 / 底部五标签导航（选关页和各功能页共用） ----------
 function drawTopBar(ctx, tex, pl, hot) {
   const y = 12, h = 54;
   const pills = [
-    { x: 8, w: 148, icon: tex.stamina, v: pl.stamina },
-    { x: 164, w: 132, icon: tex.gem, v: pl.gems },
-    { x: 304, w: 148, icon: tex.coin, v: pl.coins }
+    { x: 8, w: 148, icon: skinGet('sk_icon_hp.webp') || tex.stamina, v: pl.stamina },
+    { x: 164, w: 132, icon: skinGet('sk_gem_icon.webp') || tex.gem, v: pl.gems },
+    { x: 304, w: 148, icon: skinGet('sk_coin_icon.webp') || tex.coin, v: pl.coins }
   ];
   for (const p of pills) {
-    roundRect(ctx, p.x, y, p.w, h, 8, '#111b26', '#2c3f52', 2);
-    const lg = ctx.createLinearGradient(0, y, 0, y + h);
-    lg.addColorStop(0, 'rgba(90,130,180,0.18)');
-    lg.addColorStop(1, 'rgba(10,16,24,0)');
-    roundRect(ctx, p.x + 1, y + 1, p.w - 2, h - 2, 7, lg);
-    drawIcon(ctx, p.icon, p.x + 22, y + h / 2, 0.62);
-    text(ctx, String(p.v), p.x + 44, y + h / 2, 24, '#ffe9a8', 'left', '#20160a');
-    roundRect(ctx, p.x + p.w - 22, y + h / 2 - 9, 18, 18, 5, '#2f6fb0', '#7fc6ff', 1);
-    drawIcon(ctx, tex.plus, p.x + p.w - 13, y + h / 2, 0.34);
+    if (!skinHBar(ctx, 'sk_gem_bar.webp', p.x, y, p.w, h, 0.5)) {
+      roundRect(ctx, p.x, y, p.w, h, 8, '#241a10', '#8a5a2a', 2);
+    }
+    drawIconFit(ctx, p.icon, p.x + 20, y + h / 2, 28);
+    text(ctx, String(p.v), p.x + 36, y + h / 2, 20, '#fff3c4', 'left', '#4a2a08');
+    if (skinGet('sk_small_green.webp')) {
+      skinHBar(ctx, 'sk_small_green.webp', p.x + p.w - 26, y + h / 2 - 11, 22, 22, 0.5);
+      text(ctx, '+', p.x + p.w - 15, y + h / 2, 16, '#fff8e1', 'center', '#2a4a10');
+    } else {
+      roundRect(ctx, p.x + p.w - 22, y + h / 2 - 9, 18, 18, 5, '#b8762a', '#f2d79a', 1);
+      drawIcon(ctx, tex.plus, p.x + p.w - 13, y + h / 2, 0.34);
+    }
   }
-  text(ctx, '⚙', W - 16, y + h / 2, 26, '#9fb2c6', 'right');
+  if (skinGet('sk_btn_settings.webp')) drawIcon(ctx, skinGet('sk_btn_settings.webp'), W - 30, y + h / 2, 0.3);
+  else text(ctx, '⚙', W - 16, y + h / 2, 26, '#9fb2c6', 'right');
 }
 
 const NAV_TABS = [
@@ -347,19 +429,25 @@ const NAV_TABS = [
 ];
 
 function drawBottomNav(ctx, tex, active, hot) {
-  const y = H - 92;
-  roundRect(ctx, 0, y, W, 92, 0, '#0d151e');
-  ctx.fillStyle = 'rgba(120,170,235,0.35)';
-  ctx.fillRect(0, y, W, 2);
+  const y = H - 100;
+  if (!skinSlice(ctx, 'sk_bot_bar.webp', 0, y, W, 100, 60)) {
+    roundRect(ctx, 0, y, W, 100, 0, '#3a2716');
+    ctx.fillStyle = 'rgba(255,214,140,0.45)';
+    ctx.fillRect(0, y, W, 3);
+  }
   const step = W / NAV_TABS.length;
+  const SK = { shop: 'sk_icon_shop.webp', craft: 'sk_icon_card.webp', fight: 'sk_icon_challenge.webp',
+               hero: 'sk_icon_achv.webp', castle: 'sk_icon_home.webp' };
   NAV_TABS.forEach((t, i) => {
-    const cx = step * (i + 0.5), cy = y + 44;
+    const cx = step * (i + 0.5), cy = y + 48;
     const on = t.kind === active;
-    if (on) roundRect(ctx, cx - 40, cy - 34, 80, 68, 12, 'rgba(63,149,224,0.22)', '#3f95e0', 2);
-    const img = tex[t.img];
-    if (img) drawIcon(ctx, img, cx, cy - 6, on ? 0.46 : 0.38, on ? 1 : 0.72);
-    text(ctx, t.lbl, cx, y + 74, 12, on ? '#9fd0ff' : '#6f8398', 'center');
-    if (hot && !on) hot.push({ x: cx - 72, y, w: 144, h: 92, act: 'nav', kind: t.kind });
+    if (on && !skinSlice(ctx, 'sk_tab_active1.webp', cx - 46, cy - 40, 92, 80, 24)) {
+      roundRect(ctx, cx - 40, cy - 34, 80, 68, 12, 'rgba(255,214,120,0.28)', '#f0b93b', 2);
+    }
+    const img = skinGet(SK[t.kind]) || tex[t.img];
+    if (img) drawIconFit(ctx, img, cx, cy - 8, on ? 44 : 38, on ? 1 : 0.85);
+    text(ctx, t.lbl, cx, y + 82, 14, on ? '#ffe6a8' : '#8a6a3c', 'center', on ? '#4a2108' : undefined);
+    if (hot && !on) hot.push({ x: cx - 72, y, w: 144, h: 100, act: 'nav', kind: t.kind });
   });
 }
 
@@ -371,7 +459,7 @@ function drawToast(ctx, msg, t) {
   ctx.globalAlpha = a;
   ctx.font = 'bold 18px "Microsoft YaHei", Arial, sans-serif';
   const w = Math.min(W - 40, ctx.measureText(msg).width + 80);
-  roundRect(ctx, (W - w) / 2, H - 210, w, 52, 10, 'rgba(12,20,28,0.92)', '#4a7fb5', 2);
+  roundRect(ctx, (W - w) / 2, H - 210, w, 52, 10, 'rgba(44,26,12,0.94)', '#c68b4a', 2);
   text(ctx, msg, W / 2, H - 184, 18, '#ffe9a8', 'center');
   ctx.restore();
 }

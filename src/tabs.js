@@ -166,12 +166,20 @@ class TabScene {
     const ctx = this.ctx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, W, H);
-    const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#0a1018');
-    g.addColorStop(0.5, '#0d1520');
-    g.addColorStop(1, '#070b11');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, W, H);
+    const wood = skinGet('sk_screen_bg.webp');
+    if (wood) {
+      const sc = Math.max(W / wood.width, H / wood.height);
+      ctx.drawImage(wood, (W - wood.width * sc) / 2, (H - wood.height * sc) / 2, wood.width * sc, wood.height * sc);
+      ctx.fillStyle = 'rgba(60,30,12,0.18)';
+      ctx.fillRect(0, 0, W, H);
+    } else {
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, '#2b1d10');
+      g.addColorStop(0.5, '#332413');
+      g.addColorStop(1, '#241708');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+    }
 
     this.hot.length = 0;
     drawTopBar(ctx, this.tex, Player, this.hot);
@@ -184,9 +192,9 @@ class TabScene {
 
   title(txt, sub) {
     const ctx = this.ctx, x = 12, y = 84;
-    roundRect(ctx, x, y, W - 24, 52, 9, '#141d29', '#6d5a2c', 2);
-    text(ctx, txt, x + 16, y + 26, 20, '#ffe9a8', 'left', '#20160a');
-    if (sub) text(ctx, sub, W - 28, y + 26, 13, '#8fa3b7', 'right');
+    roundRect(ctx, x, y, W - 24, 52, 9, '#3f2d19', '#6d5a2c', 2);
+    text(ctx, txt, x + 16, y + 26, 20, '#ffe9a8', 'left', '#3a2408');
+    if (sub) text(ctx, sub, W - 28, y + 26, 13, '#d9b98a', 'right');
   }
 
   // ================= 商店 =================
@@ -212,7 +220,7 @@ class TabScene {
     products.forEach((p, i) => {
       const x = x0 + (i % 2) * (cw + gap);
       const y = y0 + Math.floor(i / 2) * (ch + gap);
-      roundRect(ctx, x, y, cw, ch, 10, '#141d29', '#33475e', 2);
+      roundRect(ctx, x, y, cw, ch, 10, '#3f2d19', '#9a6630', 2);
       const lg = ctx.createLinearGradient(x, y, x, y + ch);
       lg.addColorStop(0, 'rgba(255,210,120,0.10)');
       lg.addColorStop(1, 'rgba(0,0,0,0)');
@@ -229,21 +237,21 @@ class TabScene {
       roundRect(ctx, x + 10, y + 10, 74, 20, 5, 'rgba(0,0,0,0.55)', topC, 1);
       text(ctx, '可出' + top, x + 47, y + 20, 11, topC, 'center');
 
-      text(ctx, p.name, x + cw / 2, y + 120, 16, '#e8eef6', 'center', '#0a1018');
+      text(ctx, p.name, x + cw / 2, y + 120, 16, '#fff6dd', 'center', '#2b1d10');
       // 内容小字：装备箱 3 槽 / 盟友箱是盟友卡
       const isAlly = p.id === 10 || p.id === 11;
-      text(ctx, Chest.desc(p.id), x + cw / 2, y + 142, 12, '#8fa3b7', 'center');
+      text(ctx, Chest.desc(p.id), x + cw / 2, y + 142, 12, '#d9b98a', 'center');
 
       const pr = Chest.price(p.box, 1);
       const ic = this.tex[pr.cur === 'gem' ? 'gem' : 'coin'];
       drawIcon(ctx, ic, x + cw / 2 - 30, y + 166, 0.5);
-      text(ctx, String(pr.v), x + cw / 2 - 12, y + 166, 18, '#ffe9a8', 'left', '#20160a');
+      text(ctx, String(pr.v), x + cw / 2 - 12, y + 166, 18, '#ffe9a8', 'left', '#3a2408');
       // 10 连小按钮（价格取 x10）
       const pr10 = Chest.price(p.box, 10);
       if (pr10.v > 0) {
         const bw10 = 78, bh10 = 26, bx10 = x + cw - bw10 - 8, by10 = y + 154;
-        roundRect(ctx, bx10, by10, bw10, bh10, 6, '#243448', '#4a7fb5', 1);
-        text(ctx, '10× ' + pr10.v + (pr10.cur === 'coin' ? '金' : '宝石'), bx10 + bw10 / 2, by10 + bh10 / 2, 11, '#9fd0ff', 'center');
+        roundRect(ctx, bx10, by10, bw10, bh10, 6, '#482f13', '#c68b4a', 1);
+        text(ctx, '10× ' + pr10.v + (pr10.cur === 'coin' ? '金' : '宝石'), bx10 + bw10 / 2, by10 + bh10 / 2, 11, '#ffe6a8', 'center');
         this.hot.push({ x: bx10, y: by10, w: bw10, h: bh10, act: 'buyChest', id: p.id, n: 10 });
       }
 
@@ -262,22 +270,22 @@ class TabScene {
       { act: 'iap', art: 'shop_pack_gem_6.png', t1: '内购位', t2: '首充礼包 ¥6', btn: '购买' }
     ];
     const aw = (W - 24 - 3 * 8) / 4, ay = 932, ah = 158;
-    text(ctx, '福利与礼包', 14, ay - 12, 13, '#8fa3b7', 'left');
+    text(ctx, '福利与礼包', 14, ay - 12, 13, '#d9b98a', 'left');
     ads.forEach((p, i) => {
       const x = 12 + i * (aw + 8);
       const off = p.act === 'iap' || Ads.remaining() > 0;
-      roundRect(ctx, x, ay, aw, ah, 10, '#141d29', off ? '#3f6a8f' : '#2a3543', 2);
+      roundRect(ctx, x, ay, aw, ah, 10, '#3f2d19', off ? '#8f6122' : '#433017', 2);
       const img = this.tex[p.art];
       if (img) {
         const hh = 52, ww = Math.min(aw - 24, hh * img.width / img.height);
         ctx.drawImage(img, x + (aw - ww) / 2, ay + 8, ww, hh);
       }
-      text(ctx, p.t1, x + aw / 2, ay + 74, 13, '#9fb2c6', 'center');
+      text(ctx, p.t1, x + aw / 2, ay + 74, 13, '#e8cfa0', 'center');
       text(ctx, p.t2, x + aw / 2, ay + 94, 14, '#ffe9a8', 'center');
       const bw = aw - 20, bh = 34, bx = x + 10, by = ay + ah - 42;
-      roundRect(ctx, bx, by, bw, bh, 8, off ? '#e0a52a' : '#3a4654', off ? '#ffdf9a' : '#4a5a70', 1);
+      roundRect(ctx, bx, by, bw, bh, 8, off ? '#e0a52a' : '#54401f', off ? '#ffdf9a' : '#705228', 1);
       text(ctx, p.act === 'iap' ? (IAP.hasRealSdk() ? p.btn : '即将开放') : (Ads.remaining() > 0 ? p.btn : '今日已用完'),
-        bx + bw / 2, by + bh / 2, 13, off ? '#fff' : '#9fb2c6', 'center', '#1a1206');
+        bx + bw / 2, by + bh / 2, 13, off ? '#fff' : '#e8cfa0', 'center', '#1a1206');
       this.hot.push({ x: bx, y: by, w: bw, h: bh, act: p.act });
     });
   }
@@ -297,16 +305,16 @@ class TabScene {
     cats.forEach((c, i) => {
       const x = 12 + i * (tw + 8), y = 148;
       const on = i === this.cat;
-      roundRect(ctx, x, y, tw, 48, 8, on ? '#2c4a70' : '#16202d', on ? '#7fc6ff' : '#33475e', 2);
-      text(ctx, c.lbl, x + tw / 2, y + 24, 16, on ? '#ffffff' : '#9fb2c6', 'center');
+      roundRect(ctx, x, y, tw, 48, 8, on ? '#704418' : '#452f1a', on ? '#ffb645' : '#9a6630', 2);
+      text(ctx, c.lbl, x + tw / 2, y + 24, 16, on ? '#ffffff' : '#e8cfa0', 'center');
       this.hot.push({ x, y, w: tw, h: 48, act: 'cat', idx: i });
     });
     // 排序键（等级页内循环切换）
     const sm = this.sortMode || 0;
     const sLbl = ['排序', '先拥有', '等级高'][sm];
     const sx = 12 + 4 * (tw + 8);
-    roundRect(ctx, sx, 148, 78, 48, 8, sm ? '#2c4a70' : '#16202d', sm ? '#7fc6ff' : '#33475e', 2);
-    text(ctx, sLbl, sx + 39, 172, 14, sm ? '#ffffff' : '#9fb2c6', 'center');
+    roundRect(ctx, sx, 148, 78, 48, 8, sm ? '#704418' : '#452f1a', sm ? '#ffb645' : '#9a6630', 2);
+    text(ctx, sLbl, sx + 39, 172, 14, sm ? '#ffffff' : '#e8cfa0', 'center');
     this.hot.push({ x: sx, y: 148, w: 78, h: 48, act: 'sortMode' });
 
     const cat = cats[this.cat].key;
@@ -324,9 +332,9 @@ class TabScene {
     rows.forEach((row, i) => {
       const it = row.it, origIdx = row.idx;
       const x = 12, w = W - 24;
-      roundRect(ctx, x, y, w, rh - 12, 9, '#141d29', '#33475e', 2);
+      roundRect(ctx, x, y, w, rh - 12, 9, '#3f2d19', '#9a6630', 2);
       // 图标格
-      roundRect(ctx, x + 12, y + 12, 96, 96, 8, '#0d141c', '#2a3644', 1);
+      roundRect(ctx, x + 12, y + 12, 96, 96, 8, '#1c120a', '#443117', 1);
       const iconName = cat === 'material' ? this.iconOf(cat, origIdx, it) : this.iconOf(cat, origIdx, it);
       const img = this.tex[iconName];
       if (img) {
@@ -340,9 +348,9 @@ class TabScene {
       const st = cat === 'material' ? null : this.g.itemStats(it);
       const recipe = (this.items.recipes && this.items.recipes[cat] && this.items.recipes[cat][it.itemID]) || null;
       const owns = cat === 'material' ? true : Player.hasItem(it.itemID);
-      text(ctx, it.name, x + 124, y + 32, 19, '#e8eef6', 'left');
+      text(ctx, it.name, x + 124, y + 32, 19, '#fff6dd', 'left');
       text(ctx, cat === 'material' ? '' : (owns ? 'Lv ' + lv + ' / ' + maxLv : '未打造'),
-        x + 124, y + 60, 13, owns ? '#9fb2c6' : '#c98a5a', 'left');
+        x + 124, y + 60, 13, owns ? '#e8cfa0' : '#c98a5a', 'left');
       let stat;
       if (cat === 'material') stat = '拥有 x' + Player.matOf(it.itemID);
       else if (cat === 'weapon') stat = '伤害 ' + Math.round(st.damage);
@@ -359,11 +367,11 @@ class TabScene {
         });
         let dx = x + 124;
         for (const n of need) {
-          text(ctx, n.txt, dx, y + 108, 12, n.ok ? '#8ed6a0' : '#e08a8a', 'left');
+          text(ctx, n.txt, dx, y + 108, 12, n.ok ? '#a0c055' : '#e08a8a', 'left');
           dx += ctx.measureText(n.txt).width + 12;
         }
       } else if (it.description) {
-        text(ctx, String(it.description).slice(0, 26), x + 124, y + 108, 11, '#7f93a8', 'left');
+        text(ctx, String(it.description).slice(0, 26), x + 124, y + 108, 11, '#c3a172', 'left');
       }
 
       const bw = 120, bh = 44, bx = x + w - bw - 14;
@@ -371,20 +379,20 @@ class TabScene {
         if (recipe) {
           const byC = y + 18;
           const can = Player.canSpendMats(recipe.listCraftItems);
-          roundRect(ctx, bx, byC, bw, bh, 8, can ? '#2f6fb0' : '#3a4654', can ? '#8fc4ff' : '#4a5a70', 2);
-          text(ctx, can ? '合成' : '材料不足', bx + bw / 2, byC + bh / 2, 14, can ? '#fff' : '#9fb2c6', 'center', '#0c1016');
+          roundRect(ctx, bx, byC, bw, bh, 8, can ? '#b8762a' : '#54401f', can ? '#ffb44e' : '#705228', 2);
+          text(ctx, can ? '合成' : '材料不足', bx + bw / 2, byC + bh / 2, 14, can ? '#fff' : '#e8cfa0', 'center', '#0c1016');
           this.hot.push({ x: bx, y: byC, w: bw, h: bh, act: 'craft', recipe, cat });
         } else {
-          text(ctx, '材料不可装备', bx + bw / 2, y + 60, 12, '#6f8398', 'center');
+          text(ctx, '材料不可装备', bx + bw / 2, y + 60, 12, '#b5926a', 'center');
         }
       } else if (!owns) {
         // 未打造：只有一个「打造」按钮，材料够了才能点
         const byU = y + 18;
         const can = recipe && Player.canSpendMats(recipe.listCraftItems || []);
-        roundRect(ctx, bx, byU, bw, bh, 8, can ? '#c58a1c' : '#3a4654', can ? '#ffdf9a' : '#4a5a70', 2);
-        text(ctx, can ? '打造' : '材料不足', bx + bw / 2, byU + bh / 2, 15, can ? '#fff' : '#9fb2c6', 'center', '#1a1206');
+        roundRect(ctx, bx, byU, bw, bh, 8, can ? '#c58a1c' : '#54401f', can ? '#ffdf9a' : '#705228', 2);
+        text(ctx, can ? '打造' : '材料不足', bx + bw / 2, byU + bh / 2, 15, can ? '#fff' : '#e8cfa0', 'center', '#1a1206');
         if (can) this.hot.push({ x: bx, y: byU, w: bw, h: bh, act: 'craft', recipe, cat, item: it });
-        text(ctx, '打造后可强化 / 穿戴', bx + bw / 2, y + 82, 11, '#6f8398', 'center');
+        text(ctx, '打造后可强化 / 穿戴', bx + bw / 2, y + 82, 11, '#b5926a', 'center');
       } else {
         // 升级（满级 / 无升级配置时按钮变灰）
         const byU = y + 18;
@@ -392,7 +400,7 @@ class TabScene {
         const full = lv >= maxLv;
         const noUp = !cost;
         if (this.tex.btnB && !full && !noUp) ctx.drawImage(this.tex.btnB, bx, byU, bw, bh);
-        else roundRect(ctx, bx, byU, bw, bh, 8, (full || noUp) ? '#3a4654' : '#2f6fb0');
+        else roundRect(ctx, bx, byU, bw, bh, 8, (full || noUp) ? '#54401f' : '#b8762a');
         text(ctx, full ? '已满级' : (noUp ? '不可强化' : ('升级 ' + cost)), bx + bw / 2, byU + bh / 2, 15, '#fff', 'center', '#0c1016');
         if (!full && !noUp) this.hot.push({ x: bx, y: byU, w: bw, h: bh, act: 'upgrade', item: it, cat });
 
@@ -401,7 +409,7 @@ class TabScene {
         const slot = cat;                       // weapon / armor / artifact 与装备格同名
         const on = Player.equippedOf(Player.charID)[slot] === it.itemID;
         if (this.tex.btnY && !on) ctx.drawImage(this.tex.btnY, bx, byE, bw, bh);
-        else roundRect(ctx, bx, byE, bw, bh, 8, on ? '#3f6b45' : '#e0a52a', on ? '#8ed6a0' : null, 2);
+        else roundRect(ctx, bx, byE, bw, bh, 8, on ? '#456025' : '#e0a52a', on ? '#a0c055' : null, 2);
         text(ctx, on ? '已装备' : '装备', bx + bw / 2, byE + bh / 2, 15, '#fff', 'center', '#1a1206');
         this.hot.push({ x: bx, y: byE, w: bw, h: bh, act: 'equip', item: it, slot });
 
@@ -409,9 +417,9 @@ class TabScene {
         const price = this.sellPrice(it);
         const byS = y + 120;
         const sh2 = 34;
-        roundRect(ctx, bx, byS, bw, sh2, 8, on ? '#2a3543' : '#22303d', on ? '#3d4a58' : '#5a7f9e', 1);
+        roundRect(ctx, bx, byS, bw, sh2, 8, on ? '#433017' : '#3d2c12', on ? '#584421' : '#9e7431', 1);
         text(ctx, on ? '先卸下才能卖' : ('出售 +' + price), bx + bw / 2, byS + sh2 / 2, 13,
-          on ? '#6f8398' : '#9fd0ff', 'center');
+          on ? '#b5926a' : '#ffe6a8', 'center');
         if (!on) this.hot.push({ x: bx, y: byS, w: bw, h: sh2, act: 'sellItem', item: it, cat, price });
       }
       y += rh;
@@ -423,10 +431,10 @@ class TabScene {
       const onNext = this.itemPage < Math.ceil(list.length / per) - 1;
       if (onPrev) this.hot.push({ x: 12, y: py - 20, w: 80, h: 40, act: 'itemPrev' });
       if (onNext) this.hot.push({ x: W - 92, y: py - 20, w: 80, h: 40, act: 'itemNext' });
-      roundRect(ctx, W / 2 - 40, py - 20, 80, 40, 8, '#16202d', '#33475e', 1);
-      text(ctx, (this.itemPage + 1) + '/' + Math.ceil(list.length / per), W / 2, py, 14, '#9fb2c6', 'center');
-      if (onPrev) text(ctx, '◀', 46, py, 20, '#7fc6ff', 'center');
-      if (onNext) text(ctx, '▶', W - 52, py, 20, '#7fc6ff', 'center');
+      roundRect(ctx, W / 2 - 40, py - 20, 80, 40, 8, '#452f1a', '#9a6630', 1);
+      text(ctx, (this.itemPage + 1) + '/' + Math.ceil(list.length / per), W / 2, py, 14, '#e8cfa0', 'center');
+      if (onPrev) text(ctx, '◀', 46, py, 20, '#ffb645', 'center');
+      if (onNext) text(ctx, '▶', W - 52, py, 20, '#ffb645', 'center');
     }
   }
 
@@ -440,15 +448,15 @@ class TabScene {
 
     // 主图面板：优先用原包立绘（高清 Upgrade 骨架运行时渲染不全，改用游戏内头像放大）
     const px = 12, py = 148, pw = 420, ph = 470;
-    roundRect(ctx, px, py, pw, ph, 12, '#0d141c', '#6d5a2c', 2);
+    roundRect(ctx, px, py, pw, ph, 12, '#1c120a', '#6d5a2c', 2);
     ctx.save();
     roundRect(ctx, px + 3, py + 3, pw - 6, ph - 6, 10, null, null, 0);
     ctx.clip();
     {
       // 背景光晕
       const g = ctx.createRadialGradient(px + pw / 2, py + ph * 0.42, 10, px + pw / 2, py + ph * 0.42, pw * 0.62);
-      g.addColorStop(0, 'rgba(90,140,190,0.30)');
-      g.addColorStop(1, 'rgba(10,16,24,0)');
+      g.addColorStop(0, 'rgba(190,126,54,0.30)');
+      g.addColorStop(1, 'rgba(24,14,8,0)');
       ctx.fillStyle = g;
       ctx.fillRect(px + 3, py + 3, pw - 6, ph - 6);
     }
@@ -460,12 +468,12 @@ class TabScene {
     } else if (this.actor) {
       this.actor.draw(ctx, this.renderer);
     } else {
-      text(ctx, '立绘未导出', px + pw / 2, py + ph / 2, 16, '#7f93a8', 'center');
+      text(ctx, '立绘未导出', px + pw / 2, py + ph / 2, 16, '#c3a172', 'center');
     }
     ctx.restore();
     if (this.hero) {
-      text(ctx, this.hero.name, px + pw / 2, py + ph - 52, 22, '#ffe9a8', 'center', '#20160a');
-      text(ctx, this.hero.description || '', px + pw / 2, py + ph - 24, 12, '#9fb2c6', 'center');
+      text(ctx, this.hero.name, px + pw / 2, py + ph - 52, 22, '#ffe9a8', 'center', '#3a2408');
+      text(ctx, this.hero.description || '', px + pw / 2, py + ph - 24, 12, '#e8cfa0', 'center');
     }
 
     // 右侧头像栏
@@ -473,19 +481,19 @@ class TabScene {
     chars.forEach((c, i) => {
       const y = py + i * 120;
       const on = this.hero && this.hero.charID === c.charID;
-      roundRect(ctx, ax, y, aw, 110, 9, on ? '#1d2b3d' : '#141d29', on ? '#7fc6ff' : '#33475e', 2);
+      roundRect(ctx, ax, y, aw, 110, 9, on ? '#3d270f' : '#3f2d19', on ? '#ffb645' : '#9a6630', 2);
       const av = this.tex[HERO_AVATARS[c.charID]];
       if (av) {
         const hh = 78, ww = hh * av.width / av.height;
         ctx.drawImage(av, ax + (aw - ww) / 2, y + 6, ww, hh);
       } else drawIcon(ctx, this.tex.crown, ax + aw / 2, y + 44, 0.44);
-      text(ctx, c.name, ax + aw / 2, y + 94, 14, on ? '#ffffff' : '#c9d6e2', 'center', '#0a1018');
+      text(ctx, c.name, ax + aw / 2, y + 94, 14, on ? '#ffffff' : '#e2c46e', 'center', '#2b1d10');
       this.hot.push({ x: ax, y, w: aw, h: 110, act: 'char', char: c });
     });
 
     // 属性表（含装备加成，全部在面板内）
     const sx = 12, sy = py + ph + 12, sw = W - 24, sh = 296;
-    roundRect(ctx, sx, sy, sw, sh, 10, '#141d29', '#33475e', 2);
+    roundRect(ctx, sx, sy, sw, sh, 10, '#3f2d19', '#9a6630', 2);
     if (this.hero) {
       const h = this.hero;
       const t = this.g.heroStats ? this.g.heroStats(h.charID) : null;
@@ -500,46 +508,46 @@ class TabScene {
       rows.forEach((r, i) => {
         const y = sy + 32 + i * 44;
         const lx = sx + 22, rx = sx + sw / 2 + 12;
-        text(ctx, r[0], lx, y, 14, '#8fa3b7', 'left');
+        text(ctx, r[0], lx, y, 14, '#d9b98a', 'left');
         text(ctx, String(r[1]), lx + 66, y, 19, '#ffe9a8', 'left');
-        if (r[2]) text(ctx, r[2], lx + 66 + String(r[1]).length * 12 + 4, y, 12, '#7ce08a', 'left');
-        text(ctx, r[3], rx, y, 14, '#8fa3b7', 'left');
+        if (r[2]) text(ctx, r[2], lx + 66 + String(r[1]).length * 12 + 4, y, 12, '#8ac94a', 'left');
+        text(ctx, r[3], rx, y, 14, '#d9b98a', 'left');
         // 等级行：显示训练等级 + 「训练」按钮（花金币升级，战斗里真实生效）
         if (r[3] === '等级') {
           // 等级上限取当前进化阶的 maxLevel（英雄进化会抬高上限）
           const hLv = Player.heroLvOf(h.charID), lvMax = (t && t.levelMax) || h.levelMax || 10;
           text(ctx, 'Lv ' + hLv + '/' + lvMax, rx + 48, y, 17, '#ffe9a8', 'left');
           const evo = (t && t.evo) || 1, evoMax = (t && t.evoMax) || ((h.evolutionList || []).length || 1);
-          text(ctx, 'EVO ' + evo + '/' + evoMax, rx + 48, y + 20, 11, '#9fd0ff', 'left');
+          text(ctx, 'EVO ' + evo + '/' + evoMax, rx + 48, y + 20, 11, '#ffe6a8', 'left');
           const bh = 30, by = y - 15;
           // 训练
           const bwt = 88, bxt = sx + sw - bwt - 14;
           const cost = 120 * hLv;
           if (hLv >= lvMax) {
-            roundRect(ctx, bxt, by, bwt, bh, 7, '#1a2431', '#2a3644', 1);
-            text(ctx, '已满级', bxt + bwt / 2, by + bh / 2, 12, '#6f8398', 'center');
+            roundRect(ctx, bxt, by, bwt, bh, 7, '#31200f', '#443117', 1);
+            text(ctx, '已满级', bxt + bwt / 2, by + bh / 2, 12, '#b5926a', 'center');
           } else {
-            roundRect(ctx, bxt, by, bwt, bh, 7, Player.coins >= cost ? '#e0a52a' : '#3a4654',
-              Player.coins >= cost ? '#ffdf9a' : '#4a5a70', 1);
-            text(ctx, '训练 ' + cost, bxt + bwt / 2, by + bh / 2, 12, Player.coins >= cost ? '#fff' : '#9fb2c6', 'center', '#1a1206');
+            roundRect(ctx, bxt, by, bwt, bh, 7, Player.coins >= cost ? '#e0a52a' : '#54401f',
+              Player.coins >= cost ? '#ffdf9a' : '#705228', 1);
+            text(ctx, '训练 ' + cost, bxt + bwt / 2, by + bh / 2, 12, Player.coins >= cost ? '#fff' : '#e8cfa0', 'center', '#1a1206');
             this.hot.push({ x: bxt, y: by, w: bwt, h: bh, act: 'heroUp', char: h });
           }
           // 进化（花表里的 goldEvolution / gemEvolution，逐阶 8 阶）
           const bxw = 76, bxx = bxt - bxw - 6;
           if (evo >= evoMax) {
-            roundRect(ctx, bxx, by, bxw, bh, 7, '#1a2431', '#2a3644', 1);
-            text(ctx, '满进化', bxx + bxw / 2, by + bh / 2, 12, '#6f8398', 'center');
+            roundRect(ctx, bxx, by, bxw, bh, 7, '#31200f', '#443117', 1);
+            text(ctx, '满进化', bxx + bxw / 2, by + bh / 2, 12, '#b5926a', 'center');
           } else {
             const ec = this.evoCostOf(h.charID);
             const can = Player.coins >= ec.gold && Player.gems >= ec.gem;
-            roundRect(ctx, bxx, by, bxw, bh, 7, can ? '#2f6fb0' : '#1a2431', can ? '#7fc6ff' : '#2a3644', 1);
-            text(ctx, '进化', bxx + bxw / 2, by + 8, 12, can ? '#fff' : '#6f8398', 'center');
-            text(ctx, ec.gold + '+' + ec.gem + '宝', bxx + bxw / 2, by + 21, 9, can ? '#cfe8ff' : '#5f7488', 'center');
+            roundRect(ctx, bxx, by, bxw, bh, 7, can ? '#b8762a' : '#31200f', can ? '#ffb645' : '#443117', 1);
+            text(ctx, '进化', bxx + bxw / 2, by + 8, 12, can ? '#fff' : '#b5926a', 'center');
+            text(ctx, ec.gold + '+' + ec.gem + '宝', bxx + bxw / 2, by + 21, 9, can ? '#ffd571' : '#886a34', 'center');
             if (can) this.hot.push({ x: bxx, y: by, w: bxw, h: bh, act: 'heroEvo', char: h });
           }
         } else {
           text(ctx, String(r[4]), rx + 66, y, 19, '#ffe9a8', 'left');
-          if (r[5]) text(ctx, r[5], rx + 66 + String(r[4]).length * 12 + 4, y, 12, '#7ce08a', 'left');
+          if (r[5]) text(ctx, r[5], rx + 66 + String(r[4]).length * 12 + 4, y, 12, '#8ac94a', 'left');
         }
       });
       // 技能（每行右侧带升级按钮：花表里的 goldUpgrade，上限 maxLevel）
@@ -551,17 +559,17 @@ class TabScene {
         const kind = s.skillTypes === 'BulfAll' ? '全队增益' : (i === 2 ? '范围箭雨' : '穿透射击');
         const lv = Player.skillLvOf(h.charID, s.skillID);
         text(ctx, '· ' + s.name + '   Lv ' + lv + '   ' + kind + '   CD ' + cd + 's',
-          sx + 22, y, 13, '#9fd0ff', 'left');
+          sx + 22, y, 13, '#ffe6a8', 'left');
         const maxLv = s.maxLevel || 160, cost = s.goldUpgrade || 200;
         const bw = 96, bh = 22, bx = sx + sw - bw - 14, by = y - 11;
         if (lv >= maxLv) {
-          roundRect(ctx, bx, by, bw, bh, 5, '#1a2431', '#2a3644', 1);
-          text(ctx, '满级', bx + bw / 2, by + bh / 2, 11, '#6f8398', 'center');
+          roundRect(ctx, bx, by, bw, bh, 5, '#31200f', '#443117', 1);
+          text(ctx, '满级', bx + bw / 2, by + bh / 2, 11, '#b5926a', 'center');
         } else {
           const can = Player.coins >= cost;
-          roundRect(ctx, bx, by, bw, bh, 5, can ? '#2f6fb0' : '#1a2431',
-            can ? '#7fc6ff' : '#2a3644', 1);
-          text(ctx, '↑ ' + cost, bx + bw / 2, by + bh / 2, 11, can ? '#fff' : '#6f8398', 'center');
+          roundRect(ctx, bx, by, bw, bh, 5, can ? '#b8762a' : '#31200f',
+            can ? '#ffb645' : '#443117', 1);
+          text(ctx, '↑ ' + cost, bx + bw / 2, by + bh / 2, 11, can ? '#fff' : '#b5926a', 'center');
           this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'skillUp', char: h, si: i });
         }
       });
@@ -569,9 +577,9 @@ class TabScene {
 
     // 装备三格（点一下就卸下；去锻造页装新的）
     const ey = sy + sh + 12, eh = 214;
-    roundRect(ctx, 12, ey, W - 24, eh, 10, '#141d29', '#33475e', 2);
-    text(ctx, '装备槽位', 34, ey + 26, 15, '#8fa3b7', 'left');
-    text(ctx, '在锻造页装备，点了可卸下', W - 34, ey + 26, 12, '#6f8398', 'right');
+    roundRect(ctx, 12, ey, W - 24, eh, 10, '#3f2d19', '#9a6630', 2);
+    text(ctx, '装备槽位', 34, ey + 26, 15, '#d9b98a', 'left');
+    text(ctx, '在锻造页装备，点了可卸下', W - 34, ey + 26, 12, '#b5926a', 'right');
     const slots = [
       { key: 'weapon', lbl: '武器' },
       { key: 'armor', lbl: '护甲' },
@@ -582,8 +590,8 @@ class TabScene {
       const x = 12 + 12 + i * (cw3 + 8), y = ey + 46, hh = 152;
       const id = Player.equippedOf(this.hero ? this.hero.charID : Player.charID)[s.key];
       const it = id && this.g.itemByID ? this.g.itemByID[id] : null;
-      roundRect(ctx, x, y, cw3, hh, 9, '#0f1720', it ? '#c8a13c' : '#2a3644', it ? 2 : 1);
-      text(ctx, s.lbl, x + cw3 / 2, y + 18, 12, '#8fa3b7', 'center');
+      roundRect(ctx, x, y, cw3, hh, 9, '#20140a', it ? '#c8a13c' : '#443117', it ? 2 : 1);
+      text(ctx, s.lbl, x + cw3 / 2, y + 18, 12, '#d9b98a', 'center');
       if (it) {
         const iconName = this.iconOf(s.key === 'weapon' ? 'weapon' : (s.key === 'armor' ? 'armor' : 'artifact'),
           this.catIndexOf(s.key, it), it);
@@ -592,16 +600,16 @@ class TabScene {
           const sc = Math.min(64 / img.width, 64 / img.height);
           ctx.drawImage(img, x + cw3 / 2 - img.width * sc / 2, y + 62 - img.height * sc / 2, img.width * sc, img.height * sc);
         }
-        text(ctx, String(it.name).slice(0, 12), x + cw3 / 2, y + 104, 12, '#e8eef6', 'center');
+        text(ctx, String(it.name).slice(0, 12), x + cw3 / 2, y + 104, 12, '#fff6dd', 'center');
         const st = this.g.itemStats(it);
         const statTxt = s.key === 'weapon' ? 'Lv ' + st.lv + '  伤害 ' + Math.round(st.damage)
           : (s.key === 'armor' ? 'Lv ' + st.lv + '  护甲 +' + Math.round(st.armor) + ' 血 +' + Math.round(st.blood)
             : 'Lv ' + st.lv + '  血 +' + Math.round(st.blood) + ' 回复 +' + (Math.round(st.regain * 10) / 10));
-        text(ctx, statTxt, x + cw3 / 2, y + 130, 10, '#7ce08a', 'center');
+        text(ctx, statTxt, x + cw3 / 2, y + 130, 10, '#8ac94a', 'center');
         this.hot.push({ x, y, w: cw3, h: hh, act: 'unequip', slot: s.key, itemID: id, name: it.name });
       } else {
-        text(ctx, '空', x + cw3 / 2, y + 76, 14, '#5c6f83', 'center');
-        text(ctx, '去锻造页装配', x + cw3 / 2, y + 104, 10, '#4f6072', 'center');
+        text(ctx, '空', x + cw3 / 2, y + 76, 14, '#836632', 'center');
+        text(ctx, '去锻造页装配', x + cw3 / 2, y + 104, 10, '#72582b', 'center');
       }
     });
   }
@@ -655,7 +663,7 @@ class TabScene {
 
     // 主图
     const px = 12, py = 148, pw = W - 24, ph = 320;
-    roundRect(ctx, px, py, pw, ph, 12, '#0d141c', '#6d5a2c', 2);
+    roundRect(ctx, px, py, pw, ph, 12, '#1c120a', '#6d5a2c', 2);
     ctx.save();
     roundRect(ctx, px + 3, py + 3, pw - 6, ph - 6, 10, null, null, 0);
     ctx.clip();
@@ -677,7 +685,7 @@ class TabScene {
     ctx.restore();
 
     const lvl = Player.castleLevel;
-    text(ctx, 'Castle  Lv ' + lvl, px + 20, py + 30, 20, '#ffe9a8', 'left', '#0a1018');
+    text(ctx, 'Castle  Lv ' + lvl, px + 20, py + 30, 20, '#ffe9a8', 'left', '#2b1d10');
     if (c) {
       const cs = castleStatsFor(c, lvl);   // 与战斗里城墙血量同一套换算
       const stats = [
@@ -688,8 +696,8 @@ class TabScene {
       ];
       stats.forEach((s, i) => {
         const x = px + 24 + i * 160;
-        text(ctx, s[0], x, py + ph - 62, 13, '#9fb2c6', 'left');
-        text(ctx, String(s[1]), x, py + ph - 36, 22, '#ffe9a8', 'left', '#0a1018');
+        text(ctx, s[0], x, py + ph - 62, 13, '#e8cfa0', 'left');
+        text(ctx, String(s[1]), x, py + ph - 36, 22, '#ffe9a8', 'left', '#2b1d10');
       });
     }
 
@@ -703,8 +711,8 @@ class TabScene {
         (next.gemUpgrade ? ' / ' + next.gemUpgrade + ' 宝石' : ''), bx + bw / 2, by + bh / 2, 19, '#fff', 'center', '#1a1206');
       this.hot.push({ x: bx, y: by, w: bw, h: bh, act: 'castleUp', next });
     } else {
-      roundRect(ctx, bx, by, bw, bh, 10, '#243040', '#3b4a5c', 2);
-      text(ctx, '已满级（Lv 15）', bx + bw / 2, by + bh / 2, 18, '#9fb2c6', 'center');
+      roundRect(ctx, bx, by, bw, bh, 10, '#402c13', '#5c4420', 2);
+      text(ctx, '已满级（Lv 15）', bx + bw / 2, by + bh / 2, 18, '#e8cfa0', 'center');
     }
 
     // 等级表
@@ -713,21 +721,21 @@ class TabScene {
     const levels = c ? c.listLevelUp || [] : [];
     const start = this.castlePage * per;
     let y = ty;
-    roundRect(ctx, 12, ty, W - 24, 44, 8, '#16202d', '#33475e', 1);
-    text(ctx, 'Lv', 34, ty + 22, 14, '#8fa3b7', 'left');
-    text(ctx, '血量', 130, ty + 22, 14, '#8fa3b7', 'left');
-    text(ctx, '护甲', 260, ty + 22, 14, '#8fa3b7', 'left');
-    text(ctx, '回复', 360, ty + 22, 14, '#8fa3b7', 'left');
-    text(ctx, '升级消耗', W - 34, ty + 22, 14, '#8fa3b7', 'right');
+    roundRect(ctx, 12, ty, W - 24, 44, 8, '#452f1a', '#9a6630', 1);
+    text(ctx, 'Lv', 34, ty + 22, 14, '#d9b98a', 'left');
+    text(ctx, '血量', 130, ty + 22, 14, '#d9b98a', 'left');
+    text(ctx, '护甲', 260, ty + 22, 14, '#d9b98a', 'left');
+    text(ctx, '回复', 360, ty + 22, 14, '#d9b98a', 'left');
+    text(ctx, '升级消耗', W - 34, ty + 22, 14, '#d9b98a', 'right');
     y += 48;
     levels.slice(start, start + per).forEach(l => {
       const on = l.level === lvl;
-      roundRect(ctx, 12, y, W - 24, 44, 6, on ? '#2c4a70' : '#141d29', on ? '#7fc6ff' : '#2a3644', 1);
-      text(ctx, String(l.level), 34, y + 22, 15, on ? '#ffffff' : '#c9d6e2', 'left');
+      roundRect(ctx, 12, y, W - 24, 44, 6, on ? '#704418' : '#3f2d19', on ? '#ffb645' : '#443117', 1);
+      text(ctx, String(l.level), 34, y + 22, 15, on ? '#ffffff' : '#e2c46e', 'left');
       text(ctx, String(castleStatsFor(c, l.level).hp), 130, y + 22, 15, '#ffe9a8', 'left');
-      text(ctx, String(Math.round(l.armor)), 260, y + 22, 15, '#c9d6e2', 'left');
-      text(ctx, String(Math.round(l.regain)), 360, y + 22, 15, '#c9d6e2', 'left');
-      text(ctx, (l.coinUpgrade || 0) + (l.gemUpgrade ? ' / ' + l.gemUpgrade + 'G' : ''), W - 34, y + 22, 14, '#9fb2c6', 'right');
+      text(ctx, String(Math.round(l.armor)), 260, y + 22, 15, '#e2c46e', 'left');
+      text(ctx, String(Math.round(l.regain)), 360, y + 22, 15, '#e2c46e', 'left');
+      text(ctx, (l.coinUpgrade || 0) + (l.gemUpgrade ? ' / ' + l.gemUpgrade + 'G' : ''), W - 34, y + 22, 14, '#e8cfa0', 'right');
       y += 50;
     });
 
@@ -735,10 +743,10 @@ class TabScene {
       const py2 = y + 12;
       const onPrev = this.castlePage > 0;
       const onNext = this.castlePage < Math.ceil(levels.length / per) - 1;
-      roundRect(ctx, W / 2 - 40, py2 - 20, 80, 40, 8, '#16202d', '#33475e', 1);
-      text(ctx, (this.castlePage + 1) + '/' + Math.ceil(levels.length / per), W / 2, py2, 14, '#9fb2c6', 'center');
-      if (onPrev) { text(ctx, '◀', 46, py2, 20, '#7fc6ff', 'center'); this.hot.push({ x: 12, y: py2 - 20, w: 80, h: 40, act: 'castlePrev' }); }
-      if (onNext) { text(ctx, '▶', W - 52, py2, 20, '#7fc6ff', 'center'); this.hot.push({ x: W - 92, y: py2 - 20, w: 80, h: 40, act: 'castleNext' }); }
+      roundRect(ctx, W / 2 - 40, py2 - 20, 80, 40, 8, '#452f1a', '#9a6630', 1);
+      text(ctx, (this.castlePage + 1) + '/' + Math.ceil(levels.length / per), W / 2, py2, 14, '#e8cfa0', 'center');
+      if (onPrev) { text(ctx, '◀', 46, py2, 20, '#ffb645', 'center'); this.hot.push({ x: 12, y: py2 - 20, w: 80, h: 40, act: 'castlePrev' }); }
+      if (onNext) { text(ctx, '▶', W - 52, py2, 20, '#ffb645', 'center'); this.hot.push({ x: W - 92, y: py2 - 20, w: 80, h: 40, act: 'castleNext' }); }
     }
   }
 
