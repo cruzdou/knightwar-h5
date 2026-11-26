@@ -156,12 +156,18 @@ class BattleScene {
       fog.addColorStop(0, 'rgba(10,40,20,0.28)');
       fog.addColorStop(1, 'rgba(10,40,20,0)');
       c.fillStyle = fog; c.fillRect(0, 0, W, 300);
-    } else if (this.tex.bgfield) {
+    } else {
       // 兜底：旧战场图
       const bh = WALL_Y + 30;
       const scale = Math.max(W / this.tex.bgfield.width, bh / this.tex.bgfield.height);
       const dw = this.tex.bgfield.width * scale, dh = this.tex.bgfield.height * scale;
       c.drawImage(this.tex.bgfield, (W - dw) / 2, bh - dh, dw, dh);
+    }
+    // 冷启动慢时背景可能还没到：异步补到后重画一次
+    if (!bgm && !this._bgRetry) {
+      this._bgRetry = true;
+      const n = Math.abs(((this.stageData && this.stageData.zone) || 0) % 10) + 1;
+      bgLoadAsync(n).then(im => { if (im && im.width) { this._bgRetry = false; this.bg = this.buildBackground(); } });
     }
 
     // 己方城楼（卡通城堡）：贴底居中，英雄/盟友站它前面
@@ -322,6 +328,7 @@ class BattleScene {
   // ---------- 出怪 ----------
   spawnEnemy() {
     const info = this.pool[Math.floor(Math.random() * this.pool.length)];
+    if (!info) return;   // 素材索引尚未就绪时先不出怪，避免空 info 让整帧崩
     const a = new Actor(info, { anim: info.anims.includes('Move') ? 'Move' : 'Idle' });
     a.x = 110 + Math.random() * 500;
     a.y = SPAWN_Y + Math.random() * 50;
@@ -640,15 +647,15 @@ class BattleScene {
       ctx.restore();
     }
 
-    const sorted = [...this.enemies].filter(e => !e.dead).sort((a, b) => a.y - b.y);
+    const sorted = [...this.enemies].filter(e => !e.dead && e.info).sort((a, b) => a.y - b.y);
     for (const e of sorted) {
       e.draw(ctx, this.renderer);
       if (!e.dying) this.drawEnemyHP(e);
     }
 
     // 盟友画在英雄后面（先画，英雄压在最前）
-    if (this.allies) for (const al of this.allies) al.draw(ctx, this.renderer);
-    this.hero.draw(ctx, this.renderer);
+    if (this.allies) for (const al of this.allies) if (al && al.info) al.draw(ctx, this.renderer);
+    if (this.hero && this.hero.info) this.hero.draw(ctx, this.renderer);
 
     for (const a of this.arrows) {
       ctx.save();
@@ -683,6 +690,7 @@ class BattleScene {
   }
 
   drawEnemyHP(e) {
+    if (!e.info) return;
     const ctx = this.ctx;
     const w = Math.max(34, e.info.w * e.scale * 0.85), h = 6;
     const x = e.x - w / 2, y = e.y - e.info.h * e.scale - 10;
