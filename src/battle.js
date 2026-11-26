@@ -17,8 +17,8 @@ function loadBgPaths() {
 }
 
 const HERO_X = 336;
-const HERO_FEET = 1160;    // 英雄脚底
-const HERO_H = 112;        // 英雄屏幕上高度
+const HERO_FEET = 1094;   // 站在石台面上    // 英雄脚底
+const HERO_H = 104;        // 英雄屏幕上高度
 const SPAWN_Y = 300;       // 怪物出生（河道下方草地，避免站在水里）
 const STOP_Y = 975;        // 推进到城墙前
 const ENEMY_H_NEAR = 104;  // 到墙时的高度
@@ -55,7 +55,7 @@ class BattleScene {
     await loadAnimIndex();
     skinPreload();
     // 等首屏必需的皮肤图与战场背景，避免第一帧是旧美术
-    await Promise.all([skinLoad('sk_castle.webp'), bgLoadAsync(1), bgLoadAsync(2),
+    await Promise.all([skinLoad('sk_castle.webp'), skinLoad('sk_hero_pad.webp'), bgLoadAsync(1), bgLoadAsync(2),
       skinLoad('sk_arrow.webp'), skinLoad('sk_coin_icon.webp'), skinLoad('sk_gem_icon.webp'),
       skinLoad('sk_btn_pause.webp'), skinLoad('sk_arrow_fire.webp'),
       skinLoad('sk_arrow_ice.webp'), skinLoad('sk_fireball.webp')]);
@@ -195,6 +195,13 @@ class BattleScene {
     if (ca) {
       const chh = 290, cww = chh * ca.width / ca.height;
       c.drawImage(ca, (W - cww) / 2 - 24, H - 96 - chh, cww, chh);
+    }
+
+    // 英雄石台（底座）：英雄站在台面上
+    const pad = skinGet('sk_hero_pad.webp');
+    if (pad) {
+      const pw = 222, ph = pw * pad.height / pad.width;
+      c.drawImage(pad, HERO_X - pw / 2, HERO_FEET + 6 - ph * 0.30, pw, ph);
     }
 
     // 底部草地暗化，让 HUD 与人物更清楚
