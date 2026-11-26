@@ -98,6 +98,10 @@ class Game {
 
     // 音频不再阻塞启动：后台并行拉取+解码，就绪前 playSfx 自动跳过
     this.loadAudio().catch(() => {});
+    // 首屏之后再把 30+ 个音效补齐：首次点击或 8s 空闲两者先到先得
+    const kickRest = () => { this.loadAudio('rest').catch(() => {}); };
+    this.cv.addEventListener('pointerdown', kickRest, { once: true });
+    setTimeout(kickRest, 8000);
     this.select = new LevelSelectScene(this);
     await this.select.init();
     this.battle = new BattleScene(this);
@@ -421,7 +425,8 @@ class Game {
     return 'ok';
   }
 
-  async loadAudio() {    const files = {
+  async loadAudio(onlyKey) {
+    const files = {
       bgm_select: 'assets/audio/BgHeroHome_BgHeroHome.mp3',
       bgm_battle: 'assets/audio/InGame1_InGame1.mp3',
       bgm_boss: 'assets/audio/InGame2_InGame2.mp3',
@@ -462,8 +467,12 @@ class Game {
     // 抖音小游戏没有 WebAudio：直接跳过解码，playSfx 走 tt.createInnerAudioContext 分支
     this.actx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
     this.bufs = {};
-    // 并行拉取，避免 30+ 个音效串行等待（线上首次加载的最大瓶颈）
-    await Promise.all(Object.entries(files).map(async ([k, f]) => {
+    // 首屏只拿 BGM 与最常用音效，其余等首次点击/空闲再补（公网带宽留给美术）
+    const EARLY = ['bgm_select', 'bgm_battle', 'bgm_boss', 'sfx_click', 'sfx_shoot', 'sfx_hit', 'sfx_coin', 'sfx_win', 'sfx_lose'];
+    const list = Object.entries(files).filter(([k]) => (onlyKey === 'rest' ? !EARLY.includes(k) : EARLY.includes(k)));
+    if (onlyKey === 'rest' && this._audioRest) return;
+    if (onlyKey === 'rest') this._audioRest = true;
+    await Promise.all(list.map(async ([k, f]) => {
       try {
         // 抖音：音效在 pkg_audio 分包，先确保分包下载完成再取真实路径
         if (window.TT && window.TT.ensureAsset) await window.TT.ensureAsset(f);
