@@ -422,7 +422,7 @@ class Game {
   }
 
   async loadAudio() {    const files = {
-      bgm_select: 'assets/audio/Back_Back.mp3',
+      bgm_select: 'assets/audio/BgHeroHome_BgHeroHome.mp3',
       bgm_battle: 'assets/audio/InGame1_InGame1.mp3',
       bgm_boss: 'assets/audio/InGame2_InGame2.mp3',
       sfx_shoot: 'assets/audio/hero_01_attack_sfx_hero_01_attack_sfx.mp3',
