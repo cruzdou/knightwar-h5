@@ -47,7 +47,7 @@ class LevelSelectScene {
       sword: 'common_item_sword.png',
       arrowPrev: 'stage_arrow_prev.png',
       allies: 'pack_avatar_sp.png',
-      green: 'ribbon_bg_green.png',
+      green: 'ribbon_bg_green.png', eventbox: 'pack_avatar_sp.png',
       lock: 'stage_frame_icon_lock.png'
     };
     // 先上屏，原包贴图后台补（皮肤图已覆盖首屏主要元素，公网冷启动明显更快）
@@ -150,7 +150,7 @@ class LevelSelectScene {
     this.packCard(x, y, w, 104, 'STARTER PACK', this.packTimer('starter', 24), '90G', 'pack', 'starter');
     // Raid 入口（票数实时显示）
     y += 112;
-    this.packCard(x, y, w, 92, 'RAID', '票 ' + Player.raidTicketTotal() + ' 张', 'BOSS', 'raid');
+    this.packCard(x, y, w, 106, 'RAID', '票 ' + Player.raidTicketTotal() + ' 张', 'BOSS', 'raid');
   }
 
   // 礼包倒计时文案：未买→剩余时间；买过→已购买；超时→已结束
@@ -281,7 +281,7 @@ class LevelSelectScene {
     this.rightCard(x, y, w, 88, 'VIP only', 'crown', '#c8a13c'); y += 96;
     this.rightCard(x, y, w, 88, 'Daily Gift', 'chest', '#d0832b', { act: 'daily', tab: 'sign' }, nSign); y += 96;
     this.rightCard(x, y, w, 88, 'Quest', 'book', '#d0832b', { act: 'daily', tab: 'quest' }, nQuest); y += 96;
-    this.rightCard(x, y, w, 88, 'Event', 'green', '#6aa84f', { act: 'daily', tab: 'event' }, nEvent);
+    this.rightCard(x, y, w, 88, 'Event', 'eventbox', '#6aa84f', { act: 'daily', tab: 'event' }, nEvent);
   }
 
   rightCard(x, y, w, h, label, icon, color, tap, dot) {
@@ -292,8 +292,14 @@ class LevelSelectScene {
     lg.addColorStop(1, 'rgba(0,0,0,0.2)');
     ctx.fillStyle = lg;
     roundRect(ctx, x + 1, y + 1, w - 2, h - 2, 7, lg);
-    const img = this.tex[icon];
-    if (img) drawIcon(ctx, img, x + w / 2, y + 34, icon === 'green' ? 0.40 : 0.46);
+    if (icon === 'eventbox') {
+      const box = skinGet('sk_icon_challenge.webp');
+      if (box) drawIconFit(ctx, box, x + w / 2, y + 36, 50);
+      else if (this.tex.chest) drawIcon(ctx, this.tex.chest, x + w / 2, y + 34, 0.46);
+    } else {
+      const img = this.tex[icon];
+      if (img) drawIcon(ctx, img, x + w / 2, y + 34, 0.46);
+    }
     text(ctx, label, x + w / 2, y + h - 14, 13, '#f5d67a', 'center', '#2b1d10');
     // 可领数量小红点
     if (dot > 0) {
@@ -442,22 +448,41 @@ class LevelSelectScene {
 
   drawUnlock(x, y, w, h) {
     const ctx = this.ctx;
-    roundRect(ctx, x, y, w, h, 10, '#24170a', '#3e2e16', 2);
     const nz = this.zones[this.zoneIdx + 1];
-    // 底图（放在文字下面）
-    if (this.tex.castle) {
+    roundRect(ctx, x, y, w, h, 10, '#1d2a12', '#3f5a26', 2);
+
+    // 背景：压暗的草地 + 下一分区卡通城堡剪影（可看清，不再是一块空暗框）
+    ctx.save();
+    roundRect(ctx, x + 2, y + 2, w - 4, h - 4, 9, null, null, 0);
+    ctx.clip();
+    const gg = ctx.createLinearGradient(0, y, 0, y + h);
+    gg.addColorStop(0, 'rgba(40,60,26,0.9)');
+    gg.addColorStop(1, 'rgba(18,26,12,0.95)');
+    ctx.fillStyle = gg; ctx.fillRect(x, y, w, h);
+    const ca = skinGet('sk_castle.webp') || this.tex.castle;
+    if (ca) {
+      const cw = w * 0.62, ch = cw * ca.height / ca.width;
       ctx.save();
-      ctx.globalAlpha = 0.16;
-      const cw = w - 40, ch = cw * this.tex.castle.height / this.tex.castle.width;
-      ctx.drawImage(this.tex.castle, x + 20, y + h - ch + 6, cw, ch);
+      ctx.globalAlpha = 0.42;
+      ctx.filter = 'saturate(0.6)';
+      ctx.drawImage(ca, x + (w - cw) / 2, y + h - ch - 4, cw, ch);
       ctx.restore();
     }
-    if (this.tex.lock) drawIcon(ctx, this.tex.lock, x + w / 2, y + 40, 0.5, 0.9);
-    text(ctx, nz ? '下一分区' : '全部通关', x + w / 2, y + 86, 18, '#ffe9a8', 'center', '#20150a');
-    text(ctx, nz ? (ZONE_NAMES[nz] || ('Zone ' + (nz + 1))) : '已抵达最后一站', x + w / 2, y + 114, 14, '#e8cfa0', 'center');
+    ctx.restore();
+
+    // 顶部锁条：木牌缎带 + 锁图标
+    const rb = skinGet('sk_top_title.webp');
+    const rw = Math.min(220, w - 60), rh = rw * 0.27;
+    if (rb) ctx.drawImage(rb, x + (w - rw) / 2, y + 12, rw, rh);
+    if (this.tex.lock) drawIcon(ctx, this.tex.lock, x + w / 2 - 46, y + 12 + rh / 2, 0.34, 0.9);
+    const lbx = x + w / 2 + 12;
+    text(ctx, nz ? '下一分区' : '全部通关', lbx, y + 12 + rh / 2, 16, '#ffe9a8', 'center', '#2a1608');
+
+    text(ctx, nz ? (ZONE_NAMES[nz] || ('Zone ' + (nz + 1))) : '已抵达最后一站',
+      x + w / 2, y + h - 46, 15, '#e8f5c8', 'center', '#16200c');
     if (nz) {
       const need = this.curStages().length;
-      text(ctx, '完成本分区 ' + need + ' 关后进入', x + w / 2, y + 138, 11, '#b5926a', 'center');
+      text(ctx, '完成本分区 ' + need + ' 关后进入', x + w / 2, y + h - 24, 11, '#b9d38c', 'center');
     }
   }
 

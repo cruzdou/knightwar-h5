@@ -302,14 +302,16 @@ class Actor {
         const n = use.frames;
         const f = Math.min(n - 1, Math.max(0, Math.floor(this.fx.t || 0)));
         const dw = fw * s, dh = fh * s;
+        // 有 alpha 包围盒时按「可见高度」落地，避免素材四周留白导致人物大小/站位失真
+        const hb = this.info.hb || fh, y0 = this.info.y0 || 0;
         ctx.save();
         ctx.globalAlpha = this.alpha;
         if (this.flip) {
           ctx.translate(this.x, 0);
           ctx.scale(-1, 1);
-          ctx.drawImage(use.img, f * fw, 0, fw, fh, -dw / 2, this.y - dh, dw, dh);
+          ctx.drawImage(use.img, f * fw, 0, fw, fh, -dw / 2, this.y - (y0 + hb) * s, dw, dh);
         } else {
-          ctx.drawImage(use.img, f * fw, 0, fw, fh, this.x - dw / 2, this.y - dh, dw, dh);
+          ctx.drawImage(use.img, f * fw, 0, fw, fh, this.x - dw / 2, this.y - (y0 + hb) * s, dw, dh);
         }
         ctx.restore();
         return;

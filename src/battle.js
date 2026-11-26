@@ -4,9 +4,9 @@
 // ============================================================
 
 const WALL_Y = 940;        // 城墙顶边
-const HERO_X = 360;
-const HERO_FEET = 1012;    // 英雄脚底
-const HERO_H = 170;        // 英雄屏幕上高度
+const HERO_X = 458;
+const HERO_FEET = 1150;    // 英雄脚底
+const HERO_H = 150;        // 英雄屏幕上高度
 const SPAWN_Y = 300;       // 怪物出生（河道下方草地，避免站在水里）
 const STOP_Y = 975;        // 推进到城墙前
 const ENEMY_H_NEAR = 132;  // 到墙时的高度
@@ -130,7 +130,7 @@ class BattleScene {
     this.hero = new Actor(info, { anim: 'Idle' });
     this.hero.x = HERO_X;
     this.hero.y = HERO_FEET;
-    this.hero.scale = HERO_H / info.h;
+    this.hero.scale = HERO_H / (info.hb || info.h);
   }
 
   // 每个分区的战场背景（Castle Guards 的 10 张卡通战场轮换）
@@ -180,7 +180,7 @@ class BattleScene {
     const ca = skinGet('sk_castle.webp');
     if (ca) {
       const chh = 290, cww = chh * ca.width / ca.height;
-      c.drawImage(ca, (W - cww) / 2, H - 96 - chh, cww, chh);
+      c.drawImage(ca, (W - cww) / 2 - 88, H - 96 - chh, cww, chh);
     }
 
     // 底部草地暗化，让 HUD 与人物更清楚
@@ -298,7 +298,7 @@ class BattleScene {
     // 上阵盟友（最多 3 名）：站在英雄两侧/后方，自动向最靠墙的敌人射击
     // 数值取自 gameAllies.json 该阶该级的伤害；盟友不吃伤害（简化：不会被打死）
     this.allies = [];
-    const allySlots = [{ x: 232, y: 1052 }, { x: 488, y: 1052 }, { x: 360, y: 986 }];
+    const allySlots = [{ x: 596, y: 1148 }, { x: 654, y: 1122 }, { x: 526, y: 1164 }];
     (Player.squad || []).slice(0, 3).forEach((id, i) => {
       const info = this.ally_infos && this.ally_infos[id];
       const st = this.g.allyStats ? this.g.allyStats(id) : null;
@@ -308,7 +308,7 @@ class BattleScene {
       a.x = allySlots[i].x;
       a.y = allySlots[i].y;
       a.flip = false;
-      a.scale = (HERO_H * 0.92) / info.h;
+      a.scale = (HERO_H * 0.80) / (info.hb || info.h);
       a.dmg = Math.max(1, st.damage * (window.CONFIG ? CONFIG.balance.damageMult : 3) * 0.55);
       a.rate = Math.max(0.6, st.atkRate || 1.5);
       a.crit = st.critRate || 8;
@@ -339,7 +339,7 @@ class BattleScene {
     a.x = 110 + Math.random() * 500;
     a.y = SPAWN_Y + Math.random() * 50;
     a.stopY = STOP_Y - Math.random() * 30;
-    a.base = ENEMY_H_NEAR / info.h;
+    a.base = ENEMY_H_NEAR / (info.hb || info.h);
     a.hp = 90 * (this.hpK || 1) * (1 + 0.18 * (this.wave - 1));
     a.maxHp = a.hp;
     a.speed = 24 + Math.random() * 8;

@@ -31,7 +31,7 @@ function frameInfo(unit) {
   const aliases = [];
   for (const k of Object.keys(ANIM_ALIAS)) if (u.anims[ANIM_ALIAS[k]]) aliases.push(k);
   return {
-    kind: 'frames', unit, w: u.w, h: u.h, fps: u.fps || 15,
+    kind: 'frames', unit, w: u.w, h: u.h, fps: u.fps || 15, hb: u.hb || u.h, y0: u.y0 || 0,
     anims: aliases, frames: u.anims
   };
 }
