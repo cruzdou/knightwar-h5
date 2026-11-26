@@ -24,7 +24,7 @@ function skinLoad(file) {
 
 function skinGet(file) {
   const v = skinCache[file];
-  return v && v.width ? v : null;
+  return v && v.width && v.naturalWidth ? v : null;
 }
 
 // 预加载一批（UI 主界面 + 战斗常用）
@@ -38,7 +38,7 @@ const SKIN_PRELOAD = [
   'sk_shop_green_p.webp', 'sk_small_green.webp', 'sk_small_green_p.webp',
   'sk_btn_play.webp', 'sk_btn_play_p.webp', 'sk_star_empty.webp', 'sk_star_filled.webp',
   'sk_icon_home.webp', 'sk_icon_shop.webp', 'sk_icon_challenge.webp', 'sk_icon_achv.webp',
-  'sk_icon_card.webp', 'sk_gem_icon.webp', 'sk_coin_icon.webp', 'sk_coin_bar.webp',
+  'sk_icon_card.webp', 'sk_gem_icon.webp', 'sk_coin_icon.webp',
   'sk_hp_bg.webp', 'sk_hp_fg.webp', 'sk_exp_bg.webp', 'sk_exp_fg.webp',
   'sk_bottom_hud.webp', 'sk_castle.webp', 'sk_btn_pause.webp', 'sk_btn_pause_p.webp',
   'sk_achv_bar_bg.webp', 'sk_achv_bar_fg.webp', 'sk_achv_done.webp', 'sk_achv_undone.webp',

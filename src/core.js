@@ -26,6 +26,17 @@ const BLANK_IMG = (() => {
   return im;
 })();
 
+// 全局兜底：贴图未加载完（naturalWidth=0）时跳过 drawImage，避免整帧抛错
+(function () {
+  const proto = CanvasRenderingContext2D.prototype;
+  const orig = proto.drawImage;
+  proto.drawImage = function (img) {
+    if (!img) return;
+    if (img instanceof HTMLImageElement && !img.naturalWidth) return;
+    return orig.apply(this, arguments);
+  };
+})();
+
 // 城堡数值（战斗与城堡页共用一套换算）：以 Lv1 血量为基准，0.35 次方压平，基准城墙 561
 function castleStatsFor(cd, level) {
   const base = 561;
@@ -286,7 +297,7 @@ class Actor {
       const ready = sheet && sheet.__v ? sheet.__v : null;
       const idle = sheetCache[this.info.unit + '|idle'];
       const use = ready || (idle && idle.__v);
-      if (use) {
+      if (use && use.img && use.img.naturalWidth) {
         const s = this.scale, fw = this.info.w, fh = this.info.h;
         const n = use.frames;
         const f = Math.min(n - 1, Math.max(0, Math.floor(this.fx.t || 0)));
@@ -374,7 +385,7 @@ function text(ctx, str, x, y, size, color, align, stroke) {
 }
 
 function drawIcon(ctx, img, cx, cy, scale, alpha) {
-  if (!img) return;
+  if (!img || !img.naturalWidth) return;
   ctx.save();
   if (alpha !== undefined) ctx.globalAlpha = alpha;
   const w = img.width * scale, h = img.height * scale;
@@ -386,7 +397,7 @@ function lerp(a, b, t) { return a + (b - a) * t; }
 
 // 按目标高度等比绘制图标（不同素材尺寸差异大时用它，避免一张图糊满屏）
 function drawIconFit(ctx, img, cx, cy, targetH, alpha) {
-  if (!img || !img.width) return;
+  if (!img || !img.width || !img.naturalWidth) return;
   const h = targetH, w = targetH * img.width / img.height;
   ctx.save();
   if (alpha !== undefined) ctx.globalAlpha = alpha;
