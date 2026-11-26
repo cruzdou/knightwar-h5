@@ -41,6 +41,7 @@ class PlayerState {
     this.chestPity = {};
     // Raid 票（TreasureBox.json 的 raidTicketXxx 掉落）
     this.raidTickets = { normal: 0, medium: 0, hard: 0, super: 0 };
+    this.raidFreeDay = '';   // 上次领每日 Raid 票的日期（YYYY-MM-DD）
     // Boss 关首通记录：{ '1-1': true }
     this.bossClear = {};
     // 设置项（设置面板读写）：音效开关 / 是否已评过分
@@ -57,6 +58,9 @@ class PlayerState {
     if (!Object.keys(this.owned).length) {
       // 初始只拥有每系第一件（剑 1 / 弓 10 / 杖 19、护甲 201/210/219、神器 409）
       this.owned = { 1: true, 10: true, 19: true, 201: true, 210: true, 219: true, 409: true };
+      // 新档直接把武器穿上：否则英雄空手伤害只有一半，第一关就打不动
+      const w = this.owned[1] ? 1 : Object.keys(this.owned).map(Number).filter(id => id >= 1 && id <= 9).sort((a, b) => a - b)[0];
+      if (w) this.equipped = { [this.charID]: { weapon: w } };
     }
   }
 
@@ -89,6 +93,7 @@ class PlayerState {
       if (s.achvClaims && typeof s.achvClaims === 'object') this.achvClaims = s.achvClaims;
       if (typeof s.signTotal === 'number') this.signTotal = s.signTotal;
       if (typeof s.tutorialStep === 'number') this.tutorialStep = s.tutorialStep;
+      if (typeof s.raidFreeDay === 'string') this.raidFreeDay = s.raidFreeDay;
       if (typeof s.rated === 'boolean') this.rated = s.rated;
       if (s.packs && typeof s.packs === 'object') this.packs = s.packs;
     } catch (e) { /* 存档损坏就用默认值 */ }
@@ -103,7 +108,7 @@ class PlayerState {
       localStorage.setItem(SAVE_KEY, JSON.stringify({
         lastSeen: (this.lastSeen = Date.now(), this.lastSeen),
         coins: this.coins, gems: this.gems, stamina: this.stamina, staminaMax: this.staminaMax, staminaTs: this.staminaTs, musicOn: this.musicOn, starClaims: this.starClaims, achvClaims: this.achvClaims, signTotal: this.signTotal, tutorialStep: this.tutorialStep,
-        stars: this.stars, charID: this.charID, castleLevel: this.castleLevel,
+        stars: this.stars, charID: this.charID, castleLevel: this.castleLevel, raidFreeDay: this.raidFreeDay,
         equipped: this.equipped, itemLv: this.itemLv,
         mats: this.mats, owned: this.owned,
         heroLv: this.heroLv, skillLv: this.skillLv,
@@ -291,6 +296,21 @@ class PlayerState {
   // ---------- 宝箱保底 / Raid 票 / Boss 首通 ----------
   pityOf(boxID, slotKey) { return this.chestPity[boxID + ':' + slotKey] || { m: 0, h: 0, s: 0 }; }
   setPity(boxID, slotKey, p) { this.chestPity[boxID + ':' + slotKey] = p; this.save(); }
+
+  // 每日免费 Raid 票：每天首次进 Raid 页可领 2 张普通票
+  raidDailyAvailable() {
+    const d = new Date();
+    const key = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+    return this.raidFreeDay !== key;
+  }
+  claimRaidDaily() {
+    if (!this.raidDailyAvailable()) return 0;
+    const d = new Date();
+    this.raidFreeDay = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+    this.addRaidTicket('normal', 2);
+    this.save();
+    return 2;
+  }
 
   addRaidTicket(kind, n) {
     this.raidTickets[kind] = (this.raidTickets[kind] || 0) + n;

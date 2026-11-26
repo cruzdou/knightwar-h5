@@ -132,14 +132,17 @@ class TabScene {
 
   // ---------- 图标映射（原包 item_* 贴图） ----------
   iconOf(cat, i, item) {
+    // 缺图时 loadImage 会回一个 1x1 透明占位，宽高为 1 的要当作没有
+    const ok = k => !!(k && this.tex[k] && this.tex[k].width > 1);
     if (cat === 'weapon') {
       // 27 件 = 3 个职业 × 9 级：剑/弓/杖分别对应 H01/H02/H03 的原画大图；剑系缺图时退回 item_w 系列
       const cls = Math.floor(i / 9), n = pad2((i % 9) + 1);
       const raw = 'H0' + (cls + 1) + '-W_H0' + (cls + 1) + '_' + n + '.png';
-      if (this.tex[raw]) return raw;
+      if (ok(raw)) return raw;
       const small = 'item_w_1_' + n + '.png';
-      if (this.tex[small]) return small;
-      return 'W_H0' + (cls + 1) + '_0' + (cls === 0 ? '0' : '1') + '.png';
+      if (ok(small)) return small;
+      const fallback = 'item_w_1_01.png';
+      return ok(fallback) ? fallback : ('W_H0' + (cls + 1) + '_0' + (cls === 0 ? '0' : '1') + '.png');
     }
     if (cat === 'armor') {
       // 27 件 = 3 个职业 × 9 级，原包刚好有 item_a_1..3_01..09 共 27 张，一一对应
@@ -148,7 +151,7 @@ class TabScene {
     if (cat === 'material') {
       // 先用原表 spritePath 的真名（01_Iron / 06_Cloth …），没导出图就用 item_misc 轮换
       const sp = item && item.spritePath ? String(item.spritePath).split('/').pop() : '';
-      if (sp && this.tex[sp]) return sp;
+      if (ok(sp)) return sp;
       return 'item_misc_' + pad2((i % 10) + 1) + '.png';
     }
     if (cat === 'artifact') {
@@ -227,8 +230,7 @@ class TabScene {
       text(ctx, p.name, x + cw / 2, y + 120, 16, '#e8eef6', 'center', '#0a1018');
       // 内容小字：装备箱 3 槽 / 盟友箱是盟友卡
       const isAlly = p.id === 10 || p.id === 11;
-      text(ctx, isAlly ? '盟友卡 x3 · 重复转升级' : '3 槽随机装备 · 重复转强化',
-        x + cw / 2, y + 142, 12, '#8fa3b7', 'center');
+      text(ctx, Chest.desc(p.id), x + cw / 2, y + 142, 12, '#8fa3b7', 'center');
 
       const pr = Chest.price(p.box, 1);
       const ic = this.tex[pr.cur === 'gem' ? 'gem' : 'coin'];
@@ -239,7 +241,7 @@ class TabScene {
       if (pr10.v > 0) {
         const bw10 = 78, bh10 = 26, bx10 = x + cw - bw10 - 8, by10 = y + 154;
         roundRect(ctx, bx10, by10, bw10, bh10, 6, '#243448', '#4a7fb5', 1);
-        text(ctx, '10× ' + pr10.v + (pr10.cur === 'coin' ? '金' : '宝'), bx10 + bw10 / 2, by10 + bh10 / 2, 11, '#9fd0ff', 'center');
+        text(ctx, '10× ' + pr10.v + (pr10.cur === 'coin' ? '金' : '宝石'), bx10 + bw10 / 2, by10 + bh10 / 2, 11, '#9fd0ff', 'center');
         this.hot.push({ x: bx10, y: by10, w: bw10, h: bh10, act: 'buyChest', id: p.id, n: 10 });
       }
 
@@ -258,7 +260,7 @@ class TabScene {
       { act: 'iap', art: 'shop_pack_gem_6.png', t1: '内购位', t2: '首充礼包 ¥6', btn: '购买' }
     ];
     const aw = (W - 24 - 3 * 8) / 4, ay = 932, ah = 158;
-    text(ctx, '广告 / 内购位（' + (Ads.hasRealSdk() ? '已接 SDK' : '模拟播放，未接 SDK') + '）', 14, ay - 12, 13, '#8fa3b7', 'left');
+    text(ctx, '福利与礼包', 14, ay - 12, 13, '#8fa3b7', 'left');
     ads.forEach((p, i) => {
       const x = 12 + i * (aw + 8);
       const off = p.act === 'iap' || Ads.remaining() > 0;
@@ -272,7 +274,7 @@ class TabScene {
       text(ctx, p.t2, x + aw / 2, ay + 94, 14, '#ffe9a8', 'center');
       const bw = aw - 20, bh = 34, bx = x + 10, by = ay + ah - 42;
       roundRect(ctx, bx, by, bw, bh, 8, off ? '#e0a52a' : '#3a4654', off ? '#ffdf9a' : '#4a5a70', 1);
-      text(ctx, p.act === 'iap' ? (IAP.hasRealSdk() ? p.btn : '未接支付') : (Ads.remaining() > 0 ? p.btn : '今日已用完'),
+      text(ctx, p.act === 'iap' ? (IAP.hasRealSdk() ? p.btn : '即将开放') : (Ads.remaining() > 0 ? p.btn : '今日已用完'),
         bx + bw / 2, by + bh / 2, 13, off ? '#fff' : '#9fb2c6', 'center', '#1a1206');
       this.hot.push({ x: bx, y: by, w: bw, h: bh, act: p.act });
     });
@@ -281,7 +283,7 @@ class TabScene {
   // ================= 锻造 =================
   draw_craft() {
     const ctx = this.ctx;
-    this.title('锻造  FORGE', '材料表来自 GameItemsMaterial.json');
+    this.title('锻造  FORGE', '材料来自战斗掉落与宝箱');
 
     const cats = [
       { key: 'weapon', lbl: '武器' },
@@ -429,7 +431,7 @@ class TabScene {
   // ================= 英雄 =================
   draw_hero() {
     const ctx = this.ctx;
-    this.title('英雄  HEROES', '角色数值来自 gameCharacters.json');
+    this.title('英雄  HEROES', '数值随等级 / 装备 / 进化成长');
 
     const chars = this.items.chars || [];
     this.fillHero(chars);
@@ -647,7 +649,7 @@ class TabScene {
   draw_castle() {
     const ctx = this.ctx;
     const c = this.items.castle;
-    this.title('城堡  CASTLE', '数值来自 gameCastle.json');
+    this.title('城堡  CASTLE', '升级提升城墙血量 / 护甲 / 回复');
 
     // 主图
     const px = 12, py = 148, pw = W - 24, ph = 320;
@@ -666,7 +668,7 @@ class TabScene {
     ctx.fillStyle = fade; ctx.fillRect(px + 3, py + 3, pw - 6, ph - 6);
     if (this.tex.wall) {
       const ww = pw - 40, wh = ww * this.tex.wall.height / this.tex.wall.width;
-      ctx.globalAlpha = 0.55;
+      ctx.globalAlpha = 0.26;
       ctx.drawImage(this.tex.wall, px + 20, py + ph - wh - 26, ww, wh);
       ctx.globalAlpha = 1;
     }
@@ -675,12 +677,12 @@ class TabScene {
     const lvl = Player.castleLevel;
     text(ctx, 'Castle  Lv ' + lvl, px + 20, py + 30, 20, '#ffe9a8', 'left', '#0a1018');
     if (c) {
-      const row = (c.listLevelUp || []).find(x => x.level === lvl) || c;
+      const cs = castleStatsFor(c, lvl);   // 与战斗里城墙血量同一套换算
       const stats = [
-        ['血量', Math.round(lvl === 1 ? c.blood : row.blood || c.blood)],
-        ['护甲', Math.round(row.armor !== undefined ? row.armor : c.armor)],
-        ['回复', Math.round(row.regain !== undefined ? row.regain : c.regain)],
-        ['槽位', row.slot || c.slot]
+        ['血量', cs.hp],
+        ['护甲', Math.round(cs.armor)],
+        ['回复', cs.regain],
+        ['槽位', cs.slot]
       ];
       stats.forEach((s, i) => {
         const x = px + 24 + i * 160;
@@ -720,7 +722,7 @@ class TabScene {
       const on = l.level === lvl;
       roundRect(ctx, 12, y, W - 24, 44, 6, on ? '#2c4a70' : '#141d29', on ? '#7fc6ff' : '#2a3644', 1);
       text(ctx, String(l.level), 34, y + 22, 15, on ? '#ffffff' : '#c9d6e2', 'left');
-      text(ctx, String(Math.round(l.blood)), 130, y + 22, 15, '#ffe9a8', 'left');
+      text(ctx, String(castleStatsFor(c, l.level).hp), 130, y + 22, 15, '#ffe9a8', 'left');
       text(ctx, String(Math.round(l.armor)), 260, y + 22, 15, '#c9d6e2', 'left');
       text(ctx, String(Math.round(l.regain)), 360, y + 22, 15, '#c9d6e2', 'left');
       text(ctx, (l.coinUpgrade || 0) + (l.gemUpgrade ? ' / ' + l.gemUpgrade + 'G' : ''), W - 34, y + 22, 14, '#9fb2c6', 'right');
@@ -863,7 +865,7 @@ class TabScene {
         case 'iap':
           IAP.buy('first_pack_6', r => {
             if (r && r.ok) { Player.addGems(60); Player.addCoins(2000); this.say('内购成功：宝石 +60 / 金币 +2000'); }
-            else this.say('未接入支付 SDK，IAP.buy() 里挂真实现即可');
+            else this.say('内购暂未开放，敬请期待');
             this.g.playSfx(r && r.ok ? 'sfx_buy' : 'sfx_equipfail', 0.3);
           });
           return;

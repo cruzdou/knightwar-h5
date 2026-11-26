@@ -22,7 +22,9 @@ class RaidScene {
     this.per = 6;
     const sel = game.select;
     this.tex = (sel && sel.tex) || {};
-    this.bosses = ((sel && sel.levels) || []).filter(l => l.levelType === 'bigBoss');
+    this.bosses = ((sel && sel.levels) || [])
+      .filter(l => l.levelType === 'bigBoss')
+      .sort((a, b) => (a.zone - b.zone) || (a.indexInZone - b.indexInZone));
     this.time = 0;
   }
 
@@ -71,6 +73,13 @@ class RaidScene {
 
     text(ctx, '规则：消耗 1 张票挑战已首通的 Boss 关，敌人血量 ×2、金币与材料 ×2；失败不退票。',
       14, 268, 12, '#8fa3b7', 'left');
+    // 每日免费票（每天 2 张普通票），没领就挂一个按钮在这里
+    if (Player.raidDailyAvailable()) {
+      const dw = 178, dh = 34, dx = W - 12 - dw, dy = 258;
+      roundRect(ctx, dx, dy, dw, dh, 8, '#2f6fb0', '#7fc6ff', 2);
+      text(ctx, '领今日 2 张普通票', dx + dw / 2, dy + dh / 2, 14, '#fff', 'center');
+      this.hot.push({ x: dx, y: dy, w: dw, h: dh, act: 'daily' });
+    }
 
     const start = this.page * this.per;
     const rows = this.bosses.slice(start, start + this.per);
@@ -124,7 +133,13 @@ class RaidScene {
         this.g.playSfx('sfx_tab', 0.3);
         return;
       }
-      if (b.act === 'back') { this.g.showSelect(); this.g.playSfx('sfx_back', 0.3); return; }
+      if (b.act === 'daily') {
+      const n = Player.claimRaidDaily();
+      if (n) this.say('已领取 ' + n + ' 张普通票，去打 Boss 吧');
+      this.g.playSfx('sfx_buy', 0.3);
+      return;
+    }
+    if (b.act === 'back') { this.g.showSelect(); this.g.playSfx('sfx_back', 0.3); return; }
       if (b.act === 'prev') { this.page = Math.max(0, this.page - 1); this.g.playSfx('sfx_click', 0.26); return; }
       if (b.act === 'next') { this.page++; this.g.playSfx('sfx_click', 0.26); return; }
       if (b.act === 'raid') {

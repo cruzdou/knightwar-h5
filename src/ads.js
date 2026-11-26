@@ -81,7 +81,7 @@ const Ads = {
       'text-align:center', 'box-shadow:0 12px 40px rgba(0,0,0,0.6)'
     ].join(';');
 
-    const tag = '<div style="font-size:12px;color:#7fc6ff;letter-spacing:1px;margin-bottom:6px">广告位 · 模拟播放（未接 SDK）</div>';
+    const tag = '<div style="font-size:12px;color:#7fc6ff;letter-spacing:1px;margin-bottom:6px">限时福利 · 点击领取</div>';
     const title = '<div style="font-size:17px;color:#ffe9a8;margin-bottom:14px">' + o.title + '</div>';
     // 假画面
     const video = '<div style="height:150px;border-radius:10px;background:linear-gradient(135deg,#1c3350,#0d1723 60%,#203a58);display:flex;align-items:center;justify-content:center;font-size:13px;color:#8aa2bb">' +

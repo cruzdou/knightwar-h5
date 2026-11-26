@@ -223,7 +223,7 @@ class AllyScene {
       const lock = on && Player.squad.length <= 1;
       if (lock) {
         roundRect(ctx, x3, by, bw, bh, 9, '#1a2431', '#2a3644', 1);
-        text(ctx, '必上阵', x3 + bw / 2, by + bh / 2, 17, '#6f8398', 'center');
+        text(ctx, '至少留 1 人', x3 + bw / 2, by + bh / 2, 15, '#6f8398', 'center');
       } else {
         roundRect(ctx, x3, by, bw, bh, 9, on ? '#3d5a2a' : '#2f6fb0', on ? '#9fe06a' : '#7fc6ff', 2);
         text(ctx, on ? '下阵' : '上阵', x3 + bw / 2, by + bh / 2, 18, '#fff', 'center');

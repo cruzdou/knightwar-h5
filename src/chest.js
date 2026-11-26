@@ -27,8 +27,29 @@ class ChestSystem {
 
   box(id) { return this.list.find(b => b.id === id) || null; }
 
-  // 购买价：优先宝石价，没有宝石价就用金币价
+  // 原包价格倒挂（Epic 比 Common 便宜），商店展示与扣费用同一套修正值
+  static PRICE_FIX = {
+    1:  { g1: 50,  g10: 450 },
+    2:  { g1: 120, g10: 1080 },
+    3:  { g1: 260, g10: 2340 },
+    4:  { g1: 600, g10: 5400 },
+    10: { g1: 150, g10: 1350 },
+    11: { g1: 320, g10: 2880 }
+  };
+  static DESC = {
+    1:  '3 件随机装备 · 保底普通',
+    2:  '3 件随机装备 · 稀有概率提升',
+    3:  '3 件随机装备 · 高概率史诗',
+    4:  '3 件随机装备 · 可出传说',
+    10: '3 张盟友卡 · 重复转升级',
+    11: '3 张盟友卡 · 高概率史诗'
+  };
+  desc(id) { return ChestSystem.DESC[id] || '3 件随机奖励'; }
+
+  // 购买价：优先宝石价，没有宝石价就用金币价（修正表优先）
   price(box, n) {
+    const fx = ChestSystem.PRICE_FIX[box && box.id];
+    if (fx) return n === 10 ? { cur: 'gem', v: fx.g10 } : { cur: 'gem', v: fx.g1 };
     const ten = n === 10;
     const gem = ten ? (box.x10Gem || 0) : (box.x1Gem || 0);
     const coin = ten ? (box.x10Coin || 0) : (box.x1Coin || 0);

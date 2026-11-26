@@ -26,6 +26,24 @@ const BLANK_IMG = (() => {
   return im;
 })();
 
+// 城堡数值（战斗与城堡页共用一套换算）：以 Lv1 血量为基准，0.35 次方压平，基准城墙 561
+function castleStatsFor(cd, level) {
+  const base = 561;
+  if (!cd) return { hp: base, armor: 0, regain: 0, slot: 1, blood: 1000 };
+  const rows = cd.listLevelUp || [];
+  const row = rows.find(r => r.level === level) || {};
+  const b1 = (rows[0] && rows[0].blood) || cd.blood || 1000;
+  const blood = row.blood || cd.blood || b1;
+  const k = Math.max(0.8, Math.min(8, Math.pow((blood / b1) || 1, 0.3)));
+  return {
+    hp: Math.round(base * k),
+    armor: Math.max(0, row.armor !== undefined ? row.armor : (cd.armor || 0)),
+    regain: Math.max(0, row.regain !== undefined ? row.regain : (cd.regain || 0)),
+    slot: row.slot || cd.slot || 1,
+    blood: blood
+  };
+}
+
 function loadImage(name) {
   if (imgCache[name]) return imgCache[name];
   imgCache[name] = new Promise(res => {

@@ -215,19 +215,11 @@ class BattleScene {
     this.wallRegain = 0;
     this.regainT = 0;
     {
-      const cd = this.g.castleData;
-      if (cd) {
-        const rows = cd.listLevelUp || [];
-        const lv = Player.castleLevel || 1;
-        const row = rows.find(r => r.level === lv) || {};
-        const b1 = (rows[0] && rows[0].blood) || cd.blood || 1000;
-        const blood = row.blood || cd.blood || b1;
-        const k = Math.max(0.8, Math.min(4, Math.pow(blood / b1 || 1, 0.35)));
-        this.castleMax = Math.round(561 * k);
-        this.castleHP = this.castleMax;
-        this.wallArmor = Math.max(0, row.armor !== undefined ? row.armor : (cd.armor || 0));
-        this.wallRegain = Math.max(0, row.regain !== undefined ? row.regain : (cd.regain || 0));
-      }
+      const cs = castleStatsFor(this.g.castleData, Player.castleLevel || 1);
+      this.castleMax = cs.hp;
+      this.castleHP = cs.hp;
+      this.wallArmor = cs.armor;
+      this.wallRegain = cs.regain;
     }
     this.spawnLeft = this.perWave;
     this.spawnTimer = 1.0;
