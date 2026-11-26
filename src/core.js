@@ -304,7 +304,7 @@ class Actor {
       const ready = sheet && sheet.__v ? sheet.__v : null;
       const idle = sheetCache[this.info.unit + '|idle'];
       const use = ready || (idle && idle.__v);
-      if (use && use.img && use.img.naturalWidth) {
+      if (use && use.img && (use.img.naturalWidth || use.img.width)) {
         const s = this.scale, fw = this.info.w, fh = this.info.h;
         const n = use.frames;
         const f = Math.min(n - 1, Math.max(0, Math.floor(this.fx.t || 0)));

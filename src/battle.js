@@ -16,9 +16,9 @@ function loadBgPaths() {
   return BG_PATHS_P;
 }
 
-const HERO_X = 336;
-const HERO_FEET = 1094;   // 站在石台面上    // 英雄脚底
-const HERO_H = 104;        // 英雄屏幕上高度
+const HERO_X = 360;
+const HERO_FEET = 1060;   // 站在石台面上    // 英雄脚底
+const HERO_H = 145;        // 英雄屏幕上高度
 const SPAWN_Y = 300;       // 怪物出生（河道下方草地，避免站在水里）
 const STOP_Y = 975;        // 推进到城墙前
 const ENEMY_H_NEAR = 104;  // 到墙时的高度
@@ -55,7 +55,7 @@ class BattleScene {
     await loadAnimIndex();
     skinPreload();
     // 等首屏必需的皮肤图与战场背景，避免第一帧是旧美术
-    await Promise.all([skinLoad('sk_castle.webp'), skinLoad('sk_hero_pad.webp'), bgLoadAsync(1), bgLoadAsync(2),
+    await Promise.all([skinLoad('sk_castle.webp'), bgLoadAsync(1), bgLoadAsync(2),
       skinLoad('sk_arrow.webp'), skinLoad('sk_coin_icon.webp'), skinLoad('sk_gem_icon.webp'),
       skinLoad('sk_btn_pause.webp'), skinLoad('sk_arrow_fire.webp'),
       skinLoad('sk_arrow_ice.webp'), skinLoad('sk_fireball.webp')]);
@@ -111,6 +111,8 @@ class BattleScene {
     }).catch(() => {});
 
     this.bg = this.buildBackground();
+    // 城墙等原包贴图异步到达后重画一次底图
+    this._texReady.then(() => { if (this.tex.castle && this.tex.castle.width) this.bg = this.buildBackground(); });
     this.setHero(Player.charID);
     this.reset();
   }
@@ -190,18 +192,13 @@ class BattleScene {
       bgLoadAsync(n).then(im => { if (im && im.width) { this._bgRetry = false; this.bg = this.buildBackground(); } });
     }
 
-    // 己方城楼（卡通城堡）：贴底居中，英雄/盟友站它前面
-    const ca = skinGet('sk_castle.webp');
-    if (ca) {
-      const chh = 290, cww = chh * ca.width / ca.height;
-      c.drawImage(ca, (W - cww) / 2 - 24, H - 96 - chh, cww, chh);
-    }
-
-    // 英雄石台（底座）：英雄站在台面上
-    const pad = skinGet('sk_hero_pad.webp');
-    if (pad) {
-      const pw = 222, ph = pw * pad.height / pad.width;
-      c.drawImage(pad, HERO_X - pw / 2, HERO_FEET + 6 - ph * 0.30, pw, ph);
+    // 城墙：原包两套皮肤（castle_1 / castle_1_1），后半段分区换第二套
+    const castleArt = ((this.stageData && this.stageData.zone) >= 5 && this.tex.castle2) ? this.tex.castle2 : this.tex.castle;
+    if (castleArt && castleArt.width) {
+      const cw = W + 40, chh = cw * castleArt.height / castleArt.width;
+      c.drawImage(castleArt, (W - cw) / 2, WALL_Y - 6, cw, chh);
+      c.fillStyle = '#111820';
+      c.fillRect(0, WALL_Y - 6 + chh, W, Math.max(0, H - WALL_Y + 6 - chh));
     }
 
     // 底部草地暗化，让 HUD 与人物更清楚
@@ -334,7 +331,7 @@ class BattleScene {
     // 上阵盟友（最多 3 名）：站在英雄两侧/后方，自动向最靠墙的敌人射击
     // 数值取自 gameAllies.json 该阶该级的伤害；盟友不吃伤害（简化：不会被打死）
     this.allies = [];
-    const allySlots = [{ x: 556, y: 1150 }, { x: 612, y: 1116 }, { x: 486, y: 1168 }];
+    const allySlots = [{ x: 492, y: 1148 }, { x: 604, y: 1142 }, { x: 246, y: 1146 }];
     (Player.squad || []).slice(0, 3).forEach((id, i) => {
       const info = this.ally_infos && this.ally_infos[id];
       const st = this.g.allyStats ? this.g.allyStats(id) : null;
