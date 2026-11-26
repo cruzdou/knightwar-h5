@@ -141,6 +141,12 @@ class BattleScene {
 
   // ---------- 静态背景（画一次） ----------
   buildBackground() {
+    // 背景素材还没到且已有可用旧底：直接沿用，避免出现"黑底+城堡"
+    if (!this.bgFor(this.stageData && this.stageData.zone) && this.bg && this.bg.width) {
+      const n0 = Math.abs(((this.stageData && this.stageData.zone) || 0) % 10) + 1;
+      bgLoadAsync(n0).then(im => { if (im && im.width) this.bg = this.buildBackground(); });
+      return this.bg;
+    }
     const cv = document.createElement('canvas');
     cv.width = W; cv.height = H;
     const c = cv.getContext('2d');
@@ -613,6 +619,12 @@ class BattleScene {
 
   // ---------- 绘制 ----------
   draw() {
+    try { this._draw(); } catch (e) {
+      if (!this._drawErr) { this._drawErr = 1; console.warn('[battle.draw]', e && e.message); }
+    }
+  }
+
+  _draw() {
     const ctx = this.ctx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, W, H);
