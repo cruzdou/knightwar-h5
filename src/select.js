@@ -194,20 +194,31 @@ class LevelSelectScene {
     roundRect(ctx, x, y, w, h, 12, '#19100a', '#6d5a2c', 3);
     roundRect(ctx, x + 4, y + 4, w - 8, h - 8, 10, '#22150a');
 
-    // 城堡画面（原版 castle_1 双塔，底对齐）
-    if (this.tex.castle) {
+    // 城堡画面：换成素材包的卡通城堡 + 草地，替掉原包那张模糊石头桥
+    const ca = skinGet('sk_castle.webp');
+    ctx.save();
+    roundRect(ctx, x + 4, y + 4, w - 8, h - 8, 10, null, null, 0);
+    ctx.clip();
+    const gg = ctx.createLinearGradient(0, y, 0, y + h);
+    gg.addColorStop(0, '#a7d979');
+    gg.addColorStop(0.62, '#7cc04b');
+    gg.addColorStop(1, '#4e8f2c');
+    ctx.fillStyle = gg; ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
+    if (ca) {
+      const cw = w - 60, ch = cw * ca.height / ca.width;
+      const dh = Math.min(h - 150, ch), dw = dh * ca.width / ca.height;
+      ctx.drawImage(ca, x + (w - dw) / 2, y + h - 18 - dh, dw, dh);
+    } else if (this.tex.castle) {
       const cw = w - 8, ch = cw * this.tex.castle.height / this.tex.castle.width;
-      ctx.save();
-      roundRect(ctx, x + 4, y + 4, w - 8, h - 8, 10, null, null, 0);
-      ctx.clip();
       ctx.drawImage(this.tex.castle, x + 4, y + h - ch + 20, cw, ch);
-      const fade = ctx.createLinearGradient(0, y + 4, 0, y + h);
-      fade.addColorStop(0, 'rgba(26,15,7,0.78)');
-      fade.addColorStop(0.55, 'rgba(26,15,7,0.30)');
-      fade.addColorStop(1, 'rgba(26,15,7,0.05)');
-      ctx.fillStyle = fade; ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
-      ctx.restore();
     }
+    // 上暗下亮的暖色渐隐，让缎带文字和数字可读
+    const fade = ctx.createLinearGradient(0, y + 4, 0, y + h);
+    fade.addColorStop(0, 'rgba(24,14,6,0.62)');
+    fade.addColorStop(0.5, 'rgba(24,14,6,0.16)');
+    fade.addColorStop(1, 'rgba(24,14,6,0.34)');
+    ctx.fillStyle = fade; ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
+    ctx.restore();
 
     // 分区标题缎带 + 星星
     const stages = this.curStages();
@@ -225,9 +236,13 @@ class LevelSelectScene {
     text(ctx, stages[0] ? stages[0].zoneName : 'Mirkwood', x + w / 2, y + 16 + rh * 0.46, 22, '#ffe9a8', 'center', '#401217');
 
     // 星星计数 5/30
-    const sy = y + 16 + rh + 26;
-    if (this.tex.star) drawIcon(ctx, this.tex.star, x + w / 2 - 46, sy, 0.14);
-    text(ctx, starsGot + '/30', x + w / 2 + 4, sy, 19, '#ffe9a8', 'left', '#241a08');
+    const sy = y + 16 + rh + 4;
+    const starW = 30;
+    ctx.font = 'bold 19px "Microsoft YaHei", Arial, sans-serif';
+    const tw = ctx.measureText(starsGot + '/30').width;
+    const bx0 = x + w / 2 - (starW + 6 + tw) / 2;
+    if (this.tex.star) drawIcon(ctx, this.tex.star, bx0 + starW / 2, sy, 0.14);
+    text(ctx, starsGot + '/30', bx0 + starW + 6, sy, 19, '#ffe9a8', 'left', '#241a08');
 
     // 分区左右切换箭头
     const ay = y + h - 44;
@@ -302,14 +317,14 @@ class LevelSelectScene {
   drawMilestones() {
     const ctx = this.ctx;
     const x = SEL.mid.x, w = SEL.mid.w, y = SEL.castle.y + SEL.castle.h + 12;
-    text(ctx, 'STAR MILESTONE', x, y - 2, 11, '#c3a172', 'left');
+    text(ctx, 'STAR MILESTONE', x + 2, y + 4, 11, '#e2c496', 'left');
 
     const stages = this.curStages();
     const starsGot = stages.reduce((s2, l) => s2 + Player.starsOf(l.name), 0);
     const starsMax = Math.max(1, stages.length * 3);
     const zone = this.zoneIdx;
     const needs = this.milestoneNeeds(stages);
-    text(ctx, '★ ' + starsGot + ' / ' + starsMax, x + w, y - 2, 11, '#d9b98a', 'right');
+    text(ctx, '★ ' + starsGot + ' / ' + starsMax, x + w - 2, y + 4, 11, '#e2c496', 'right');
     const rewards = [
       { kind: 'coin', n: 800 },
       { kind: 'gem', n: 15 },
@@ -326,17 +341,17 @@ class LevelSelectScene {
       const claimable = reached && !claimed;
       const bg = claimable ? '#2a2110' : (claimed ? '#141d17' : '#25180b');
       const edge = claimable ? '#e8b548' : (claimed ? '#45601c' : '#3e2e16');
-      roundRect(ctx, cx, y + 10, cw, 44, 7, bg, edge, claimable ? 2 : 1);
+      roundRect(ctx, cx, y + 16, cw, 44, 7, bg, edge, claimable ? 2 : 1);
       const img = r.kind === 'coin' ? this.tex.coin : this.tex.gem;
-      if (img) drawIcon(ctx, img, cx + 18, y + 32, 0.38, reached ? 1 : 0.5);
-      text(ctx, need + '★', cx + 40, y + 24, 12, claimable ? '#ffe9a8' : '#d9b98a', 'left');
-      text(ctx, claimed ? '已领' : (claimable ? '可领取' : '+' + r.n), cx + cw - 10, y + 42, 12,
+      if (img) drawIcon(ctx, img, cx + 18, y + 38, 0.38, reached ? 1 : 0.5);
+      text(ctx, need + '★', cx + 40, y + 30, 12, claimable ? '#ffe9a8' : '#d9b98a', 'left');
+      text(ctx, claimed ? '已领' : (claimable ? '可领取' : '+' + r.n), cx + cw - 10, y + 48, 12,
         claimed ? '#9abd42' : (claimable ? '#ffcf5c' : '#b5926a'), 'right');
-      if (claimable) this.hot.push({ x: cx, y: y + 10, w: cw, h: 44, act: 'msClaim', idx: i, zone, need, kind: r.kind, n: r.n });
+      if (claimable) this.hot.push({ x: cx, y: y + 16, w: cw, h: 44, act: 'msClaim', idx: i, zone, need, kind: r.kind, n: r.n });
     });
 
     // 进度条（按本区 30 星）
-    const by = y + 58;
+    const by = y + 66;
     roundRect(ctx, x, by, w, 8, 4, '#452f1a', '#8a5a2a', 1);
 
     roundRect(ctx, x, by, w * Math.min(1, starsGot / starsMax), 8, 4, '#d99a2b');

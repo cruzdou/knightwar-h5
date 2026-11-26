@@ -6,11 +6,11 @@
 const WALL_Y = 940;        // 城墙顶边
 const HERO_X = 360;
 const HERO_FEET = 1012;    // 英雄脚底
-const HERO_H = 145;        // 英雄屏幕上高度
+const HERO_H = 170;        // 英雄屏幕上高度
 const SPAWN_Y = 300;       // 怪物出生（河道下方草地，避免站在水里）
 const STOP_Y = 975;        // 推进到城墙前
-const ENEMY_H_NEAR = 118;  // 到墙时的高度
-const ENEMY_H_FAR = 64;    // 出生时的高度
+const ENEMY_H_NEAR = 132;  // 到墙时的高度
+const ENEMY_H_FAR = 74;    // 出生时的高度
 
 // 盟友（gameAllies.json 的 charID 1~9）对应的原包骨架名
 const ALLY_SKELETONS = {
@@ -179,7 +179,7 @@ class BattleScene {
     // 己方城楼（卡通城堡）：贴底居中，英雄/盟友站它前面
     const ca = skinGet('sk_castle.webp');
     if (ca) {
-      const chh = 320, cww = chh * ca.width / ca.height;
+      const chh = 290, cww = chh * ca.width / ca.height;
       c.drawImage(ca, (W - cww) / 2, H - 96 - chh, cww, chh);
     }
 
@@ -802,7 +802,7 @@ class BattleScene {
         drawIcon(ctx, skIco, sx + ss / 2, sy + ss / 2 - 8, sc);
       }
       if (!ready) text(ctx, String(Math.ceil(sk.t)), sx + ss / 2, sy + ss / 2, 22, '#ffd9a0', 'center', '#20140a');
-      text(ctx, sk.name.length > 10 ? sk.name.slice(0, 10) : sk.name, sx + ss / 2, sy + ss - 10, 10, '#3a2208', 'center');
+      text(ctx, sk.name.length > 10 ? sk.name.slice(0, 10) : sk.name, sx + ss / 2, sy + ss + 12, 11, '#ffe9a8', 'center', '#2a1608');
     });
   }
 
