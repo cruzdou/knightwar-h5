@@ -17,7 +17,7 @@ function loadBgPaths() {
 }
 
 const HERO_X = 360;
-const HERO_FEET = 1060;   // 站在石台面上    // 英雄脚底
+const HERO_FEET = 1060;   // 英雄脚底（城墙走道）
 const HERO_H = 145;        // 英雄屏幕上高度
 const SPAWN_Y = 300;       // 怪物出生（河道下方草地，避免站在水里）
 const STOP_Y = 975;        // 推进到城墙前
@@ -331,7 +331,7 @@ class BattleScene {
     // 上阵盟友（最多 3 名）：站在英雄两侧/后方，自动向最靠墙的敌人射击
     // 数值取自 gameAllies.json 该阶该级的伤害；盟友不吃伤害（简化：不会被打死）
     this.allies = [];
-    const allySlots = [{ x: 120, y: 1088 }, { x: 460, y: 1086 }, { x: 540, y: 1084 }];
+    const allySlots = [{ x: 150, y: 1090 }, { x: 468, y: 1088 }, { x: 540, y: 1086 }];
     (Player.squad || []).slice(0, 3).forEach((id, i) => {
       const info = this.ally_infos && this.ally_infos[id];
       const st = this.g.allyStats ? this.g.allyStats(id) : null;
@@ -731,6 +731,25 @@ class BattleScene {
       e.draw(ctx, this.renderer);
       if (!e.dying) this.drawEnemyHP(e);
     }
+
+    // 人物落地阴影（让英雄/盟友“踩”在城墙上，而不是贴着墙皮）
+    ctx.save();
+    for (const al of (this.allies || [])) {
+      if (!al || !al.info) continue;
+      ctx.globalAlpha = 0.22;
+      ctx.fillStyle = '#1b1206';
+      ctx.beginPath();
+      ctx.ellipse(al.x, al.y + 2, 26, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (this.hero) {
+      ctx.globalAlpha = 0.26;
+      ctx.fillStyle = '#1b1206';
+      ctx.beginPath();
+      ctx.ellipse(HERO_X, HERO_FEET + 3, 34, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
 
     // 盟友画在英雄后面（先画，英雄压在最前）
     if (this.allies) for (const al of this.allies) if (al && al.info) al.draw(ctx, this.renderer);
