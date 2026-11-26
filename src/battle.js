@@ -797,7 +797,10 @@ class BattleScene {
         roundRect(ctx, sx, sy, ss, ss, 10, 'rgba(30,22,12,0.88)', ready ? '#79a24a' : '#3c4a38', 2);
       }
       const skIco = skinGet('sk_booster' + (i + 1) + '.webp') || (this.tex.skillIcons || [])[i];
-      drawIcon(ctx, skIco, sx + ss / 2, sy + ss / 2 - 6, 0.5);
+      if (skIco && skIco.width) {
+        const sc = (ss - 14) / Math.max(skIco.width, skIco.height);
+        drawIcon(ctx, skIco, sx + ss / 2, sy + ss / 2 - 8, sc);
+      }
       if (!ready) text(ctx, String(Math.ceil(sk.t)), sx + ss / 2, sy + ss / 2, 22, '#ffd9a0', 'center', '#20140a');
       text(ctx, sk.name.length > 10 ? sk.name.slice(0, 10) : sk.name, sx + ss / 2, sy + ss - 10, 10, '#3a2208', 'center');
     });

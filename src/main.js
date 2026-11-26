@@ -52,49 +52,39 @@ class Game {
   async boot() {
     // 平台适配：抖音小游戏环境下装存储壳 + 接激励视频 provider
     try { TT.init(); } catch (e) { /* H5 下无副作用 */ }
-    // 读原表里的英雄数值（以存档里选中的英雄为准）
+    // 所有数据表并发拉取：串行 7 张表在公网上要多等 6~8 秒
+    const J = f => fetch('data/' + f).then(r => r.json()).catch(() => null);
+    const [charsD, wD, aD, artD, matD, allyD, castleD] = await Promise.all([
+      J('gameCharacters.json'), J('GameItemsWeapon.json'), J('GameItemsArmor.json'),
+      J('GameItemsArtifact.json'), J('GameItemsMaterial.json'),
+      J('gameAllies.json'), J('gameCastle.json')
+    ]);
+    // 英雄数值（以存档里选中的英雄为准）
     try {
-      const chars = await fetch('data/gameCharacters.json').then(r => r.json());
-      this.chars = chars.listCharacters;
+      this.chars = (charsD && charsD.listCharacters) || [];
       const cur = this.chars.find(c => c.charID === Player.charID) || this.chars[0];
       if (cur) {
         this.heroDamage = cur.damage * (window.CONFIG ? CONFIG.balance.damageMult : 3);
         this.heroAtkRate = cur.atkRate * (window.CONFIG ? CONFIG.balance.fireRateMult : 3);
       }
     } catch (e) { /* 数据缺失时用默认值 */ }
-
-    // 装备/材料四张表 + itemID 索引（换装和战斗加成都要用）
-    const files = {
-      weapon: 'GameItemsWeapon.json', armor: 'GameItemsArmor.json',
-      artifact: 'GameItemsArtifact.json', material: 'GameItemsMaterial.json'
+    // 装备/材料四张表 + itemID 索引
+    this.itemTables = {
+      weapon: (wD && wD.listItemModel) || [], armor: (aD && aD.listItemModel) || [],
+      artifact: (artD && artD.listItemModel) || [], material: (matD && matD.listItemModel) || []
     };
-    this.itemTables = {};
     this.itemByID = {};
-    for (const [k, f] of Object.entries(files)) {
-      try {
-        const d = await fetch('data/' + f).then(r => r.json());
-        this.itemTables[k] = d.listItemModel || [];
-      } catch (e) { this.itemTables[k] = []; }
-      for (const it of this.itemTables[k]) this.itemByID[it.itemID] = it;
+    for (const list of Object.values(this.itemTables)) {
+      for (const it of list) this.itemByID[it.itemID] = it;
     }
+    this.allyList = (allyD && allyD.listCharacters) || [];
+    this.castleData = (castleD && (castleD.listCastle || [])[0]) || null;
 
-    // 盟友表（1~9 号援军，含 8 阶进化与每级成长）
-    try {
-      const d = await fetch('data/gameAllies.json').then(r => r.json());
-      this.allyList = d.listCharacters || [];
-    } catch (e) { this.allyList = []; }
-
-    // 城堡表（gameCastle.json）：城堡页升级与战斗城墙血量共用
-    try {
-      const d = await fetch('data/gameCastle.json').then(r => r.json());
-      this.castleData = (d.listCastle || [])[0] || null;
-    } catch (e) { this.castleData = null; }
-
-    // 宝箱表（TreasureBox.json）：商店 6 个箱子与盟友招募共用
-    try { await Chest.init(this); } catch (e) { /* 表缺失时商店回落为空 */ }
-
-    // 每日系统（签到 / 任务 / 事件）在读表阶段就初始化，选关页才能显示小红点
-    try { await Daily.init(); } catch (e) { /* 表缺失时不影响主流程 */ }
+    // 宝箱表 / 每日系统并行初始化（互不依赖）
+    await Promise.all([
+      Chest.init(this).catch(() => {}),
+      Daily.init().catch(() => {})
+    ]);
 
     // 音频不再阻塞启动：后台并行拉取+解码，就绪前 playSfx 自动跳过
     this.loadAudio().catch(() => {});

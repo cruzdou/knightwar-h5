@@ -385,7 +385,7 @@ function text(ctx, str, x, y, size, color, align, stroke) {
 }
 
 function drawIcon(ctx, img, cx, cy, scale, alpha) {
-  if (!img || !img.naturalWidth) return;
+  if (!img || !img.width) return;
   ctx.save();
   if (alpha !== undefined) ctx.globalAlpha = alpha;
   const w = img.width * scale, h = img.height * scale;
